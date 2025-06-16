@@ -5,7 +5,6 @@ export default function Home() {
   return (
     <FormProvider>
       <Assessment />
-      <h1>Tes</h1>
     </FormProvider>
   );
 }
