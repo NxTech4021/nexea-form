@@ -17,7 +17,7 @@ export function ProgressBar() {
           {Math.round(progressPercentage)}% Complete
         </span>
       </div>
-      <Progress value={progressPercentage} className="h-2 bg-muted" />
+      <Progress className="h-2 bg-muted" value={progressPercentage} />
     </div>
   )
 } 

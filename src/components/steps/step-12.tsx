@@ -1,10 +1,14 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { AlertCircle } from "lucide-react"
+import Image from "next/image"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { useState } from "react"
 
+import { FormNavigation } from "@/components/form-navigation"
+import { QuestionSidebar } from "@/components/question-sidebar"
 import {
   Form,
   FormControl,
@@ -13,24 +17,20 @@ import {
   FormLabel,
 } from "@/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { FormNavigation } from "@/components/form-navigation"
 import { useFormContext } from "@/contexts/form-context"
 import { cn } from "@/lib/utils"
-import { AlertCircle } from "lucide-react"
-import { QuestionSidebar } from "@/components/question-sidebar"
-import Image from "next/image"
 
 // Radio Button Question Component
 interface RadioQuestionProps {
-  question: string
-  options: string[]
-  value: string
-  onChange: (value: string) => void
   error?: string
+  onChange: (value: string) => void
+  options: string[]
+  question: string
   questionId: string
+  value: string
 }
 
-function RadioQuestion({ question, options, value, onChange, error, questionId }: RadioQuestionProps) {
+function RadioQuestion({ error, onChange, options, question, questionId, value }: RadioQuestionProps) {
   return (
     <div className={cn(
       "bg-card border rounded-lg p-4 sm:p-6 shadow-sm transition-colors",
@@ -39,16 +39,16 @@ function RadioQuestion({ question, options, value, onChange, error, questionId }
       <div className="space-y-3">
         <h3 className="text-base sm:text-lg font-semibold mb-6">{question}</h3>
         <RadioGroup
-          value={value}
-          onValueChange={onChange}
           className="space-y-2 pb-2"
+          onValueChange={onChange}
+          value={value}
         >
           {options.map((option, index) => (
-            <FormItem key={index} className="flex items-center space-x-3 space-y-0 px-2">
+            <FormItem className="flex items-center space-x-3 space-y-0 px-2" key={index}>
               <FormControl>
-                <RadioGroupItem value={option} id={`${questionId}-${index}`} className="cursor-pointer" />
+                <RadioGroupItem className="cursor-pointer" id={`${questionId}-${index}`} value={option} />
               </FormControl>
-              <FormLabel htmlFor={`${questionId}-${index}`} className="font-normal cursor-pointer">
+              <FormLabel className="font-normal cursor-pointer" htmlFor={`${questionId}-${index}`}>
                 {option}
               </FormLabel>
             </FormItem>
@@ -66,6 +66,9 @@ function RadioQuestion({ question, options, value, onChange, error, questionId }
 }
 
 const formSchema = z.object({
+  radio100: z.string().optional(),
+  radio101: z.string().optional(),
+  radio102: z.string().optional(),
   radio88: z.string().optional(),
   radio89: z.string().optional(),
   radio90: z.string().optional(),
@@ -78,9 +81,6 @@ const formSchema = z.object({
   radio97: z.string().optional(),
   radio98: z.string().optional(),
   radio99: z.string().optional(),
-  radio100: z.string().optional(),
-  radio101: z.string().optional(),
-  radio102: z.string().optional(),
 })
 
 type FormSchemaType = z.infer<typeof formSchema>
@@ -129,13 +129,15 @@ const questionsData: Question[] = [
  ]
 
 export function Step12() {
-  const { formData, updateFormData, setCurrentStep, markStepCompleted } = useFormContext()
+  const { formData, markStepCompleted, setCurrentStep, updateFormData } = useFormContext()
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   
   const form = useForm<FormSchemaType>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
+      radio100: formData.radio100,
+      radio101: formData.radio101,
+      radio102: formData.radio102,
       radio88: formData.radio88,
       radio89: formData.radio89,
       radio90: formData.radio90,
@@ -148,10 +150,8 @@ export function Step12() {
       radio97: formData.radio97,
       radio98: formData.radio98,
       radio99: formData.radio99,
-      radio100: formData.radio100,
-      radio101: formData.radio101,
-      radio102: formData.radio102,
     },
+    resolver: zodResolver(formSchema),
   })
 
   const validationMessages = {
@@ -191,15 +191,15 @@ export function Step12() {
       const absoluteElementTop = elementRect.top + window.pageYOffset
       const targetPosition = Math.max(0, absoluteElementTop - 120)
       window.scrollTo({
-        top: targetPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
+        top: targetPosition
       })
     }
     setCurrentStep(12)
   }
 
   function onSubmit(values: FormSchemaType) {
-    let firstErrorId: string | null = null;
+    let firstErrorId: null | string = null;
     const newTouchedState: Record<string, boolean> = {};
 
     questionsData.forEach(q => {
@@ -225,7 +225,7 @@ export function Step12() {
 
   return (
     <div className="min-h-screen">
-      <QuestionSidebar titles={questionTitles} onTitleClick={scrollToQuestion} />
+      <QuestionSidebar onTitleClick={scrollToQuestion} titles={questionTitles} />
       <div className="max-w-2xl mx-auto p-4 sm:p-6">
         <div className="space-y-4 sm:space-y-6">
           {/* Persistent Form Title */}
@@ -233,10 +233,10 @@ export function Step12() {
             <div className="text-left space-y-2 sm:space-y-3">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/nexealogo.png"
                   alt="NEXEA Logo"
-                  width={40}
                   height={40}
+                  src="/nexealogo.png"
+                  width={40}
                 />
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
                   Entrepreneurs Behaviour Assessment
@@ -246,7 +246,7 @@ export function Step12() {
           </div>
 
           <Form {...form}>
-            <form onSubmit={() => form.handleSubmit(onSubmit)()} className="space-y-3 sm:space-y-4">
+            <form className="space-y-3 sm:space-y-4" onSubmit={() => form.handleSubmit(onSubmit)()}>
               {questionsData.map((q) => (
                 <div id={`${q.id}-section`} key={q.id}>
                   <FormField
@@ -255,12 +255,12 @@ export function Step12() {
                     render={({ field }) => (
                       <FormItem>
                         <RadioQuestion
-                          question={q.question}
-                          options={radioOptions}
-                          value={field.value as string}
-                          onChange={(newValue) => handleRadioChange(q.id, field.onChange, newValue)}
                           error={errors[q.id]?.[0]}
+                          onChange={(newValue) => handleRadioChange(q.id, field.onChange, newValue)}
+                          options={radioOptions}
+                          question={q.question}
                           questionId={q.id}
+                          value={field.value as string}
                         />
                       </FormItem>
                     )}

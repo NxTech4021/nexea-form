@@ -1,14 +1,15 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+
 import { cn } from "@/lib/utils"
 
 interface QuestionSidebarProps {
-  titles: { id: string; title: string }[]
   onTitleClick: (id: string) => void
+  titles: { id: string; title: string }[]
 }
 
-export function QuestionSidebar({ titles, onTitleClick }: QuestionSidebarProps) {
+export function QuestionSidebar({ onTitleClick, titles }: QuestionSidebarProps) {
   const [activeQuestion, setActiveQuestion] = useState<string>(titles[0]?.id || "")
   const [showTitles, setShowTitles] = useState<boolean>(false)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -63,18 +64,18 @@ export function QuestionSidebar({ titles, onTitleClick }: QuestionSidebarProps) 
       <div className="flex items-center gap-6">
         {/* Line Navigation */}
         <button
-          onClick={() => setShowTitles(!showTitles)}
           className="flex flex-col gap-2 p-3 rounded-lg hover:bg-muted/80 transition-colors group cursor-pointer"
+          onClick={() => setShowTitles(!showTitles)}
         >
           {titles.map((q) => (
             <div
-              key={q.id}
               className={cn(
                 "w-5 h-0.5 transition-colors duration-300",
                 activeQuestion === q.id
                   ? "bg-primary"
                   : "bg-muted-foreground/40 group-hover:bg-muted-foreground/60"
               )}
+              key={q.id}
             />
           ))}
         </button>
@@ -85,17 +86,17 @@ export function QuestionSidebar({ titles, onTitleClick }: QuestionSidebarProps) 
             <div className="space-y-3">
               {titles.map((q) => (
                 <button
-                  key={q.id}
-                  onClick={() => {
-                    onTitleClick(q.id)
-                    setShowTitles(false)
-                  }}
                   className={cn(
                     "block w-full text-left text-sm font-medium transition-colors duration-200 hover:text-primary p-2 rounded-md",
                     activeQuestion === q.id
                       ? "text-primary bg-primary/10"
                       : "text-muted-foreground hover:bg-muted/50"
                   )}
+                  key={q.id}
+                  onClick={() => {
+                    onTitleClick(q.id)
+                    setShowTitles(false)
+                  }}
                 >
                   {q.title}
                 </button>
