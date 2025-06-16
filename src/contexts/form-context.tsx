@@ -69,12 +69,14 @@ export function FormProvider({ children }: FormProviderProps) {
 
   const value: FormContextType = {
     completedSteps,
-    completedSteps,
     currentStep,
     formData,
     isStepCompleted,
     markStepCompleted,
     resetForm,
+    setCurrentStep,
+    totalSteps,
+    updateFormData,
   };
 
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;

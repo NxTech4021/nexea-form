@@ -1,69 +1,88 @@
-"use client"
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { se } from "date-fns/locale"
-import { AlertCircle } from "lucide-react"
-import Image from "next/image"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { zodResolver } from '@hookform/resolvers/zod';
+import { se } from 'date-fns/locale';
+import { AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-import { FormNavigation } from "@/components/form-navigation"
-import { QuestionSidebar } from "@/components/question-sidebar"
+import { FormNavigation } from '@/components/form-navigation';
+import { QuestionSidebar } from '@/components/question-sidebar';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useFormContext } from "@/contexts/form-context"
-import { cn } from "@/lib/utils"
+} from '@/components/ui/form';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useFormContext } from '@/contexts/form-context';
+import { cn } from '@/lib/utils';
 
 // Radio Button Question Component
 interface RadioQuestionProps {
-  error?: string
-  onChange: (value: string) => void
-  options: string[]
-  question: string
-  questionId: string
-  value: string
+  error?: string;
+  onChange: (value: string) => void;
+  options: string[];
+  question: string;
+  questionId: string;
+  value: string;
 }
 
-function RadioQuestion({ error, onChange, options, question, questionId, value }: RadioQuestionProps) {
+function RadioQuestion({
+  error,
+  onChange,
+  options,
+  question,
+  questionId,
+  value,
+}: RadioQuestionProps) {
   return (
-    <div className={cn(
-      "bg-card border rounded-lg p-4 sm:p-6 shadow-sm transition-colors",
-      error && "border-red-500 border-1"
-    )}>
-      <div className="space-y-3">
-        <h3 className="text-base sm:text-lg font-semibold mb-6">{question}</h3>
+    <div
+      className={cn(
+        'bg-card border rounded-lg p-4 sm:p-6 shadow-sm transition-colors',
+        error && 'border-red-500 border-1'
+      )}
+    >
+      <div className='space-y-3'>
+        <h3 className='text-base sm:text-lg font-semibold mb-6'>{question}</h3>
         <RadioGroup
-          className="space-y-2 pb-2"
+          className='space-y-2 pb-2'
           onValueChange={onChange}
           value={value}
         >
           {options.map((option, index) => (
-            <FormItem className="flex items-center space-x-3 space-y-0 px-2" key={index}>
+            <FormItem
+              className='flex items-center space-x-3 space-y-0 px-2'
+              key={index}
+            >
               <FormControl>
-                <RadioGroupItem className="cursor-pointer" id={`${questionId}-${index}`} value={option} />
+                <RadioGroupItem
+                  className='cursor-pointer'
+                  id={`${questionId}-${index}`}
+                  value={option}
+                />
               </FormControl>
-              <FormLabel className="font-normal cursor-pointer" htmlFor={`${questionId}-${index}`}>
+              <FormLabel
+                className='font-normal cursor-pointer'
+                htmlFor={`${questionId}-${index}`}
+              >
                 {option}
               </FormLabel>
             </FormItem>
           ))}
         </RadioGroup>
         {error && (
-          <div className="pt-1 flex items-center gap-x-2 text-sm text-red-600">
-            <AlertCircle className="h-4 w-4" />
+          <div className='pt-1 flex items-center gap-x-2 text-sm text-red-600'>
+            <AlertCircle className='h-4 w-4' />
             <span>{error}</span>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 const formSchema = z.object({
@@ -82,29 +101,35 @@ const formSchema = z.object({
   radio115: z.string().optional(),
   radio116: z.string().optional(),
   radio117: z.string().optional(),
-})
+});
 
-type FormSchemaType = z.infer<typeof formSchema>
+type FormSchemaType = z.infer<typeof formSchema>;
 
-const radioOptions = ['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree']
+const radioOptions = [
+  'Strongly Agree',
+  'Agree',
+  'Neutral',
+  'Disagree',
+  'Strongly Disagree',
+];
 
 const questionTitles = [
-    { id: 'radio103', title: 'One Task at a Time' },
-    { id: 'radio104', title: 'Full of Energy' },
-    { id: 'radio105', title: 'One Thing at a Time' },
-    { id: 'radio106', title: 'One Task at a Time' },
-    { id: 'radio107', title: 'Complete One Task' },
-    { id: 'radio108', title: 'Group Success' },
-    { id: 'radio109', title: 'Work Best' },
-    { id: 'radio110', title: 'Take Charge' },
-    { id: 'radio111', title: 'Enjoy Being in Charge' },
-    { id: 'radio112', title: 'Decision Making' },
-    { id: 'radio113', title: 'Dislike Decision Making' },
-    { id: 'radio114', title: 'Sales' },
-    { id: 'radio115', title: 'Selling' },
-    { id: 'radio116', title: 'Bargaining' },
-    { id: 'radio117', title: 'Selling Easy' },
-]
+  { id: 'radio103', title: 'One Task at a Time' },
+  { id: 'radio104', title: 'Full of Energy' },
+  { id: 'radio105', title: 'One Thing at a Time' },
+  { id: 'radio106', title: 'One Task at a Time' },
+  { id: 'radio107', title: 'Complete One Task' },
+  { id: 'radio108', title: 'Group Success' },
+  { id: 'radio109', title: 'Work Best' },
+  { id: 'radio110', title: 'Take Charge' },
+  { id: 'radio111', title: 'Enjoy Being in Charge' },
+  { id: 'radio112', title: 'Decision Making' },
+  { id: 'radio113', title: 'Dislike Decision Making' },
+  { id: 'radio114', title: 'Sales' },
+  { id: 'radio115', title: 'Selling' },
+  { id: 'radio116', title: 'Bargaining' },
+  { id: 'radio117', title: 'Selling Easy' },
+];
 
 type Question = {
   id: keyof FormSchemaType;
@@ -112,28 +137,53 @@ type Question = {
 };
 
 const questionsData: Question[] = [
-  { id: 'radio103', question: 'I believe it is best to complete one task before beginning another' },
+  {
+    id: 'radio103',
+    question:
+      'I believe it is best to complete one task before beginning another',
+  },
   { id: 'radio104', question: 'People describe me as being full of energy' },
-  { id: 'radio105', question: 'I prefer to do one thing at a time'},
-  { id: 'radio106', question: 'When I work by myself I usually work on one task at a time'},
-  { id: 'radio107', question: 'I believe it is best to complete one task before beginning another'},
-  { id: 'radio108', question: 'I put the group\'s success before my own success'},
-  { id: 'radio109', question: 'I work best when I can complete one task before beginning another'},
-  { id: 'radio110', question: 'I take charge in most situations'},
-  { id: 'radio111', question: 'I enjoy being in charge'},
-  { id: 'radio112', question: 'I enjoy taking responsibility for making decisions'},
-  { id: 'radio113', question: 'I dislike having the responsibility for making decisions'},
-  { id: 'radio114', question: 'I enjoy making a sale'},
-  { id: 'radio115', question: 'I like to get involved in selling'},
-  { id: 'radio116', question: 'I have a natural ability for bargaining'},
-  { id: 'radio117', question: 'I find selling easy'},
- ]
+  { id: 'radio105', question: 'I prefer to do one thing at a time' },
+  {
+    id: 'radio106',
+    question: 'When I work by myself I usually work on one task at a time',
+  },
+  {
+    id: 'radio107',
+    question:
+      'I believe it is best to complete one task before beginning another',
+  },
+  {
+    id: 'radio108',
+    question: "I put the group's success before my own success",
+  },
+  {
+    id: 'radio109',
+    question:
+      'I work best when I can complete one task before beginning another',
+  },
+  { id: 'radio110', question: 'I take charge in most situations' },
+  { id: 'radio111', question: 'I enjoy being in charge' },
+  {
+    id: 'radio112',
+    question: 'I enjoy taking responsibility for making decisions',
+  },
+  {
+    id: 'radio113',
+    question: 'I dislike having the responsibility for making decisions',
+  },
+  { id: 'radio114', question: 'I enjoy making a sale' },
+  { id: 'radio115', question: 'I like to get involved in selling' },
+  { id: 'radio116', question: 'I have a natural ability for bargaining' },
+  { id: 'radio117', question: 'I find selling easy' },
+];
 
 export function Step13() {
-  const { formData, markStepCompleted, setCurrentStep, updateFormData } = useFormContext()
+  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+    useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  
+
   const form = useForm<FormSchemaType>({
     defaultValues: {
       radio103: formData.radio103,
@@ -153,11 +203,11 @@ export function Step13() {
       radio117: formData.radio117,
     },
     resolver: zodResolver(formSchema),
-  })
+  });
 
   const validationMessages = {
-    radio_incomplete: "This question requires a response",
-  }
+    radio_incomplete: 'This question requires a response',
+  };
 
   const runValidation = (fieldName: string, value: any, forceTouch = false) => {
     const newErrors: string[] = [];
@@ -168,8 +218,8 @@ export function Step13() {
         newErrors.push(validationMessages.radio_incomplete);
       }
     }
-    
-    setErrors(prev => ({ ...prev, [fieldName]: newErrors }));
+
+    setErrors((prev) => ({ ...prev, [fieldName]: newErrors }));
     return newErrors;
   };
 
@@ -180,30 +230,30 @@ export function Step13() {
   ) => {
     formOnChange(newValue);
     if (!touched[fieldName]) {
-      setTouched(prev => ({ ...prev, [fieldName]: true }));
+      setTouched((prev) => ({ ...prev, [fieldName]: true }));
     }
     runValidation(fieldName, newValue, true);
   };
 
   const scrollToQuestion = (questionId: string) => {
-    const targetElement = document.getElementById(`${questionId}-section`)
+    const targetElement = document.getElementById(`${questionId}-section`);
     if (targetElement) {
-      const elementRect = targetElement.getBoundingClientRect()
-      const absoluteElementTop = elementRect.top + window.pageYOffset
-      const targetPosition = Math.max(0, absoluteElementTop - 120)
+      const elementRect = targetElement.getBoundingClientRect();
+      const absoluteElementTop = elementRect.top + window.pageYOffset;
+      const targetPosition = Math.max(0, absoluteElementTop - 120);
       window.scrollTo({
         behavior: 'smooth',
-        top: targetPosition
-      })
+        top: targetPosition,
+      });
     }
-    setCurrentStep(13)
-  }
+    setCurrentStep(13);
+  };
 
   function onSubmit(values: FormSchemaType) {
     let firstErrorId: null | string = null;
     const newTouchedState: Record<string, boolean> = {};
 
-    questionsData.forEach(q => {
+    questionsData.forEach((q) => {
       newTouchedState[q.id] = true;
       const value = values[q.id];
       const validationErrors = runValidation(q.id, value, true);
@@ -213,33 +263,36 @@ export function Step13() {
     });
 
     setTouched(newTouchedState);
-    
+
     if (firstErrorId) {
       scrollToQuestion(firstErrorId);
       return;
     }
 
-    updateFormData(values)
-    markStepCompleted(13)
-    setCurrentStep(14) // defaults to assessment complete 
+    updateFormData(values);
+    markStepCompleted(13);
+    setCurrentStep(14); // defaults to assessment complete
   }
 
   return (
-    <div className="min-h-screen">
-      <QuestionSidebar onTitleClick={scrollToQuestion} titles={questionTitles} />
-      <div className="max-w-2xl mx-auto p-4 sm:p-6">
-        <div className="space-y-4 sm:space-y-6">
+    <div className='min-h-screen'>
+      <QuestionSidebar
+        onTitleClick={scrollToQuestion}
+        titles={questionTitles}
+      />
+      <div className='max-w-2xl mx-auto p-4 sm:p-6'>
+        <div className='space-y-4 sm:space-y-6'>
           {/* Persistent Form Title */}
-          <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
-            <div className="text-left space-y-2 sm:space-y-3">
-              <div className="flex items-center gap-4">
+          <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
+            <div className='text-left space-y-2 sm:space-y-3'>
+              <div className='flex items-center gap-4'>
                 <Image
-                  alt="NEXEA Logo"
+                  alt='NEXEA Logo'
                   height={40}
-                  src="/nexealogo.png"
+                  src='/nexealogo.png'
                   width={40}
                 />
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
                   Entrepreneurs Behaviour Assessment
                 </h1>
               </div>
@@ -247,7 +300,10 @@ export function Step13() {
           </div>
 
           <Form {...form}>
-            <form className="space-y-3 sm:space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+            <form
+              className='space-y-3 sm:space-y-4'
+              onSubmit={form.handleSubmit(onSubmit)}
+            >
               {questionsData.map((q) => (
                 <div id={`${q.id}-section`} key={q.id}>
                   <FormField
@@ -257,7 +313,9 @@ export function Step13() {
                       <FormItem>
                         <RadioQuestion
                           error={errors[q.id]?.[0]}
-                          onChange={(newValue) => handleRadioChange(q.id, field.onChange, newValue)}
+                          onChange={(newValue) =>
+                            handleRadioChange(q.id, field.onChange, newValue)
+                          }
                           options={radioOptions}
                           question={q.question}
                           questionId={q.id}
@@ -272,12 +330,12 @@ export function Step13() {
           </Form>
 
           {/* Navigation */}
-          <FormNavigation 
-            nextLabel="Submit"
+          <FormNavigation
+            nextLabel='Submit'
             onNext={() => form.handleSubmit(onSubmit)()}
           />
         </div>
       </div>
     </div>
-  )
+  );
 }
