@@ -4,15 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { FormNavigation } from '@/components/form-navigation';
-import { FormNavigation } from '@/components/form-navigation';
 import { MatrixAssessment } from '@/components/matrix-assessment';
-import { MatrixAssessment } from '@/components/matrix-assessment';
-import { QuestionSidebar } from '@/components/question-sidebar';
 import { QuestionSidebar } from '@/components/question-sidebar';
 import { Form, FormField, FormItem } from '@/components/ui/form';
 import { useFormContext } from '@/contexts/form-context';

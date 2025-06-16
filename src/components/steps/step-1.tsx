@@ -21,13 +21,7 @@ import { useFormContext } from "@/contexts/form-context";
 
 const formSchema = z.object({
   company: z.string().min(2, {
-    message: "Company name must be at least 2 characters.",
-  }),
-  company: z.string().min(2, {
     message: "Please enter your company name.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
   }),
   email: z.string().email({
     message: "Please enter a valid email address.",
@@ -160,8 +154,6 @@ export function Step1() {
                             <Input 
                               className="h-10" 
                               placeholder="+60123456789" 
-                              placeholder="+60 123456789"
-                              type="tel"
                               type="tel"
                               {...field}
                             />

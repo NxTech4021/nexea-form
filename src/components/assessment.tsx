@@ -17,6 +17,7 @@ import { Step7 } from "@/components/steps/step-7"
 import { Step8 } from "@/components/steps/step-8"
 import { Step9 } from "@/components/steps/step-9"
 import { Button } from "@/components/ui/button"
+import { useFormContext } from "@/contexts/form-context"
 
 export function Assessment() {
   const { currentStep, resetForm } = useFormContext()

@@ -418,12 +418,7 @@ export function Step6() {
                         {q.type === 'matrix' && q.rows && (
                           <MatrixAssessment
                             columns={columns}
-                            errors={
-                              errors[q.id]?.message
-                                ? [errors[q.id]?.message as string]
-                                : []
-                            }
-                            // errors={errors[q.id]}
+                            errors={errors[q.id] || []}
                             matrixId={q.id}
                             onChange={(newValue) =>
                               handleMatrixChange(q.id, field.onChange, newValue)
