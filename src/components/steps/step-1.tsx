@@ -63,7 +63,7 @@ export function Step1() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="max-w-2xl mx-auto p-4 sm:p-6">
         <div className="space-y-4 sm:space-y-6">
           {/* Header Section - Separate Box */}
@@ -204,7 +204,7 @@ export function Step1() {
 
           {/* Navigation */}
           <FormNavigation 
-            onNext={() => form.handleSubmit(onSubmit)()}
+            // onNext={() => form.handleSubmit(onSubmit)()}
             nextLabel="Start Assessment"
           />
         </div>

@@ -15,9 +15,11 @@ import { Step10 } from "@/components/steps/step-10"
 import { Step11 } from "@/components/steps/step-11"
 import { Step12 } from "@/components/steps/step-12"
 import { Step13 } from "@/components/steps/step-13"
+import Confetti from 'react-confetti'
+import { Button } from "@/components/ui/button"
 
 export function Assessment() {
-  const { currentStep } = useFormContext()
+  const { currentStep, resetForm } = useFormContext()
   const [isVisible, setIsVisible] = useState(true)
   const [displayStep, setDisplayStep] = useState(currentStep)
 
@@ -65,14 +67,18 @@ export function Assessment() {
         return <Step13 />
       default:
         return (
-          <div className="min-h-screen bg-background flex items-center justify-center">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-semibold">Assessment Complete</h2>
-              <p className="text-muted-foreground">
-                Thank you for completing the assessment!
-              </p>
+          <>
+            <Confetti recycle={false} numberOfPieces={500} />
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="text-center space-y-4">
+                <h2 className="text-2xl font-semibold">Assessment Complete</h2>
+                <p className="text-muted-foreground">
+                  Thank you for completing the assessment!
+                </p>
+                <Button onClick={resetForm} className="cursor-pointer">Take Another Test</Button>
+              </div>
             </div>
-          </div>
+          </>
         )
     }
   }

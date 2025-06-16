@@ -23,6 +23,7 @@ interface FormContextType {
   isStepCompleted: (step: number) => boolean
   markStepCompleted: (step: number) => void
   completedSteps: Set<number>
+  resetForm: () => void
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined)
@@ -55,6 +56,17 @@ export function FormProvider({ children }: FormProviderProps) {
     setCompletedSteps(prev => new Set([...prev, step]))
   }
 
+  const resetForm = () => {
+    setFormData({
+      fullName: '',
+      phoneNumber: '',
+      company: '',
+      email: '',
+    })
+    setCurrentStep(1)
+    setCompletedSteps(new Set())
+  }
+
   const value: FormContextType = {
     formData,
     updateFormData,
@@ -64,6 +76,7 @@ export function FormProvider({ children }: FormProviderProps) {
     isStepCompleted,
     markStepCompleted,
     completedSteps,
+    resetForm,
   }
 
   return (

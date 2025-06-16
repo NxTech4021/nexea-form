@@ -9,7 +9,7 @@ export function Step2() {
   const { setCurrentStep } = useFormContext()
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="max-w-2xl mx-auto p-4 sm:p-6">
         <div className="space-y-4 sm:space-y-6">
           <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
