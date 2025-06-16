@@ -14,6 +14,12 @@ import { Form, FormField, FormItem } from '@/components/ui/form';
 import { useFormContext } from '@/contexts/form-context';
 
 const formSchema = z.object({
+  matrix4: z.record(z.string()),
+  matrix5: z.record(z.string()),
+  matrix6: z.record(z.string()),
+  matrix7: z.record(z.string()),
+  matrix8: z.record(z.string()),
+  matrix9: z.record(z.string()),
   matrix10: z.record(z.string()),
   matrix11: z.record(z.string()),
   matrix12: z.record(z.string()),
@@ -23,12 +29,6 @@ const formSchema = z.object({
   matrix16: z.record(z.string()),
   matrix17: z.record(z.string()),
   matrix18: z.record(z.string()),
-  matrix4: z.record(z.string()),
-  matrix5: z.record(z.string()),
-  matrix6: z.record(z.string()),
-  matrix7: z.record(z.string()),
-  matrix8: z.record(z.string()),
-  matrix9: z.record(z.string()),
 });
 
 type MatrixName = keyof z.infer<typeof formSchema>;
@@ -63,6 +63,12 @@ export function Step4() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
+      matrix4: formData.matrix4 || {},
+      matrix5: formData.matrix5 || {},
+      matrix6: formData.matrix6 || {},
+      matrix7: formData.matrix7 || {},
+      matrix8: formData.matrix8 || {},
+      matrix9: formData.matrix9 || {},
       matrix10: formData.matrix10 || {},
       matrix11: formData.matrix11 || {},
       matrix12: formData.matrix12 || {},
@@ -72,12 +78,6 @@ export function Step4() {
       matrix16: formData.matrix16 || {},
       matrix17: formData.matrix17 || {},
       matrix18: formData.matrix18 || {},
-      matrix4: formData.matrix4 || {},
-      matrix5: formData.matrix5 || {},
-      matrix6: formData.matrix6 || {},
-      matrix7: formData.matrix7 || {},
-      matrix8: formData.matrix8 || {},
-      matrix9: formData.matrix9 || {},
     },
     resolver: zodResolver(formSchema),
   });
