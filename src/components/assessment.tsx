@@ -8,6 +8,13 @@ import { Step3 } from "@/components/steps/step-3"
 import { Step4 } from "@/components/steps/step-4"
 import { Step5 } from "@/components/steps/step-5"
 import { Step6 } from "@/components/steps/step-6"
+import { Step7 } from "@/components/steps/step-7"
+import { Step8 } from "@/components/steps/step-8"
+import { Step9 } from "@/components/steps/step-9"
+import { Step10 } from "@/components/steps/step-10"
+import { Step11 } from "@/components/steps/step-11"
+import { Step12 } from "@/components/steps/step-12"
+import { Step13 } from "@/components/steps/step-13"
 
 export function Assessment() {
   const { currentStep } = useFormContext()
@@ -42,6 +49,20 @@ export function Assessment() {
         return <Step5 />
       case 6:
         return <Step6 />
+      case 7:
+        return <Step7 />
+      case 8:
+        return <Step8 />
+      case 9:
+        return <Step9 />
+      case 10:
+        return <Step10 />
+      case 11:
+        return <Step11 />
+      case 12:
+        return <Step12 />
+      case 13:
+        return <Step13 />
       default:
         return (
           <div className="min-h-screen bg-background flex items-center justify-center">

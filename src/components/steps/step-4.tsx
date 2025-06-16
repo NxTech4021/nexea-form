@@ -9,16 +9,12 @@ import {
   FormField,
   FormItem,
 } from "@/components/ui/form"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { FormNavigation } from "@/components/form-navigation"
 import { useFormContext } from "@/contexts/form-context"
-import { cn } from "@/lib/utils"
 import { useState } from "react"
-import { AlertCircle } from "lucide-react"
 import { QuestionSidebar } from "@/components/question-sidebar"
 import { MatrixAssessment } from "@/components/matrix-assessment"
+import Image from "next/image"
 
 const formSchema = z.object({
   matrix4: z.record(z.string()),
@@ -118,7 +114,7 @@ export function Step4() {
         behavior: 'smooth'
       })
     }
-    setCurrentStep(5);
+    setCurrentStep(4);
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -142,6 +138,7 @@ export function Step4() {
     
     updateFormData(values);
     markStepCompleted(4);
+    setCurrentStep(5);
   }
 
   const columns = ["Least Accurate", "Somewhat Accurate", "Quite Accurate", "Most Accurate"]
@@ -207,9 +204,17 @@ export function Step4() {
           {/* Persistent Form Title */}
           <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
             <div className="text-left space-y-2 sm:space-y-3">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Entrepreneurs Behaviour Assessment
-              </h1>
+              <div className="flex items-center gap-4">
+                <Image
+                  src="/nexealogo.png"
+                  alt="NEXEA Logo"
+                  width={40}
+                  height={40}
+                />
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  Entrepreneurs Behaviour Assessment
+                </h1>
+              </div>
             </div>
           </div>
 
@@ -241,8 +246,8 @@ export function Step4() {
 
           {/* Navigation */}
           <FormNavigation 
-            // onNext={() => form.handleSubmit(onSubmit)()}
-            // isNextDisabled={!form.formState.isValid}
+            onNext={() => form.handleSubmit(onSubmit)()}
+            isNextDisabled={!form.formState.isValid}
           />
         </div>
       </div>

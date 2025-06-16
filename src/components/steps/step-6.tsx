@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useState } from "react"
 
 import {
   Form,
@@ -12,14 +13,13 @@ import {
   FormLabel,
 } from "@/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { FormNavigation } from "@/components/form-navigation"
 import { useFormContext } from "@/contexts/form-context"
 import { cn } from "@/lib/utils"
 import { AlertCircle } from "lucide-react"
 import { QuestionSidebar } from "@/components/question-sidebar"
 import { MatrixAssessment } from "@/components/matrix-assessment"
+import Image from "next/image"
 
 // Radio Button Question Component
 interface RadioQuestionProps {
@@ -47,7 +47,7 @@ function RadioQuestion({ question, options, value, onChange, error, questionId }
           {options.map((option, index) => (
             <FormItem key={index} className="flex items-center space-x-3 space-y-0 px-2">
               <FormControl>
-                <RadioGroupItem value={option} id={`${questionId}-${index}`} />
+                <RadioGroupItem value={option} id={`${questionId}-${index}`} className="cursor-pointer" />
               </FormControl>
               <FormLabel htmlFor={`${questionId}-${index}`} className="font-normal cursor-pointer">
                 {option}
@@ -85,21 +85,21 @@ const matrixSchema = z.record(z.string())
   })
 
 const formSchema = z.object({
-  radio1: z.string({ required_error: validationMessages.radio_incomplete }),
-  radio2: z.string({ required_error: validationMessages.radio_incomplete }),
-  radio3: z.string({ required_error: validationMessages.radio_incomplete }),
-  matrix34: matrixSchema,
-  radio4: z.string({ required_error: validationMessages.radio_incomplete }),
-  radio5: z.string({ required_error: validationMessages.radio_incomplete }),
-  radio6: z.string({ required_error: validationMessages.radio_incomplete }),
-  radio7: z.string({ required_error: validationMessages.radio_incomplete }),
-  radio8: z.string({ required_error: validationMessages.radio_incomplete }),
-  matrix35: matrixSchema,
-  radio9: z.string({ required_error: validationMessages.radio_incomplete }),
-  radio10: z.string({ required_error: validationMessages.radio_incomplete }),
-  matrix36: matrixSchema,
-  radio11: z.string({ required_error: validationMessages.radio_incomplete }),
-  radio12: z.string({ required_error: validationMessages.radio_incomplete }),
+  radio1: z.string().optional(),
+  radio2: z.string().optional(),
+  radio3: z.string().optional(),
+  matrix34: z.record(z.string()),
+  radio4: z.string().optional(),
+  radio5: z.string().optional(),
+  radio6: z.string().optional(),
+  radio7: z.string().optional(),
+  radio8: z.string().optional(),
+  matrix35: z.record(z.string()),
+  radio9: z.string().optional(),
+  radio10: z.string().optional(),
+  matrix36: z.record(z.string()),
+  radio11: z.string().optional(),
+  radio12: z.string().optional(),
 })
 
 type FormSchemaType = z.infer<typeof formSchema>
@@ -164,10 +164,11 @@ const questionsData: Question[] = [
 
 export function Step6() {
   const { formData, updateFormData, setCurrentStep, markStepCompleted } = useFormContext()
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
-    mode: 'onTouched',
     defaultValues: {
       radio1: formData.radio1,
       radio2: formData.radio2,
@@ -187,16 +188,60 @@ export function Step6() {
     },
   })
 
-  const { trigger } = form
-  const { errors } = form.formState
+  const validationMessages = {
+    matrix_duplicate: "Please don't select more than one response per column",
+    matrix_incomplete: `This question requires one response per row.`,
+    radio_incomplete: "This question requires a response",
+  }
+
+  const runValidation = (fieldName: string, value: any, isMatrix: boolean, forceTouch = false) => {
+    const newErrors: string[] = [];
+    const isTouched = touched[fieldName] || forceTouch;
+
+    if (isTouched) {
+      if (isMatrix) {
+        const rowCount = 4;
+        if (Object.keys(value).length < rowCount) {
+          newErrors.push(validationMessages.matrix_incomplete);
+        } else {
+          const selectedValues = Object.values(value);
+          if (new Set(selectedValues).size < selectedValues.length) {
+            newErrors.push(validationMessages.matrix_duplicate);
+          }
+        }
+      } else { // isRadio
+        if (!value) {
+          newErrors.push(validationMessages.radio_incomplete);
+        }
+      }
+    }
+    
+    setErrors(prev => ({ ...prev, [fieldName]: newErrors }));
+    return newErrors;
+  };
 
   const handleMatrixChange = (
     fieldName: keyof FormSchemaType,
-    onChange: (value: Record<string, string>) => void,
+    formOnChange: (value: Record<string, string>) => void,
     newValue: Record<string, string>
   ) => {
-    onChange(newValue);
-    trigger(fieldName);
+    formOnChange(newValue);
+    if (!touched[fieldName]) {
+      setTouched(prev => ({ ...prev, [fieldName]: true }));
+    }
+    runValidation(fieldName, newValue, true, true);
+  };
+
+  const handleRadioChange = (
+    fieldName: keyof FormSchemaType,
+    formOnChange: (value: string) => void,
+    newValue: string
+  ) => {
+    formOnChange(newValue);
+    if (!touched[fieldName]) {
+      setTouched(prev => ({ ...prev, [fieldName]: true }));
+    }
+    runValidation(fieldName, newValue, false, true);
   };
 
   const scrollToQuestion = (questionId: string) => {
@@ -210,19 +255,30 @@ export function Step6() {
         behavior: 'smooth'
       })
     }
-  }
-
-  const onInvalid = (errors: any) => {
-    const errorFields = Object.keys(errors)
-    if (errorFields.length > 0) {
-      const firstErrorId = questionsData.find(q => errorFields.includes(q.id))?.id
-      if (firstErrorId) {
-        scrollToQuestion(firstErrorId)
-      }
-    }
+    setCurrentStep(6)
   }
 
   function onSubmit(values: FormSchemaType) {
+    let firstErrorId: string | null = null;
+    const newTouchedState: Record<string, boolean> = {};
+
+    questionsData.forEach(q => {
+      newTouchedState[q.id] = true;
+      const value = values[q.id];
+      const isMatrix = q.type === 'matrix';
+      const validationErrors = runValidation(q.id, value, isMatrix, true);
+      if (validationErrors.length > 0 && !firstErrorId) {
+        firstErrorId = q.id;
+      }
+    });
+
+    setTouched(newTouchedState);
+    
+    if (firstErrorId) {
+      scrollToQuestion(firstErrorId);
+      return;
+    }
+    
     updateFormData(values)
     markStepCompleted(6)
     setCurrentStep(7)
@@ -236,14 +292,22 @@ export function Step6() {
           {/* Persistent Form Title */}
           <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
             <div className="text-left space-y-2 sm:space-y-3">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Entrepreneurs Behaviour Assessment
-              </h1>
+              <div className="flex items-center gap-4">
+                <Image
+                  src="/nexealogo.png"
+                  alt="NEXEA Logo"
+                  width={40}
+                  height={40}
+                />
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  Entrepreneurs Behaviour Assessment
+                </h1>
+              </div>
             </div>
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+            <form onSubmit={() => form.handleSubmit(onSubmit)()} className="space-y-3 sm:space-y-4">
               {questionsData.map((q) => (
                 <div id={`${q.id}-section`} key={q.id}>
                   <FormField
@@ -258,7 +322,7 @@ export function Step6() {
                             columns={columns}
                             value={field.value as Record<string, string>}
                             onChange={(newValue) => handleMatrixChange(q.id, field.onChange, newValue)}
-                            errors={errors[q.id]?.message ? [errors[q.id]?.message as string] : []}
+                            errors={errors[q.id]}
                             matrixId={q.id}
                           />
                         )}
@@ -267,8 +331,8 @@ export function Step6() {
                             question={q.question}
                             options={radioOptions}
                             value={field.value as string}
-                            onChange={field.onChange}
-                            error={errors[q.id]?.message as string | undefined}
+                            onChange={(newValue) => handleRadioChange(q.id, field.onChange, newValue)}
+                            error={errors[q.id]?.[0]}
                             questionId={q.id}
                           />
                         )}
@@ -282,8 +346,7 @@ export function Step6() {
 
           {/* Navigation */}
           <FormNavigation 
-            onNext={form.handleSubmit(onSubmit, onInvalid)}
-            isNextDisabled={!form.formState.isValid}
+            onNext={() => form.handleSubmit(onSubmit)()}
           />
         </div>
       </div>

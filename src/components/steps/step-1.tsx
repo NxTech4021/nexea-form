@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import Image from "next/image"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -21,18 +22,18 @@ import { useFormContext } from "@/contexts/form-context"
 
 const formSchema = z.object({
   fullName: z.string().min(2, {
-    message: "Full name must be at least 2 characters.",
+    message: "Please enter your full name.",
   }),
   phoneNumber: z
     .string()
     .min(10, {
       message: "Phone number must be at least 10 digits.",
     })
-    .regex(/^[+]?[1-9][\d]{0,15}$/, {
+    .regex(/^\+?\d+$/, {
       message: "Please enter a valid phone number.",
     }),
   company: z.string().min(2, {
-    message: "Company name must be at least 2 characters.",
+    message: "Please enter your company name.",
   }),
   email: z.string().email({
     message: "Please enter a valid email address.",
@@ -68,9 +69,17 @@ export function Step1() {
           {/* Header Section - Separate Box */}
           <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
             <div className="text-left space-y-2 sm:space-y-3">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Entrepreneurs Behaviour Assessment
-              </h1>
+              <div className="flex items-center gap-4">
+                <Image
+                  src="/nexealogo.png"
+                  alt="NEXEA Logo"
+                  width={40}
+                  height={40}
+                />
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  Entrepreneurs Behaviour Assessment
+                </h1>
+              </div>
               <div className="space-y-2 text-xs sm:text-sm text-muted-foreground">
                 <p>
                   When answering these questions, think of them in the context of your work environment. 
@@ -132,7 +141,7 @@ export function Step1() {
                           <FormControl>
                             <Input 
                               type="tel" 
-                              placeholder="+60 123456789" 
+                              placeholder="+60123456789" 
                               className="h-10"
                               {...field} 
                             />
@@ -182,7 +191,7 @@ export function Step1() {
                           />
                         </FormControl>
                         <FormDescription className="text-xs text-slate-500">
-                          We'll use this email to contact you.
+                          We'll use this email to send you the result of the assessment.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -196,7 +205,6 @@ export function Step1() {
           {/* Navigation */}
           <FormNavigation 
             onNext={() => form.handleSubmit(onSubmit)()}
-            isNextDisabled={!form.formState.isValid}
             nextLabel="Start Assessment"
           />
         </div>

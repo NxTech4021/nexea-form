@@ -30,6 +30,7 @@ export function FormNavigation({
     } else if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
+    window.scrollTo(0, 0)
   }
 
   const handleNext = () => {
@@ -38,6 +39,7 @@ export function FormNavigation({
     } else if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     }
+    window.scrollTo(0, 0)
   }
 
   return (

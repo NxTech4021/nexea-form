@@ -1,48 +1,12 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import Image from "next/image"
 
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
 import { FormNavigation } from "@/components/form-navigation"
 import { useFormContext } from "@/contexts/form-context"
 
-const formSchema = z.object({
-  workStyle: z.enum(["independent", "collaborative", "mixed"], {
-    required_error: "Please select your preferred work style.",
-  }),
-  decisionMaking: z.enum(["quick", "deliberate", "consultative"], {
-    required_error: "Please select your decision-making approach.",
-  }),
-})
-
 export function Step2() {
-  const { formData, updateFormData, setCurrentStep, markStepCompleted } = useFormContext()
-  
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      workStyle: formData.workStyle || undefined,
-      decisionMaking: formData.decisionMaking || undefined,
-    },
-  })
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    updateFormData(values)
-    markStepCompleted(2)
-    setCurrentStep(3)
-  }
+  const { setCurrentStep } = useFormContext()
 
   return (
     <div className="min-h-screen bg-background">
@@ -50,16 +14,53 @@ export function Step2() {
         <div className="space-y-4 sm:space-y-6">
           <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
             <div className="text-left space-y-2 sm:space-y-3">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Entrepreneurs Behaviour Assessment
-              </h1>
+              <div className="flex items-center gap-4">
+                <Image
+                  src="/nexealogo.png"
+                  alt="NEXEA Logo"
+                  width={40}
+                  height={40}
+                />
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  Entrepreneurs Behaviour Assessment
+                </h1>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Important Instructions
+                </h2>
+              </div>
+
+              <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3.5">
+                <p className="font-medium text-foreground">
+                  You must choose one answer for each column.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  This instruction applies to all questions in the assessment.
+                </p>
+              </div>
+              
+              <div className="flex justify-center">
+                <Image
+                  src="/formexample.png"
+                  alt="Form Example"
+                  width={1039}
+                  height={816}
+                  className="rounded-md shadow-sm"
+                />
+              </div>
             </div>
           </div>
 
           {/* Navigation */}
-          <FormNavigation 
-            // onNext={() => form.handleSubmit(onSubmit)()}
-            // isNextDisabled={!form.formState.isValid}
+          <FormNavigation
+            onPrevious={() => setCurrentStep(1)}
+            onNext={() => setCurrentStep(3)}
           />
         </div>
       </div>
