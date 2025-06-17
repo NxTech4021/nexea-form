@@ -96,11 +96,11 @@ export function Assessment() {
   return (
     <div>
       <div className='fixed bottom-4 right-4 z-50'>
-        {process.env.NODE_ENV === 'development' && (
-          <Button onClick={handleAutofill} size='sm' variant='outline'>
-            Auto-fill Form
-          </Button>
-        )}
+        <Button onClick={handleAutofill} size='sm' variant='outline'>
+          Auto-fill Form
+        </Button>
+        {/* {process.env.NODE_ENV === 'development' && (
+        )} */}
       </div>
       <div
         className={`transition-opacity duration-300 ease-in-out ${
