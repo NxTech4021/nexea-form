@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { se } from 'date-fns/locale';
 import { AlertCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -105,6 +105,8 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
+const radioKeys = Object.keys(formSchema.shape) as (keyof FormSchemaType)[];
+
 const radioOptions = [
   'Strongly Agree',
   'Agree',
@@ -185,23 +187,10 @@ export function Step13() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const form = useForm<FormSchemaType>({
-    defaultValues: {
-      radio103: formData.radio103,
-      radio104: formData.radio104,
-      radio105: formData.radio105,
-      radio106: formData.radio106,
-      radio107: formData.radio107,
-      radio108: formData.radio108,
-      radio109: formData.radio109,
-      radio110: formData.radio110,
-      radio111: formData.radio111,
-      radio112: formData.radio112,
-      radio113: formData.radio113,
-      radio114: formData.radio114,
-      radio115: formData.radio115,
-      radio116: formData.radio116,
-      radio117: formData.radio117,
-    },
+    defaultValues: radioKeys.reduce((acc, key) => {
+      acc[key] = formData.radios?.find((r) => r[key])?.[key] || ''
+      return acc
+    }, {} as FormSchemaType),
     resolver: zodResolver(formSchema),
   });
 
@@ -269,7 +258,9 @@ export function Step13() {
       return;
     }
 
-    updateFormData(values);
+    updateFormData({
+      radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
+    });
     markStepCompleted(13);
     setCurrentStep(14); // defaults to assessment complete
   }

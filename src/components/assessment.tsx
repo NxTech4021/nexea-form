@@ -18,9 +18,10 @@ import { Step8 } from "@/components/steps/step-8"
 import { Step9 } from "@/components/steps/step-9"
 import { Button } from "@/components/ui/button"
 import { useFormContext } from "@/contexts/form-context"
+import { getAutofillData } from '@/lib/autofill'
 
 export function Assessment() {
-  const { currentStep, resetForm } = useFormContext()
+  const { currentStep, resetForm, updateFormData } = useFormContext()
   const [isVisible, setIsVisible] = useState(true)
   const [displayStep, setDisplayStep] = useState(currentStep)
 
@@ -37,6 +38,12 @@ export function Assessment() {
       return () => clearTimeout(timer)
     }
   }, [currentStep, displayStep])
+
+  const handleAutofill = () => {
+    const data = getAutofillData();
+    updateFormData(data);
+    alert('Form has been auto-filled with test data!');
+  }
 
   const renderStep = () => {
     switch (displayStep) {
@@ -85,12 +92,19 @@ export function Assessment() {
   }
 
   return (
-    <div 
-      className={`transition-opacity duration-300 ease-in-out ${
-        isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
-      {renderStep()}
+    <div>
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button onClick={handleAutofill} size="sm" variant="outline">
+            Auto-fill Form
+          </Button>
+        </div>
+      <div
+        className={`transition-opacity duration-300 ease-in-out ${
+          isVisible ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        {renderStep()}
+      </div>
     </div>
   )
 } 

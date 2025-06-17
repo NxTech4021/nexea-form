@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -18,7 +18,7 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useFormContext } from '@/contexts/form-context';
+import { FormData, useFormContext } from '@/contexts/form-context';
 import { cn } from '@/lib/utils';
 
 // Radio Button Question Component
@@ -126,6 +126,23 @@ const formSchema = z.object({
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
+
+const radioKeys = [
+  'radio1',
+  'radio2',
+  'radio3',
+  'radio4',
+  'radio5',
+  'radio6',
+  'radio7',
+  'radio8',
+  'radio9',
+  'radio10',
+  'radio11',
+  'radio12',
+];
+
+const matrixKeys = ['matrix34', 'matrix35', 'matrix36'];
 
 const radioOptions = [
   'Strongly Agree',
@@ -256,21 +273,16 @@ export function Step6() {
 
   const form = useForm<FormSchemaType>({
     defaultValues: {
-      matrix34: formData.matrix34 || {},
-      matrix35: formData.matrix35 || {},
-      matrix36: formData.matrix36 || {},
-      radio1: formData.radio1,
-      radio10: formData.radio10,
-      radio11: formData.radio11,
-      radio12: formData.radio12,
-      radio2: formData.radio2,
-      radio3: formData.radio3,
-      radio4: formData.radio4,
-      radio5: formData.radio5,
-      radio6: formData.radio6,
-      radio7: formData.radio7,
-      radio8: formData.radio8,
-      radio9: formData.radio9,
+      ...radioKeys.reduce((acc, key) => {
+        acc[key as keyof typeof acc] =
+          formData.radios?.find((r) => r[key])?.[key] || '';
+        return acc;
+      }, {} as any),
+      ...matrixKeys.reduce((acc, key) => {
+        acc[key as keyof typeof acc] =
+          formData.matrixes?.find((m) => m[key])?.[key] || {};
+        return acc;
+      }, {} as any),
     },
     mode: 'onTouched',
     resolver: zodResolver(formSchema),
@@ -373,7 +385,17 @@ export function Step6() {
       return;
     }
 
-    updateFormData(values);
+    const radioData = radioKeys.map((key) => ({
+      [key]: values[key as keyof FormSchemaType],
+    }));
+    const matrixData = matrixKeys.map((key) => ({
+      [key]: values[key as keyof FormSchemaType],
+    }));
+
+    updateFormData({
+      matrixes: matrixData as FormData['matrixes'],
+      radios: radioData as FormData['radios'],
+    });
     markStepCompleted(6);
     setCurrentStep(7);
   }
