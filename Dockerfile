@@ -24,7 +24,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
 # Set environment variable (optional)
-ENV NODE_ENV production
+ENV NODE_ENV development
 
 # Expose port
 EXPOSE 3000
