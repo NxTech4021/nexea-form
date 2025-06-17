@@ -112,9 +112,6 @@ const formSchema = z.object({
   matrix35: z.record(z.string()),
   matrix36: z.record(z.string()),
   radio1: z.string().optional(),
-  radio10: z.string().optional(),
-  radio11: z.string().optional(),
-  radio12: z.string().optional(),
   radio2: z.string().optional(),
   radio3: z.string().optional(),
   radio4: z.string().optional(),
@@ -123,6 +120,9 @@ const formSchema = z.object({
   radio7: z.string().optional(),
   radio8: z.string().optional(),
   radio9: z.string().optional(),
+  radio10: z.string().optional(),
+  radio11: z.string().optional(),
+  radio12: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -283,6 +283,7 @@ export function Step6() {
           formData.matrixes?.find((m) => m[key])?.[key] || {};
         return acc;
       }, {} as any),
+
     },
     mode: 'onTouched',
     resolver: zodResolver(formSchema),
