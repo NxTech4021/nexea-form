@@ -339,3 +339,11 @@ export function Step13() {
     </div>
   );
 }
+// ── Mirror Step13’s own questions for Admin/FormContext ──
+export const questionsDataStep13 = questionsData.map(q => ({
+    id:      q.id,
+    step:    13,
+    text:    q.question,
+    type:    'radio' as const,
+    options: radioOptions,
+  }))

@@ -242,6 +242,15 @@ const questionsData: Question[] = [
   { id: 'radio12', question: 'I like planning for the future', type: 'radio' },
 ];
 
+export const questionsDataStep6 = questionsData.map(q => ({
+  id:      q.id,
+  step:    6,
+  text:    q.question,
+  type:    q.type,
+  options: q.rows ? columns : radioOptions,
+  rows:    q.rows,
+}))
+
 type ErrorsMap = {
   [key: string]: {
     message?: string;

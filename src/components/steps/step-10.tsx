@@ -128,6 +128,14 @@ const questionsData: Question[] = [
   { id: 'radio72', question: 'I am not usually aware of how people feel'},
  ]
 
+ export const questionsDataStep10 = questionsData.map(q => ({
+  id:   q.id,
+  step:    10,
+  text: q.question,
+  type: 'radio' as const,
+  options: radioOptions,
+}))
+
 export function Step10() {
   const { formData, markStepCompleted, setCurrentStep, updateFormData } = useFormContext()
   const [errors, setErrors] = useState<Record<string, string[]>>({});

@@ -1,39 +1,39 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import { Toaster } from "@/components/ui/sonner"
 
-import { Geist, Geist_Mono } from "next/font/google";
-
-import { Toaster } from "@/components/ui/sonner";
-
-import "./globals.css";
+import "./globals.css"
+import { FormProvider } from "@/contexts/form-context"
 
 const geistSans = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans",
-});
-
+})
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
-});
+})
 
 export const metadata: Metadata = {
-  description: "TBD",
   title: "Entrepreneurs Behaviour Assessment",
-};
+  description: "TBD",
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50`}
       >
-        {children}
+        <FormProvider>
+          {children}
+        </FormProvider>
         <Toaster />
       </body>
     </html>
-  );
+  )
 }

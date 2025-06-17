@@ -1,19 +1,27 @@
-'use client';
+// src/components/steps/step-4.tsx
+'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle } from 'lucide-react';
-import Image from 'next/image';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod'
+import Image from 'next/image'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-import { FormNavigation } from '@/components/form-navigation';
-import { MatrixAssessment } from '@/components/matrix-assessment';
-import { QuestionSidebar } from '@/components/question-sidebar';
-import { Form, FormField, FormItem } from '@/components/ui/form';
-import { useFormContext } from '@/contexts/form-context';
+import { FormNavigation } from '@/components/form-navigation'
+import { MatrixAssessment } from '@/components/matrix-assessment'
+import { QuestionSidebar } from '@/components/question-sidebar'
+import { Form, FormField, FormItem } from '@/components/ui/form'
+import { useFormContext } from '@/contexts/form-context'
+import { QuestionDefinition } from '@/contexts/form-context'
 
+// ——— 0) Zod schema and MatrixName type ———
 const formSchema = z.object({
+  matrix4:  z.record(z.string()),
+  matrix5:  z.record(z.string()),
+  matrix6:  z.record(z.string()),
+  matrix7:  z.record(z.string()),
+  matrix8:  z.record(z.string()),
+  matrix9:  z.record(z.string()),
   matrix10: z.record(z.string()),
   matrix11: z.record(z.string()),
   matrix12: z.record(z.string()),
@@ -23,478 +31,248 @@ const formSchema = z.object({
   matrix16: z.record(z.string()),
   matrix17: z.record(z.string()),
   matrix18: z.record(z.string()),
-  matrix4: z.record(z.string()),
-  matrix5: z.record(z.string()),
-  matrix6: z.record(z.string()),
-  matrix7: z.record(z.string()),
-  matrix8: z.record(z.string()),
-  matrix9: z.record(z.string()),
-});
+})
+type MatrixName = keyof z.infer<typeof formSchema>
 
-type MatrixName = keyof z.infer<typeof formSchema>;
+// ——— 1) Module-level constants ———
+const columns = [
+  'Least Accurate',
+  'Somewhat Accurate',
+  'Quite Accurate',
+  'Most Accurate',
+]
 
+const matrix4Rows = [
+  'Work and get results',
+  'Work well with others',
+  'Work systematically',
+  'Think creatively',
+];
+const matrix5Rows = [
+  'Well liked',
+  'In control of situations',
+  'Using my creativity',
+  'Making progress and getting things done',
+];
+const matrix6Rows = [
+  'Pleasant and easy to work with',
+  'Focused and organized',
+  'Creative and forward thinking',
+  'Good at getting things done',
+];
+const matrix7Rows = [
+  'I am able to work without interruption',
+  'My new ideas have won acceptance',
+  'I have met all my objectives for the day',
+  'We start from different viewpoints but in the end come out as an aligned team',
+];
+const matrix8Rows = [
+  'Efficient and systematic',
+  'A good judge of character and a mediator',
+  'Creative and progressive',
+  'Motivated by results',
+];
+const matrix9Rows = [
+  'Clean up or organize my paper work',
+  'Get ahead on the day-to-day work',
+  'Develop a new project or explore new opportunities',
+  'Develop better relationships with my colleagues, external partners, clients, prospective clients',
+];
+const matrix10Rows = [
+  'Working hard to get things done',
+  'Aligning colleagues, dealing with conflicts and fostering a team oriented climate',
+  'Ensuring we have the right rules and that they are followed',
+  'My job changes too often to be characterized',
+];
+const matrix11Rows = [
+  'Opportunities to be creative',
+  'Stability and job security',
+  'Demands on the individual to perform',
+  'An environment where teamwork is valued',
+];
+const matrix12Rows = [
+  'Completing my tasks',
+  'Planning and structuring my work day',
+  'Spotting new opportunities',
+  'Listening to others',
+];
+const matrix13Rows = [
+  'Looking for innovative ways to get things done',
+  'Ensuring compliance of decisions made',
+  'Getting results from projects/tasks',
+  'Ensuring acceptance of decisions/solutions by the parties concerned',
+];
+const matrix14Rows = [
+  'A job that is challenging and offers opportunities to be creative',
+  'A job that is stable and offers job security',
+  'A job that is demanding and offers opportunities to perform',
+  'A job that is team-oriented and offers opportunities to work with others',
+];
+const matrix15Rows = [
+  'Inter-departmental teamwork',
+  'Being at the cutting edge of our profession',
+  'Having procedures and systems that work',
+  'Getting things done',
+];
+const matrix16Rows = [
+  'Be with people I like',
+  'Be creative and develop my own ideas',
+  'Concentrate on getting results',
+  'Structure my work',
+];
+const matrix17Rows = [
+  'Rules, regulations and standard operating procedures of our business',
+  'Nuts and bolts of getting the job done',
+  'Future of our industry',
+  'Different individuals in our organization and how to get them to work together',
+];
+const matrix18Rows = [
+  'Systemtically following internal procedures',
+  'Cooperating and collaborating across departmental units',
+  'Getting the day to day work done',
+  "Thinking of new ways to face tomorrow's challenges",
+];
+
+
+const matrixData: { name: MatrixName; question: string; rows: string[] }[] = [
+  { name: 'matrix4',  question: 'What I want others to notice about me is my ability to:', rows: matrix4Rows },
+  { name: 'matrix5',  question: 'I need to feel that I am:',                         rows: matrix5Rows },
+  { name: 'matrix6',  question: 'My closest colleagues think I am:',                 rows: matrix6Rows },
+  { name: 'matrix7',  question: 'A good day for me is when:',                        rows: matrix7Rows },
+  { name: 'matrix8',  question: 'To complement the style of others in the team, the person holding my position should be:', rows: matrix8Rows },
+  { name: 'matrix9',  question: 'If I had some spare time at work, I would like to:', rows: matrix9Rows },
+  { name: 'matrix10', question: 'My job is characterized by:',                       rows: matrix10Rows },
+  { name: 'matrix11', question: 'In considering a new job, what is most important to me is:', rows: matrix11Rows },
+  { name: 'matrix12', question: 'What characterizes me in my day-to-day work as a manager is that I am good at:', rows: matrix12Rows },
+  { name: 'matrix13', question: 'I spend most of my time:',                         rows: matrix13Rows },
+  { name: 'matrix14', question: 'The kind of new job I would like to apply for is characterized by:', rows: matrix14Rows },
+  { name: 'matrix15', question: 'The most important thing for our daily operation is:', rows: matrix15Rows },
+  { name: 'matrix16', question: 'In a perfect world, my job would permit me to:',    rows: matrix16Rows },
+  { name: 'matrix17', question: 'My boss expects me to know the:',                   rows: matrix17Rows },
+  { name: 'matrix18', question: "Our organization's culture is characterized by:",   rows: matrix18Rows },
+]
+
+// ——— 2) Export for Admin/FormContext ———
+export const questionsDataStep4: QuestionDefinition[] = matrixData.map(m => ({
+  id:      m.name,
+  step:    4,
+  text:    m.question,
+  type:    'matrix',
+  options: columns,
+  rows:    m.rows,
+}))
+
+// ——— 3) The Step4 component ———
 export function Step4() {
   const { formData, markStepCompleted, setCurrentStep, updateFormData } =
-    useFormContext();
-  const [matrixErrors, setMatrixErrors] = useState<Record<string, string[]>>(
-    {}
-  );
-  const [touchedMatrices, setTouchedMatrices] = useState<
-    Record<string, boolean>
-  >({});
+    useFormContext()
 
-  const matricesToValidate: MatrixName[] = [
-    'matrix4',
-    'matrix5',
-    'matrix6',
-    'matrix7',
-    'matrix8',
-    'matrix9',
-    'matrix10',
-    'matrix11',
-    'matrix12',
-    'matrix13',
-    'matrix14',
-    'matrix15',
-    'matrix16',
-    'matrix17',
-    'matrix18',
-  ];
+  const [matrixErrors, setMatrixErrors] = useState<Record<string,string[]>>({})
+  const [touched, setTouched]     = useState<Record<string,boolean>>({})
 
   const form = useForm<z.infer<typeof formSchema>>({
-    defaultValues: {
-      matrix10: formData.matrix10 || {},
-      matrix11: formData.matrix11 || {},
-      matrix12: formData.matrix12 || {},
-      matrix13: formData.matrix13 || {},
-      matrix14: formData.matrix14 || {},
-      matrix15: formData.matrix15 || {},
-      matrix16: formData.matrix16 || {},
-      matrix17: formData.matrix17 || {},
-      matrix18: formData.matrix18 || {},
-      matrix4: formData.matrix4 || {},
-      matrix5: formData.matrix5 || {},
-      matrix6: formData.matrix6 || {},
-      matrix7: formData.matrix7 || {},
-      matrix8: formData.matrix8 || {},
-      matrix9: formData.matrix9 || {},
-    },
+    defaultValues: matrixData.reduce((acc, {name}) => {
+      acc[name] = (formData as any)[name] || {}
+      return acc
+    }, {} as any),
     resolver: zodResolver(formSchema),
-  });
+  })
 
   const validationMessages = {
-    duplicate: "Please don't select more than one response per column",
-    incomplete: 'This question requires one response per row',
-  };
-
-  const runValidation = (
-    matrixName: string,
-    matrixValue: Record<string, string>,
-    forceTouch = false
-  ) => {
-    const newErrors: string[] = [];
-    const rowCount = 4;
-    const isTouched = touchedMatrices[matrixName] || forceTouch;
-
-    if (isTouched && Object.keys(matrixValue).length < rowCount) {
-      newErrors.push(validationMessages.incomplete);
-    } else {
-      const selectedValues = Object.values(matrixValue);
-      if (new Set(selectedValues).size < selectedValues.length) {
-        newErrors.push(validationMessages.duplicate);
-      }
-    }
-
-    setMatrixErrors((prev) => ({ ...prev, [matrixName]: newErrors }));
-    return newErrors;
-  };
-
-  const handleMatrixChange = (
-    matrixName: MatrixName,
-    formOnChange: (value: Record<string, string>) => void,
-    newValue: Record<string, string>
-  ) => {
-    formOnChange(newValue);
-    if (!touchedMatrices[matrixName]) {
-      setTouchedMatrices((prev) => ({ ...prev, [matrixName]: true }));
-    }
-    runValidation(matrixName, newValue, true);
-  };
-
-  const scrollToMatrix = (matrixId: string) => {
-    const targetElement = document.getElementById(`${matrixId}-section`);
-    if (targetElement) {
-      const elementRect = targetElement.getBoundingClientRect();
-      const absoluteElementTop = elementRect.top + window.pageYOffset;
-      const targetPosition = Math.max(0, absoluteElementTop - 120);
-      window.scrollTo({
-        behavior: 'smooth',
-        top: targetPosition,
-      });
-    }
-    setCurrentStep(4);
-  };
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    let firstErrorMatrix: null | string = null;
-    const newTouchedState: Record<string, boolean> = {};
-
-    matricesToValidate.forEach((matrixName) => {
-      newTouchedState[matrixName] = true;
-      const errors = runValidation(matrixName, values[matrixName], true);
-      if (errors.length > 0 && !firstErrorMatrix) {
-        firstErrorMatrix = matrixName;
-      }
-    });
-
-    setTouchedMatrices(newTouchedState);
-
-    if (firstErrorMatrix) {
-      scrollToMatrix(firstErrorMatrix);
-      return;
-    }
-
-    updateFormData(values);
-    markStepCompleted(4);
-    setCurrentStep(5);
+    duplicate: "Don't select more than one per column",
+    incomplete:"Requires one response per row",
   }
 
-  const columns = [
-    'Least Accurate',
-    'Somewhat Accurate',
-    'Quite Accurate',
-    'Most Accurate',
-  ];
+  const runValidation = (name: MatrixName, val: Record<string,string>, force=false) => {
+    const errs: string[] = []
+    const isTouched = touched[name] || force
+    if (isTouched && Object.keys(val).length < 4)
+      errs.push(validationMessages.incomplete)
+    else if (new Set(Object.values(val)).size < Object.values(val).length)
+      errs.push(validationMessages.duplicate)
 
-  const matrix4Rows = [
-    'Work and get results',
-    'Work well with others',
-    'Work systematically',
-    'Think creatively',
-  ];
-  const matrix5Rows = [
-    'Well liked',
-    'In control of situations',
-    'Using my creativity',
-    'Making progress and getting things done',
-  ];
-  const matrix6Rows = [
-    'Pleasant and easy to work with',
-    'Focused and organized',
-    'Creative and forward thinking',
-    'Good at getting things done',
-  ];
-  const matrix7Rows = [
-    'I am able to work without interruption',
-    'My new ideas have won acceptance',
-    'I have met all my objectives for the day',
-    'We start from different viewpoints but in the end come out as an aligned team',
-  ];
-  const matrix8Rows = [
-    'Efficient and systematic',
-    'A good judge of character and a mediator',
-    'Creative and progressive',
-    'Motivated by results',
-  ];
-  const matrix9Rows = [
-    'Clean up or organize my paper work',
-    'Get ahead on the day-to-day work',
-    'Develop a new project or explore new opportunities',
-    'Develop better relationships with my colleagues, external partners, clients, prospective clients',
-  ];
-  const matrix10Rows = [
-    'Working hard to get things done',
-    'Aligning colleagues, dealing with conflicts and fostering a team oriented climate',
-    'Ensuring we have the right rules and that they are followed',
-    'My job changes too often to be characterized',
-  ];
-  const matrix11Rows = [
-    'Opportunities to be creative',
-    'Stability and job security',
-    'Demands on the individual to perform',
-    'An environment where teamwork is valued',
-  ];
-  const matrix12Rows = [
-    'Completing my tasks',
-    'Planning and structuring my work day',
-    'Spotting new opportunities',
-    'Listening to others',
-  ];
-  const matrix13Rows = [
-    'Looking for innovative ways to get things done',
-    'Ensuring compliance of decisions made',
-    'Getting results from projects/tasks',
-    'Ensuring acceptance of decisions/solutions by the parties concerned',
-  ];
-  const matrix14Rows = [
-    'A job that is challenging and offers opportunities to be creative',
-    'A job that is stable and offers job security',
-    'A job that is demanding and offers opportunities to perform',
-    'A job that is team-oriented and offers opportunities to work with others',
-  ];
-  const matrix15Rows = [
-    'Inter-departmental teamwork',
-    'Being at the cutting edge of our profession',
-    'Having procedures and systems that work',
-    'Getting things done',
-  ];
-  const matrix16Rows = [
-    'Be with people I like',
-    'Be creative and develop my own ideas',
-    'Concentrate on getting results',
-    'Structure my work',
-  ];
-  const matrix17Rows = [
-    'Rules, regulations and standard operating procedures of our business',
-    'Nuts and bolts of getting the job done',
-    'Future of our industry',
-    'Different individuals in our organization and how to get them to work together',
-  ];
-  const matrix18Rows = [
-    'Systemtically following internal procedures',
-    'Cooperating and collaborating across departmental units',
-    'Getting the day to day work done',
-    "Thinking of new ways to face tomorrow's challenges",
-  ];
+    setMatrixErrors(prev=>({ ...prev, [name]:errs }))
+    return errs
+  }
 
-  const matrixTitles = [
-    {
-      id: 'matrix4',
-      question: 'What I want others to notice about me is my ability to:',
-      shortTitle: 'Abilities',
-      title: 'Abilities',
-    },
-    {
-      id: 'matrix5',
-      question: 'I need to feel that I am:',
-      shortTitle: 'Feeling',
-      title: 'Feeling',
-    },
-    {
-      id: 'matrix6',
-      question: 'My closest colleagues think I am:',
-      shortTitle: 'Colleague Values',
-      title: 'Colleague Values',
-    },
-    {
-      id: 'matrix7',
-      question: 'A good day for me is when:',
-      shortTitle: 'Good Day',
-      title: 'Good Day',
-    },
-    {
-      id: 'matrix8',
-      question:
-        'To complement the style of others in the team, the person holding my position should be:',
-      shortTitle: 'Complement',
-      title: 'Complement',
-    },
-    {
-      id: 'matrix9',
-      question: 'If I had some spare time at work, I would like to:',
-      shortTitle: 'Spare Time',
-      title: 'Spare Time',
-    },
-    {
-      id: 'matrix10',
-      question: 'My job is characterized by:',
-      shortTitle: 'Job Characteristics',
-      title: 'Job Characteristics',
-    },
-    {
-      id: 'matrix11',
-      question: 'In considering a new job, what is most important to me is:',
-      shortTitle: 'New Job',
-      title: 'New Job',
-    },
-    {
-      id: 'matrix12',
-      question:
-        'What characterizes me in my day-to-day work as a manager is that I am good at:',
-      shortTitle: 'Manager',
-      title: 'Manager',
-    },
-    {
-      id: 'matrix13',
-      question: 'I spend most of my time:',
-      shortTitle: 'Time Spent',
-      title: 'Time Spent',
-    },
-    {
-      id: 'matrix14',
-      question:
-        'The kind of new job I would like to apply for is characterized by:',
-      shortTitle: 'New Job Characteristics',
-      title: 'New Job Characteristics',
-    },
-    {
-      id: 'matrix15',
-      question: 'The most important thing for our daily operation is:',
-      shortTitle: 'Daily Operation',
-      title: 'Daily Operation',
-    },
-    {
-      id: 'matrix16',
-      question: 'In a perfect world, my job would permit me to:',
-      shortTitle: 'Perfect World',
-      title: 'Perfect World',
-    },
-    {
-      id: 'matrix17',
-      question: 'My boss expects me to know the:',
-      shortTitle: 'Boss Expectations',
-      title: 'Boss Expectations',
-    },
-    {
-      id: 'matrix18',
-      question: "Our organization's culture is characterized by:",
-      shortTitle: 'Culture',
-      title: 'Culture',
-    },
-  ];
+  const handleChange = (name:MatrixName, onChange:Function, val:Record<string,string>) => {
+    onChange(val)
+    if (!touched[name]) setTouched(prev=>({...prev,[name]:true}))
+    runValidation(name,val,true)
+  }
 
-  const matrixData: { name: MatrixName; question: string; rows: string[] }[] = [
-    {
-      name: 'matrix4',
-      question: 'What I want others to notice about me is my ability to:',
-      rows: matrix4Rows,
-    },
-    {
-      name: 'matrix5',
-      question: 'I need to feel that I am:',
-      rows: matrix5Rows,
-    },
-    {
-      name: 'matrix6',
-      question: 'My closest colleagues think I am:',
-      rows: matrix6Rows,
-    },
-    {
-      name: 'matrix7',
-      question: 'A good day for me is when:',
-      rows: matrix7Rows,
-    },
-    {
-      name: 'matrix8',
-      question:
-        'To complement the style of others in the team, the person holding my position should be:',
-      rows: matrix8Rows,
-    },
-    {
-      name: 'matrix9',
-      question: 'If I had some spare time at work, I would like to:',
-      rows: matrix9Rows,
-    },
-    {
-      name: 'matrix10',
-      question: 'My job is characterized by:',
-      rows: matrix10Rows,
-    },
-    {
-      name: 'matrix11',
-      question: 'In considering a new job, what is most important to me is:',
-      rows: matrix11Rows,
-    },
-    {
-      name: 'matrix12',
-      question:
-        'What characterizes me in my day-to-day work as a manager is that I am good at:',
-      rows: matrix12Rows,
-    },
-    {
-      name: 'matrix13',
-      question: 'I spend most of my time:',
-      rows: matrix13Rows,
-    },
-    {
-      name: 'matrix14',
-      question:
-        'The kind of new job I would like to apply for is characterized by:',
-      rows: matrix14Rows,
-    },
-    {
-      name: 'matrix15',
-      question: 'The most important thing for our daily operation is:',
-      rows: matrix15Rows,
-    },
-    {
-      name: 'matrix16',
-      question: 'In a perfect world, my job would permit me to:',
-      rows: matrix16Rows,
-    },
-    {
-      name: 'matrix17',
-      question: 'My boss expects me to know the:',
-      rows: matrix17Rows,
-    },
-    {
-      name: 'matrix18',
-      question: "Our organization's culture is characterized by:",
-      rows: matrix18Rows,
-    },
-  ];
+  const scrollToSection = (id:string) => {
+    if (id.match(/^matrix\d+$/)) {
+      document.getElementById(`${id}-section`)?.scrollIntoView({behavior:'smooth',block:'start'})
+      setCurrentStep(4)
+    }
+  }
+
+  const onSubmit = (vals: z.infer<typeof formSchema>) => {
+    let firstErr:MatrixName|null = null
+    const newTouched: Record<string,boolean> = {}
+    ;(Object.keys(vals) as MatrixName[]).forEach(name=>{
+      newTouched[name]=true
+      if (!firstErr && runValidation(name, vals[name], true).length) {
+        firstErr = name
+      }
+    })
+    setTouched(newTouched)
+    if (firstErr) return scrollToSection(firstErr)
+    updateFormData(vals)
+    markStepCompleted(4)
+    setCurrentStep(5)
+  }
 
   return (
-    <div className='min-h-screen'>
-      <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
+    <div className="min-h-screen">
+      <QuestionSidebar
+        titles={matrixData.map(m=>({
+          id:m.name,
+          question:m.question,
+          shortTitle:m.name,
+          title:m.question,
+        }))}
+        onTitleClick={scrollToSection}
+      />
 
-      <div className='max-w-2xl mx-auto p-4 sm:p-6'>
-        <div className='space-y-4 sm:space-y-6'>
-          {/* Persistent Form Title */}
-          <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
-            <div className='text-left space-y-2 sm:space-y-3'>
-              <div className='flex items-center gap-4'>
-                <Image
-                  alt='NEXEA Logo'
-                  height={40}
-                  src='/nexealogo.png'
-                  width={40}
-                />
-                <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
-                  Entrepreneurs Behaviour Assessment
-                </h1>
-              </div>
-            </div>
-          </div>
-
-          <Form {...form}>
-            <form
-              className='space-y-3 sm:space-y-4'
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              {matrixData.map(({ name, question, rows }) => (
-                <div id={`${name}-section`} key={name}>
-                  <FormField
-                    control={form.control}
-                    name={name}
-                    render={({ field }) => (
-                      <FormItem>
-                        <MatrixAssessment
-                          columns={columns}
-                          errors={matrixErrors[name]}
-                          matrixId={name}
-                          onChange={(newValue) =>
-                            handleMatrixChange(name, field.onChange, newValue)
-                          }
-                          question={question}
-                          rows={rows}
-                          value={field.value}
-                        />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              ))}
-            </form>
-          </Form>
-
-          {/* Navigation */}
-          <FormNavigation
-            isNextDisabled={!form.formState.isValid}
-            onNext={() => form.handleSubmit(onSubmit)()}
-          />
+      <div className="max-w-2xl mx-auto p-4 space-y-6">
+        <div className="bg-card border rounded-lg p-4 shadow-sm flex items-center gap-4">
+          <Image src="/nexealogo.png" alt="Logo" width={40} height={40}/>
+          <h1 className="text-2xl font-bold">Entrepreneurs Behaviour Assessment</h1>
         </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {matrixData.map(({name,question,rows}) => (
+              <div key={name} id={`${name}-section`}>
+                <FormField
+                  control={form.control}
+                  name={name}
+                  render={({ field }: { field: any }) => (
+                    <FormItem>
+                      <MatrixAssessment
+                        matrixId={name}
+                        columns={columns}
+                        rows={rows}
+                        question={question}
+                        value={field.value}
+                        errors={matrixErrors[name]||[]}
+                        onChange={(val) => handleChange(name, field.onChange, val)}
+                      />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            ))}
+          </form>
+        </Form>
+
+        <FormNavigation
+          isNextDisabled={!form.formState.isValid}
+          onNext={() => form.handleSubmit(onSubmit)()}
+        />
       </div>
     </div>
-  );
+  )
 }
