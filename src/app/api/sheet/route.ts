@@ -3,13 +3,18 @@ import { NextResponse } from 'next/server';
 import path from 'path';
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+
 const keyPath = path.join(process.cwd(), 'eba-credentials.json');
+
 const auth = new google.auth.GoogleAuth({
-  keyFile: keyPath,
+  keyFile: keyPath || '/secrets/eba-credentials.json',
   scopes: SCOPES,
 });
+
 const sheets = google.sheets({ auth, version: 'v4' });
+
 const spreadsheetId = process.env.SPREADSHEET_ID;
+
 const sheetTitle = process.env.SHEET_TITLE;
 
 const values = {
