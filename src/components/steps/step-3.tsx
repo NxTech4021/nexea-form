@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -30,12 +30,27 @@ export function Step3() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      matrix1: formData.matrix1 || {},
-      matrix2: formData.matrix2 || {},
-      matrix3: formData.matrix3 || {},
+      matrix1:
+        formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix2:
+        formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
+      matrix3:
+        formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
     },
     resolver: zodResolver(formSchema),
   });
+
+  // only for autofill
+  useEffect(() => {
+    form.reset({
+      matrix1:
+        formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix2:
+        formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
+      matrix3:
+        formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
+    });
+  }, [formData, form]);
 
   const validationMessages = {
     duplicate: "Please don't select more than one response per column",
@@ -115,7 +130,13 @@ export function Step3() {
       return;
     }
 
-    updateFormData(values);
+    updateFormData({
+      matrixes: [
+        { matrix1: values.matrix1 },
+        { matrix2: values.matrix2 },
+        { matrix3: values.matrix3 },
+      ],
+    });
     markStepCompleted(3);
     setCurrentStep(4);
   }

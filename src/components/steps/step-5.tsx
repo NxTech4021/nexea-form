@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -61,23 +61,14 @@ export function Step5() {
   ];
 
   const form = useForm<z.infer<typeof formSchema>>({
-    defaultValues: {
-      matrix19: formData.matrix19 || {},
-      matrix20: formData.matrix20 || {},
-      matrix21: formData.matrix21 || {},
-      matrix22: formData.matrix22 || {},
-      matrix23: formData.matrix23 || {},
-      matrix24: formData.matrix24 || {},
-      matrix25: formData.matrix25 || {},
-      matrix26: formData.matrix26 || {},
-      matrix27: formData.matrix27 || {},
-      matrix28: formData.matrix28 || {},
-      matrix29: formData.matrix29 || {},
-      matrix30: formData.matrix30 || {},
-      matrix31: formData.matrix31 || {},
-      matrix32: formData.matrix32 || {},
-      matrix33: formData.matrix33 || {},
-    },
+    defaultValues: matricesToValidate.reduce(
+      (acc, matrixName) => {
+        acc[matrixName] =
+          formData.matrixes?.find((m) => m[matrixName])?.[matrixName] || {};
+        return acc;
+      },
+      {} as { [key in MatrixName]: Record<string, string> }
+    ),
     resolver: zodResolver(formSchema),
   });
 
@@ -153,7 +144,11 @@ export function Step5() {
       return;
     }
 
-    updateFormData(values);
+    updateFormData({
+      matrixes: matricesToValidate.map((matrixName) => ({
+        [matrixName]: values[matrixName],
+      })),
+    });
     markStepCompleted(5);
     setCurrentStep(6);
   }

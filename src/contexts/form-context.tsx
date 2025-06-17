@@ -1,17 +1,15 @@
 'use client';
 
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 
 export interface FormData {
-  // Additional steps will be added here as we build them
-  // This allows for easy extension to 13 steps
   [key: string]: any;
   company: string;
   email: string;
-  // Step 1: Contact Information
   fullName: string;
-
   phoneNumber: string;
+  matrixes: { [key: string]: { [key: string]: string } }[];
+  radios: { [key: string]: string }[];
 }
 
 interface FormContextType {
@@ -38,14 +36,55 @@ export function FormProvider({ children }: FormProviderProps) {
     email: '',
     fullName: '',
     phoneNumber: '',
+    matrixes: [],
+    radios: [],
   });
 
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const totalSteps = 13;
 
+  // log form data
+  useEffect(() => {
+    console.log('Form Data:', formData);
+  }, [formData]);
+
   const updateFormData = (stepData: Partial<FormData>) => {
-    setFormData((prev) => ({ ...prev, ...stepData }));
+    setFormData((prev) => {
+      const newState = { ...prev };
+
+      if (stepData.radios) {
+        stepData.radios.forEach((radio) => {
+          const key = Object.keys(radio)[0];
+          const existingIndex = newState.radios.findIndex(
+            (r) => Object.keys(r)[0] === key
+          );
+          if (existingIndex > -1) {
+            newState.radios[existingIndex] = radio;
+          } else {
+            newState.radios.push(radio);
+          }
+        });
+        delete stepData.radios;
+      }
+
+      if (stepData.matrixes) {
+        stepData.matrixes.forEach((matrix) => {
+          const key = Object.keys(matrix)[0];
+          const existingIndex = newState.matrixes.findIndex(
+            (m) => Object.keys(m)[0] === key
+          );
+          if (existingIndex > -1) {
+            newState.matrixes[existingIndex] = matrix;
+          } else {
+            newState.matrixes.push(matrix);
+          }
+        });
+        delete stepData.matrixes;
+      }
+
+      return { ...newState, ...stepData };
+    });
   };
 
   const isStepCompleted = (step: number) => {
@@ -62,6 +101,8 @@ export function FormProvider({ children }: FormProviderProps) {
       email: '',
       fullName: '',
       phoneNumber: '',
+      matrixes: [],
+      radios: [],
     });
     setCurrentStep(1);
     setCompletedSteps(new Set());

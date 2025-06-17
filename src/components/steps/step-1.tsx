@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -52,6 +53,16 @@ export function Step1() {
     },
     resolver: zodResolver(formSchema),
   });
+
+  // only for autofill
+  useEffect(() => {
+    form.reset({
+      company: formData.company || '',
+      email: formData.email || '',
+      fullName: formData.fullName || '',
+      phoneNumber: formData.phoneNumber || '',
+    });
+  }, [formData, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Update the global form context
