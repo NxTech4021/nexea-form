@@ -14,12 +14,6 @@ import { Form, FormField, FormItem } from '@/components/ui/form';
 import { useFormContext } from '@/contexts/form-context';
 
 const formSchema = z.object({
-  matrix4: z.record(z.string()),
-  matrix5: z.record(z.string()),
-  matrix6: z.record(z.string()),
-  matrix7: z.record(z.string()),
-  matrix8: z.record(z.string()),
-  matrix9: z.record(z.string()),
   matrix10: z.record(z.string()),
   matrix11: z.record(z.string()),
   matrix12: z.record(z.string()),
@@ -29,6 +23,12 @@ const formSchema = z.object({
   matrix16: z.record(z.string()),
   matrix17: z.record(z.string()),
   matrix18: z.record(z.string()),
+  matrix4: z.record(z.string()),
+  matrix5: z.record(z.string()),
+  matrix6: z.record(z.string()),
+  matrix7: z.record(z.string()),
+  matrix8: z.record(z.string()),
+  matrix9: z.record(z.string()),
 });
 
 type MatrixName = keyof z.infer<typeof formSchema>;

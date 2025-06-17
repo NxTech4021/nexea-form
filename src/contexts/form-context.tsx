@@ -1,14 +1,14 @@
 'use client';
 
-import React, { createContext, ReactNode, useContext, useState, useEffect } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 export interface FormData {
   [key: string]: any;
   company: string;
   email: string;
   fullName: string;
-  phoneNumber: string;
   matrixes: { [key: string]: { [key: string]: string } }[];
+  phoneNumber: string;
   radios: { [key: string]: string }[];
 }
 
@@ -30,13 +30,20 @@ interface FormProviderProps {
   children: ReactNode;
 }
 
+export const values = {
+  col_0: '',
+  col_1: '',
+  col_2: '',
+  col_3: '',
+};
+
 export function FormProvider({ children }: FormProviderProps) {
   const [formData, setFormData] = useState<FormData>({
     company: '',
     email: '',
     fullName: '',
-    phoneNumber: '',
     matrixes: [],
+    phoneNumber: '',
     radios: [],
   });
 
@@ -100,8 +107,8 @@ export function FormProvider({ children }: FormProviderProps) {
       company: '',
       email: '',
       fullName: '',
-      phoneNumber: '',
       matrixes: [],
+      phoneNumber: '',
       radios: [],
     });
     setCurrentStep(1);

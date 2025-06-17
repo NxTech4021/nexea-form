@@ -20,6 +20,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { useFormContext } from '@/contexts/form-context';
 
+import { Button } from '../ui/button';
+
 const formSchema = z.object({
   company: z.string().min(2, {
     message: 'Please enter your company name.',
@@ -229,6 +231,21 @@ export function Step1() {
               </Form>
             </div>
           </div>
+
+          <Button
+            onClick={async () => {
+              try {
+                await fetch('/api/sheet/', {
+                  body: JSON.stringify({ username: 'Afiq' }),
+                  method: 'POST',
+                });
+              } catch (error) {
+                console.log(error);
+              }
+            }}
+          >
+            DSAD
+          </Button>
 
           {/* Navigation */}
           <FormNavigation

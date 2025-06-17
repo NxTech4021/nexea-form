@@ -263,6 +263,8 @@ export function Step13() {
     });
     markStepCompleted(13);
     setCurrentStep(14); // defaults to assessment complete
+
+    console.log(formData);
   }
 
   return (
