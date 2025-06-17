@@ -7,7 +7,7 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const keyPath = path.join(process.cwd(), 'eba-credentials.json');
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: keyPath || '/secrets/eba-credentials.json',
+  keyFile: process.env.EBA_CREDENTIALS || keyPath,
   scopes: SCOPES,
 });
 
