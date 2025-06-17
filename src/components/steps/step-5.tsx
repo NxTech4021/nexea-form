@@ -151,6 +151,24 @@ const matrixData: { name: MatrixName; question: string; rows: string[] }[] = [
   { name: 'matrix33', question: 'The primary reason that I wait to make an important decision is that I:', rows: matrix33Rows },
 ]
 
+const matrixTitles: { id: MatrixName; question: string; shortTitle: string; title: string }[] = [
+  { id: 'matrix19', question: matrixData[0].question, shortTitle: 'Development Work',    title: 'Development Work' },
+  { id: 'matrix20', question: matrixData[1].question, shortTitle: 'Job Importance',      title: 'Job Importance' },
+  { id: 'matrix21', question: matrixData[2].question, shortTitle: 'Job Abilities',       title: 'Job Abilities' },
+  { id: 'matrix22', question: matrixData[3].question, shortTitle: 'Good Day',            title: 'Good Day' },
+  { id: 'matrix23', question: matrixData[4].question, shortTitle: 'Colleague Values',    title: 'Colleague Values' },
+  { id: 'matrix24', question: matrixData[5].question, shortTitle: 'Tasks',               title: 'Tasks' },
+  { id: 'matrix25', question: matrixData[6].question, shortTitle: 'Quality',             title: 'Quality' },
+  { id: 'matrix26', question: matrixData[7].question, shortTitle: 'Work Performance',    title: 'Work Performance' },
+  { id: 'matrix27', question: matrixData[8].question, shortTitle: 'Thought of as',       title: 'Thought of as' },
+  { id: 'matrix28', question: matrixData[9].question, shortTitle: 'Job Requirements',    title: 'Job Requirements' },
+  { id: 'matrix29', question: matrixData[10].question, shortTitle: 'Job',                title: 'Job' },
+  { id: 'matrix30', question: matrixData[11].question, shortTitle: 'Manager',            title: 'Manager' },
+  { id: 'matrix31', question: matrixData[12].question, shortTitle: 'Motivation',         title: 'Motivation' },
+  { id: 'matrix32', question: matrixData[13].question, shortTitle: 'Boss Expectations',  title: 'Boss Expectations' },
+  { id: 'matrix33', question: matrixData[14].question, shortTitle: 'Culture',            title: 'Culture' },
+]
+
 // ——— 3) Export for FormContext/Admin ———
 export const questionsDataStep5: QuestionDefinition[] = matrixData.map(m => ({
   id:      m.name,
@@ -219,15 +237,10 @@ export function Step5() {
 
   return (
     <div className="min-h-screen">
-      <QuestionSidebar
-        titles={matrixData.map(m=>({
-          id:m.name,
-          question:m.question,
-          shortTitle:m.name,
-          title:m.question,
-        }))}
-        onTitleClick={scrollToSection}
-      />
+       <QuestionSidebar
+   titles={matrixTitles}
+   onTitleClick={scrollToSection}
+/>
 
       <div className="max-w-2xl mx-auto p-4 space-y-6">
         <div className="bg-card border rounded-lg p-4 shadow-sm flex items-center gap-4">
@@ -237,27 +250,34 @@ export function Step5() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {matrixData.map(({name,question,rows}) => (
-              <div key={name} id={`${name}-section`}>
-                <FormField
-                  control={form.control}
-                  name={name}
-                  render={({ field }: { field: any }) => (
-                    <FormItem>
-                      <MatrixAssessment
-                        matrixId={name}
-                        columns={columns}
-                        rows={rows}
-                        question={question}
-                        value={field.value}
-                        errors={matrixErrors[name]||[]}
-                        onChange={(val)=>handleChange(name, field.onChange, val)}
-                      />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            ))}
+          {matrixTitles.map(({ id, question, title }) => {
+   // find the matching rows from your matrixData
+   const rows = matrixData.find(m => m.name === id)!.rows;
+   return (
+     <div key={id} id={`${id}-section`}>
+       {/* ← This is your new section title */}
+       <h2 className="text-xl font-semibold mb-2">{title}</h2>
+
+       <FormField
+         control={form.control}
+         name={id}
+         render={({ field }) => (
+           <FormItem>
+             <MatrixAssessment
+               matrixId={id}
+               columns={columns}
+               rows={rows}
+               question={question}
+               value={field.value}
+               errors={matrixErrors[id] || []}
+               onChange={(val) => handleChange(id, field.onChange, val)}
+             />
+           </FormItem>
+         )}
+       />
+     </div>
+   )
+ })}
           </form>
         </Form>
 

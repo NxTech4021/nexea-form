@@ -224,6 +224,10 @@ export function Step3() {
           >
             {/* Matrix 1 */}
             <div id="matrix1-section">
+              {/* ← ADD THIS TITLE */}
+              <h2 className="text-xl font-semibold mb-2">
+                {matrixTitles[0].title}
+              </h2>
               <FormField
                 control={form.control}
                 name="matrix1"
