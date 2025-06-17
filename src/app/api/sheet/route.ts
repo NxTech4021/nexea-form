@@ -12,7 +12,7 @@ const sheets = google.sheets({ auth, version: 'v4' });
 const spreadsheetId = process.env.SPREADSHEET_ID;
 const sheetTitle = process.env.SHEET_TITLE;
 
-export const values = {
+const values = {
   col_0: 'Least Accurate',
   col_1: 'Somewhat Accurate',
   col_2: 'Quite Accurate',
