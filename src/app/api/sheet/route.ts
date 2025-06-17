@@ -4,19 +4,26 @@ import path from 'path';
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 
-export async function DELETE(request: Request) {}
+const keyPath = path.join(process.cwd(), 'eba-credentials.json');
+
+const auth = new google.auth.GoogleAuth({
+  keyFile: keyPath,
+  scopes: SCOPES,
+});
+
+const sheets = google.sheets({ auth, version: 'v4' });
+
+const spreadsheetId = process.env.SPREADSHEET_ID;
+
+export const values = {
+  col_0: 'Least Accurate',
+  col_1: 'Somewhat Accurate',
+  col_2: 'Quite Accurate',
+  col_3: 'Most Accurate',
+};
 
 export async function GET() {
   try {
-    const keyPath = path.join(process.cwd(), 'eba-credentials.json');
-
-    const auth = new google.auth.GoogleAuth({
-      keyFile: keyPath,
-      scopes: SCOPES,
-    });
-
-    const sheets = google.sheets({ auth, version: 'v4' });
-    const spreadsheetId = process.env.SPREADSHEET_ID;
     // const range = 'Test EBA!A1';
 
     // const response = await sheets.spreadsheets.values.get({
@@ -43,22 +50,54 @@ export async function GET() {
   }
 }
 
-export async function HEAD(request: Request) {}
-
-// If `OPTIONS` is not defined, Next.js will automatically implement `OPTIONS` and set the appropriate Response `Allow` header depending on the other methods defined in the Route Handler.
-export async function OPTIONS(request: Request) {}
-
-export async function PATCH(request: Request) {}
-
 export async function POST(request: Request) {
   const data = await request.json();
 
+  const { company, email, fullName, matrixes, phoneNumber, radios } = data;
+
   try {
+    const cleanedMatrixes = matrixes.map((item: any, index: any) => {
+      const matrix = item[`matrix${index + 1}`];
+
+      // Map each row's column value to the human-readable label
+      const transformed = Object.fromEntries(
+        Object.entries(matrix).map(([rowKey, colKey]) => [
+          rowKey,
+          values[colKey as keyof typeof values],
+        ])
+      );
+
+      return transformed;
+    });
+
+    const flattenedMatrixes = cleanedMatrixes.flatMap((obj: any) =>
+      Object.values(obj)
+    );
+    const flattenedRadios = radios.flatMap((obj: any) => Object.values(obj));
+
+    await sheets.spreadsheets.values.append({
+      range: 'Test EBA!A1',
+      requestBody: {
+        values: [
+          [
+            email,
+            new Date(),
+            fullName,
+            company,
+            phoneNumber,
+            email,
+            ...flattenedMatrixes,
+            ...flattenedRadios,
+          ],
+        ], // ✅ 2D array
+      },
+      spreadsheetId,
+      valueInputOption: 'RAW',
+    });
+
     return NextResponse.json({ message: 'Success' });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: 'Failed' });
   }
 }
-
-export async function PUT(request: Request) {}

@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 export interface FormData {
   [key: string]: any;
@@ -29,13 +35,6 @@ const FormContext = createContext<FormContextType | undefined>(undefined);
 interface FormProviderProps {
   children: ReactNode;
 }
-
-export const values = {
-  col_0: '',
-  col_1: '',
-  col_2: '',
-  col_3: '',
-};
 
 export function FormProvider({ children }: FormProviderProps) {
   const [formData, setFormData] = useState<FormData>({

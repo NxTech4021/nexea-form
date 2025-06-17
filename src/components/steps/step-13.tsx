@@ -188,8 +188,8 @@ export function Step13() {
 
   const form = useForm<FormSchemaType>({
     defaultValues: radioKeys.reduce((acc, key) => {
-      acc[key] = formData.radios?.find((r) => r[key])?.[key] || ''
-      return acc
+      acc[key] = formData.radios?.find((r) => r[key])?.[key] || '';
+      return acc;
     }, {} as FormSchemaType),
     resolver: zodResolver(formSchema),
   });
@@ -238,7 +238,7 @@ export function Step13() {
     setCurrentStep(13);
   };
 
-  function onSubmit(values: FormSchemaType) {
+  async function onSubmit(values: FormSchemaType) {
     let firstErrorId: null | string = null;
     const newTouchedState: Record<string, boolean> = {};
 
@@ -261,10 +261,18 @@ export function Step13() {
     updateFormData({
       radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
     });
+
+    try {
+      await fetch('/api/sheet/', {
+        body: JSON.stringify(formData),
+        method: 'POST',
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
     markStepCompleted(13);
     setCurrentStep(14); // defaults to assessment complete
-
-    console.log(formData);
   }
 
   return (

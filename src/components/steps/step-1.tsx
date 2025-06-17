@@ -232,7 +232,7 @@ export function Step1() {
             </div>
           </div>
 
-          <Button
+          {/* <Button
             onClick={async () => {
               try {
                 await fetch('/api/sheet/', {
@@ -245,7 +245,7 @@ export function Step1() {
             }}
           >
             DSAD
-          </Button>
+          </Button> */}
 
           {/* Navigation */}
           <FormNavigation
