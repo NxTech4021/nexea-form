@@ -3,27 +3,27 @@
 import { useEffect, useState } from 'react';
 import Confetti from 'react-confetti';
 
-import { Step1 } from "@/components/steps/step-1"
-import { Step10 } from "@/components/steps/step-10"
-import { Step11 } from "@/components/steps/step-11"
-import { Step12 } from "@/components/steps/step-12"
-import { Step13 } from "@/components/steps/step-13"
-import { Step2 } from "@/components/steps/step-2"
-import { Step3 } from "@/components/steps/step-3"
-import { Step4 } from "@/components/steps/step-4"
-import { Step5 } from "@/components/steps/step-5"
-import { Step6 } from "@/components/steps/step-6"
-import { Step7 } from "@/components/steps/step-7"
-import { Step8 } from "@/components/steps/step-8"
-import { Step9 } from "@/components/steps/step-9"
-import { Button } from "@/components/ui/button"
-import { useFormContext } from "@/contexts/form-context"
-import { getAutofillData } from '@/lib/autofill'
+import { Step1 } from '@/components/steps/step-1';
+import { Step10 } from '@/components/steps/step-10';
+import { Step11 } from '@/components/steps/step-11';
+import { Step12 } from '@/components/steps/step-12';
+import { Step13 } from '@/components/steps/step-13';
+import { Step2 } from '@/components/steps/step-2';
+import { Step3 } from '@/components/steps/step-3';
+import { Step4 } from '@/components/steps/step-4';
+import { Step5 } from '@/components/steps/step-5';
+import { Step6 } from '@/components/steps/step-6';
+import { Step7 } from '@/components/steps/step-7';
+import { Step8 } from '@/components/steps/step-8';
+import { Step9 } from '@/components/steps/step-9';
+import { Button } from '@/components/ui/button';
+import { useFormContext } from '@/contexts/form-context';
+import { getAutofillData } from '@/lib/autofill';
 
 export function Assessment() {
-  const { currentStep, resetForm, updateFormData } = useFormContext()
-  const [isVisible, setIsVisible] = useState(true)
-  const [displayStep, setDisplayStep] = useState(currentStep)
+  const { currentStep, resetForm, updateFormData } = useFormContext();
+  const [isVisible, setIsVisible] = useState(true);
+  const [displayStep, setDisplayStep] = useState(currentStep);
 
   // Fade out and in the step
   useEffect(() => {
@@ -37,26 +37,26 @@ export function Assessment() {
 
       return () => clearTimeout(timer);
     }
-  }, [currentStep, displayStep])
+  }, [currentStep, displayStep]);
 
   const handleAutofill = () => {
     const data = getAutofillData();
     updateFormData(data);
     alert('Form has been auto-filled with test data!');
-  }
+  };
 
   const renderStep = () => {
     switch (displayStep) {
       case 1:
-        return <Step1 />
+        return <Step1 />;
       case 10:
-        return <Step10 />
+        return <Step10 />;
       case 11:
-        return <Step11 />
+        return <Step11 />;
       case 12:
-        return <Step12 />
+        return <Step12 />;
       case 13:
-        return <Step13 />
+        return <Step13 />;
       case 2:
         return <Step2 />;
       case 3:
@@ -72,7 +72,7 @@ export function Assessment() {
       case 8:
         return <Step8 />;
       case 9:
-        return <Step9 />
+        return <Step9 />;
       default:
         return (
           <>
@@ -95,11 +95,13 @@ export function Assessment() {
 
   return (
     <div>
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button onClick={handleAutofill} size="sm" variant="outline">
+      <div className='fixed bottom-4 right-4 z-50'>
+        {process.env.NODE_ENV === 'development' && (
+          <Button onClick={handleAutofill} size='sm' variant='outline'>
             Auto-fill Form
           </Button>
-        </div>
+        )}
+      </div>
       <div
         className={`transition-opacity duration-300 ease-in-out ${
           isVisible ? 'opacity-100' : 'opacity-0'

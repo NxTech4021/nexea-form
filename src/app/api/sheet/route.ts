@@ -3,17 +3,14 @@ import { NextResponse } from 'next/server';
 import path from 'path';
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-
 const keyPath = path.join(process.cwd(), 'eba-credentials.json');
-
 const auth = new google.auth.GoogleAuth({
   keyFile: keyPath,
   scopes: SCOPES,
 });
-
 const sheets = google.sheets({ auth, version: 'v4' });
-
 const spreadsheetId = process.env.SPREADSHEET_ID;
+const sheetTitle = process.env.SHEET_TITLE;
 
 export const values = {
   col_0: 'Least Accurate',
@@ -76,7 +73,7 @@ export async function POST(request: Request) {
     const flattenedRadios = radios.flatMap((obj: any) => Object.values(obj));
 
     await sheets.spreadsheets.values.append({
-      range: 'Test EBA!A1',
+      range: `${sheetTitle}!A2`,
       requestBody: {
         values: [
           [
@@ -89,7 +86,7 @@ export async function POST(request: Request) {
             ...flattenedMatrixes,
             ...flattenedRadios,
           ],
-        ], // ✅ 2D array
+        ],
       },
       spreadsheetId,
       valueInputOption: 'RAW',
