@@ -159,19 +159,19 @@ const columns = [
 ];
 
 const questionTitles = [
+  { id: 'matrix34', title: 'Meetings' },
+  { id: 'matrix35', title: 'Colleagues Expectations' },
+  { id: 'matrix36', title: 'Change' },
   { id: 'radio1', title: 'Introverted' },
   { id: 'radio2', title: 'Planning' },
   { id: 'radio3', title: 'Awkward' },
-  { id: 'matrix34', title: 'Change' },
   { id: 'radio4', title: 'Inventive' },
   { id: 'radio5', title: 'Group Activities' },
-  { id: 'radio6', title: 'Long Term Plans' },
-  { id: 'radio7', title: 'Detailed Plans' },
+  { id: 'radio6', title: 'Long Term Planning' }, 
+  { id: 'radio7', title: 'Detailed Planning' },
   { id: 'radio8', title: 'Around New People' },
-  { id: 'matrix35', title: 'Meetings' },
   { id: 'radio9', title: 'Spend Time By Myself' },
   { id: 'radio10', title: 'Inventive' },
-  { id: 'matrix36', title: 'Colleagues Expectations' },
   { id: 'radio11', title: 'Planned Activities' },
   { id: 'radio12', title: 'Planning for the Future' },
 ];
@@ -184,6 +184,39 @@ type Question = {
 };
 
 const questionsData: Question[] = [
+  {
+    id: 'matrix34',
+    question: 'For me, meetings are:',
+    rows: [
+      'A chance to listen to other points of view and understand the politics',
+      'A nuisance as they take time away from more important work',
+      'A place to see all of the risks associated with a new endevour',
+      'An opportunity to provide the big ideas and new solutions',
+    ],
+    type: 'matrix',
+  },
+  {
+    id: 'matrix35',
+    question: 'My colleagues expect me to:',
+    rows: [
+      'Work quickly',
+      'Dare to try new ideas or ways of doing things',
+      'Contribute to the maintenance of high quality',
+      'Help sort out conflicts',
+    ],
+    type: 'matrix',
+  },
+  {
+    id: 'matrix36',
+    question: 'Of greatest concern to me when things change is that:',
+    rows: [
+      'There is acceptance by the people involved',
+      "We don't lose sight of the big picture",
+      'Things are done right and in the proper sequence',
+      'Things get done rapidly',
+    ],
+    type: 'matrix',
+  },
   {
     id: 'radio1',
     question: 'I am usually an introverted person',
@@ -199,17 +232,6 @@ const questionsData: Question[] = [
     question: 'I feel awkward when meeting new people',
     type: 'radio',
   },
-  {
-    id: 'matrix34',
-    question: 'Of greatest concern to me when things change is that:',
-    rows: [
-      'There is acceptance by the people involved',
-      "We don't lose sight of the big picture",
-      'Things are done right and in the proper sequence',
-      'Things get done rapidly',
-    ],
-    type: 'matrix',
-  },
   { id: 'radio4', question: 'People describe me as inventive', type: 'radio' },
   { id: 'radio5', question: 'I really enjoy group activities', type: 'radio' },
   { id: 'radio6', question: 'I like to make long term plans', type: 'radio' },
@@ -223,33 +245,12 @@ const questionsData: Question[] = [
     question: 'I feel comfortable around new people',
     type: 'radio',
   },
-  {
-    id: 'matrix35',
-    question: 'For me, meetings are:',
-    rows: [
-      'A chance to listen to other points of view and understand the politics',
-      'A nuisance as they take time away from more important work',
-      'A place to see all of the risks associated with a new endevour',
-      'An opportunity to provide the big ideas and new solutions',
-    ],
-    type: 'matrix',
-  },
+
   { id: 'radio9', question: 'I like to spend time by myself', type: 'radio' },
   {
     id: 'radio10',
     question: 'I find it difficult to be inventive',
     type: 'radio',
-  },
-  {
-    id: 'matrix36',
-    question: 'My colleagues expect me to:',
-    rows: [
-      'Work quickly',
-      'Dare to try new ideas or ways of doing things',
-      'Contribute to the maintenance of high quality',
-      'Help sort out conflicts',
-    ],
-    type: 'matrix',
   },
   {
     id: 'radio11',
