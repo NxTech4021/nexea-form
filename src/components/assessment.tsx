@@ -83,9 +83,9 @@ export function Assessment() {
                 <p className='text-muted-foreground'>
                   Thank you for completing the assessment!
                 </p>
-                <Button className='cursor-pointer' onClick={resetForm}>
+                {/* <Button className='cursor-pointer' onClick={resetForm}>
                   Take Another Test
-                </Button>
+                </Button> */}
               </div>
             </div>
           </>
