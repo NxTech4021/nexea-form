@@ -7,9 +7,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { FormNavigation } from '@/components/form-navigation';
-import { MatrixAssessment } from '@/components/matrix-assessment';
 import { QuestionSidebar } from '@/components/question-sidebar';
-import { Form, FormField, FormItem } from '@/components/ui/form';
+import Question from '@/components/question/question';
+import { Form } from '@/components/ui/form';
 import { useFormContext } from '@/contexts/form-context';
 
 const formSchema = z.object({
@@ -30,12 +30,9 @@ export function Step3() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      matrix1:
-        formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
-      matrix2:
-        formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
-      matrix3:
-        formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
+      matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
+      matrix3: formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
     },
     resolver: zodResolver(formSchema),
   });
@@ -43,12 +40,9 @@ export function Step3() {
   // only for autofill
   useEffect(() => {
     form.reset({
-      matrix1:
-        formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
-      matrix2:
-        formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
-      matrix3:
-        formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
+      matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
+      matrix3: formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
     });
   }, [formData, form]);
 
@@ -148,56 +142,68 @@ export function Step3() {
     'Most Accurate',
   ];
 
-  const matrix1Rows = [
-    'Get them to cooperate and collaborate',
-    'Get the day-by-day work done',
-    'Change things',
-    'Work systematically',
-  ];
+  // const matrix1Rows = [
+  //   'Get them to cooperate and collaborate',
+  //   'Get the day-by-day work done',
+  //   'Change things',
+  //   'Work systematically',
+  // ];
 
-  const matrix2Rows = [
-    'Work hard',
-    'Am accurate',
-    'Understand others',
-    'Am creative',
-  ];
+  // const matrix2Rows = [
+  //   'Work hard',
+  //   'Am accurate',
+  //   'Understand others',
+  //   'Am creative',
+  // ];
 
-  const matrix3Rows = [
-    'Maintain a high standard of quality in everything they do',
-    'Demonstrate a will and ability to put in extra work',
-    'Bring good new ideas',
-    'Work well with others to bring out the best in them',
-  ];
+  // const matrix3Rows = [
+  //   'Maintain a high standard of quality in everything they do',
+  //   'Demonstrate a will and ability to put in extra work',
+  //   'Bring good new ideas',
+  //   'Work well with others to bring out the best in them',
+  // ];
 
   const matrixTitles = [
     {
       id: 'matrix1',
       question: 'What my colleagues value most about me is my ability to:',
+      rows: [
+        'Get them to cooperate and collaborate',
+        'Get the day-by-day work done',
+        'Change things',
+        'Work systematically',
+      ],
       shortTitle: 'Values',
       title: 'Colleague Values',
     },
     {
       id: 'matrix2',
       question: 'I want to be praised because I:',
+      rows: ['Work hard', 'Am accurate', 'Understand others', 'Am creative'],
       shortTitle: 'Praise',
       title: 'Personal Praise',
     },
     {
       id: 'matrix3',
       question: 'Heroes (those we admire) in our organization are those that:',
+      rows: [
+        'Maintain a high standard of quality in everything they do',
+        'Demonstrate a will and ability to put in extra work',
+        'Bring good new ideas',
+        'Work well with others to bring out the best in them',
+      ],
       shortTitle: 'Heroes',
       title: 'Organization Heroes',
     },
   ];
 
   return (
-    <div className='min-h-screen'>
+    <div>
       <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
 
-      <div className='max-w-2xl mx-auto p-4 sm:p-6'>
-        <div className='space-y-4 sm:space-y-6'>
-          {/* Persistent Form Title */}
-          <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
+      <div className='space-y-4 sm:space-y-6'>
+        {/* Persistent Form Title */}
+        {/* <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
             <div className='text-left space-y-2 sm:space-y-3'>
               <div className='flex items-center gap-4'>
                 <Image
@@ -211,15 +217,26 @@ export function Step3() {
                 </h1>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <Form {...form}>
-            <form
-              className='space-y-3 sm:space-y-4'
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              {/* Matrix 1 - Separate Box */}
-              <div id='matrix1-section'>
+        <Form {...form}>
+          <form
+            className='space-y-3 sm:space-y-4'
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            {matrixTitles.map((data) => (
+              <Question
+                columns={columns}
+                data={data}
+                errors={matrixErrors[data.id]}
+                form={form}
+                handleChange={handleMatrixChange}
+                key={data.id}
+              />
+            ))}
+
+            {/* Matrix 1 - Separate Box */}
+            {/* <div id='matrix1-section'>
                 <FormField
                   control={form.control}
                   name='matrix1'
@@ -243,10 +260,10 @@ export function Step3() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
 
-              {/* Matrix 2 */}
-              <div id='matrix2-section'>
+            {/* Matrix 2 */}
+            {/* <div id='matrix2-section'>
                 <FormField
                   control={form.control}
                   name='matrix2'
@@ -270,10 +287,10 @@ export function Step3() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
 
-              {/* Matrix 3 */}
-              <div id='matrix3-section'>
+            {/* Matrix 3 */}
+            {/* <div id='matrix3-section'>
                 <FormField
                   control={form.control}
                   name='matrix3'
@@ -297,16 +314,15 @@ export function Step3() {
                     </FormItem>
                   )}
                 />
-              </div>
-            </form>
-          </Form>
+              </div> */}
+          </form>
+        </Form>
 
-          {/* Navigation */}
-          <FormNavigation
-            isNextDisabled={!form.formState.isValid}
-            onNext={() => form.handleSubmit(onSubmit)()}
-          />
-        </div>
+        {/* Navigation */}
+        <FormNavigation
+          isNextDisabled={!form.formState.isValid}
+          onNext={() => form.handleSubmit(onSubmit)()}
+        />
       </div>
     </div>
   );

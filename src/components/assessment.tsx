@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import Confetti from 'react-confetti';
 
@@ -94,21 +95,60 @@ export function Assessment() {
   };
 
   return (
-    <div>
-      <div className='fixed bottom-4 right-4 z-50'>
-        {process.env.NODE_ENV === 'development' && (
-          <Button onClick={handleAutofill} size='sm' variant='outline'>
-            Auto-fill Form
-          </Button>
-        )}
+    <>
+      <div className='max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6'>
+        <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
+          <div className='text-left space-y-2 sm:space-y-3'>
+            <div className='flex items-center gap-4'>
+              <Image
+                alt='NEXEA Logo'
+                height={40}
+                src='/nexealogo.png'
+                width={40}
+              />
+              <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
+                Entrepreneurs Behaviour Assessment
+              </h1>
+            </div>
+            {displayStep === 1 && (
+              <div className='space-y-2 text-xs sm:text-sm text-muted-foreground'>
+                <p>
+                  When answering these questions, think of them in the context
+                  of your work environment. Please answer more spontaneously
+                  rather than thinking too long on each question.
+                </p>
+                <p>
+                  There is no right or wrong answer in this assessment and there
+                  is no score comparison against other candidates.
+                </p>
+                <p>
+                  We use this assessment to understand your working style and if
+                  it fits with the rest of the team.
+                </p>
+                <p className='font-medium text-foreground'>
+                  This assessment should roughly take 25 minutes
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className='fixed bottom-4 right-4 z-50'>
+          {process.env.NODE_ENV === 'development' && (
+            <Button onClick={handleAutofill} size='sm' variant='outline'>
+              Auto-fill Form
+            </Button>
+          )}
+        </div>
+
+        <div
+          className={`transition-opacity duration-300 ease-in-out ${
+            isVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {renderStep()}
+        </div>
       </div>
-      <div
-        className={`transition-opacity duration-300 ease-in-out ${
-          isVisible ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        {renderStep()}
-      </div>
-    </div>
+    </>
   );
 }

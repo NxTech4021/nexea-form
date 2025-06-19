@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -61,14 +61,11 @@ export function Step5() {
   ];
 
   const form = useForm<z.infer<typeof formSchema>>({
-    defaultValues: matricesToValidate.reduce(
-      (acc, matrixName) => {
-        acc[matrixName] =
-          formData.matrixes?.find((m) => m[matrixName])?.[matrixName] || {};
-        return acc;
-      },
-      {} as { [key in MatrixName]: Record<string, string> }
-    ),
+    defaultValues: matricesToValidate.reduce((acc, matrixName) => {
+      acc[matrixName] =
+        formData.matrixes?.find((m) => m[matrixName])?.[matrixName] || {};
+      return acc;
+    }, {} as { [key in MatrixName]: Record<string, string> }),
     resolver: zodResolver(formSchema),
   });
 
@@ -423,62 +420,43 @@ export function Step5() {
   ];
 
   return (
-    <div className='min-h-screen'>
+    <div>
       <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
 
-      <div className='max-w-2xl mx-auto p-4 sm:p-6'>
-        <div className='space-y-4 sm:space-y-6'>
-          {/* Persistent Form Title */}
-          <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
-            <div className='text-left space-y-2 sm:space-y-3'>
-              <div className='flex items-center gap-4'>
-                <Image
-                  alt='NEXEA Logo'
-                  height={40}
-                  src='/nexealogo.png'
-                  width={40}
+      <div className='space-y-4 sm:space-y-6'>
+        <Form {...form}>
+          <form
+            className='space-y-3 sm:space-y-4'
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            {matrixData.map(({ name, question, rows }) => (
+              <div id={`${name}-section`} key={name}>
+                <FormField
+                  control={form.control}
+                  name={name}
+                  render={({ field }) => (
+                    <FormItem>
+                      <MatrixAssessment
+                        columns={columns}
+                        errors={matrixErrors[name]}
+                        matrixId={name}
+                        onChange={(newValue) =>
+                          handleMatrixChange(name, field.onChange, newValue)
+                        }
+                        question={question}
+                        rows={rows}
+                        value={field.value}
+                      />
+                    </FormItem>
+                  )}
                 />
-                <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
-                  Entrepreneurs Behaviour Assessment
-                </h1>
               </div>
-            </div>
-          </div>
+            ))}
+          </form>
+        </Form>
 
-          <Form {...form}>
-            <form
-              className='space-y-3 sm:space-y-4'
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              {matrixData.map(({ name, question, rows }) => (
-                <div id={`${name}-section`} key={name}>
-                  <FormField
-                    control={form.control}
-                    name={name}
-                    render={({ field }) => (
-                      <FormItem>
-                        <MatrixAssessment
-                          columns={columns}
-                          errors={matrixErrors[name]}
-                          matrixId={name}
-                          onChange={(newValue) =>
-                            handleMatrixChange(name, field.onChange, newValue)
-                          }
-                          question={question}
-                          rows={rows}
-                          value={field.value}
-                        />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              ))}
-            </form>
-          </Form>
-
-          {/* Navigation */}
-          <FormNavigation onNext={() => form.handleSubmit(onSubmit)()} />
-        </div>
+        {/* Navigation */}
+        <FormNavigation onNext={() => form.handleSubmit(onSubmit)()} />
       </div>
     </div>
   );

@@ -1,37 +1,39 @@
-"use client"
+'use client';
 
-import { AlertCircle } from "lucide-react"
+import { AlertCircle } from 'lucide-react';
 
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 // Matrix Assessment Component
 export interface MatrixAssessmentProps {
-  columns: string[]
-  errors?: string[]
-  matrixId: string
-  onChange: (value: Record<string, string>) => void
-  question: string
-  rows: string[]
-  value: Record<string, string>
+  columns: string[];
+  errors?: string[];
+  matrixId: string;
+  onChange: (value: Record<string, string>) => void;
+  question: string;
+  rows: string[];
+  value: Record<string, string>;
 }
 
-export function MatrixAssessment({ 
-  columns, 
-  errors = [], 
-  matrixId, 
-  onChange, 
-  question, 
+export function MatrixAssessment({
+  columns,
+  errors = [],
+  matrixId,
+  onChange,
+  question,
   rows,
-  value 
+  value,
 }: MatrixAssessmentProps) {
   const handleRowChange = (rowIndex: number, columnValue: string) => {
-    const newValue = { ...value }
-    newValue[`row_${rowIndex}`] = columnValue
-    onChange(newValue)
-  }
+    // const combinedRow = `${question} [${rows[rowIndex]}]`;
+    // console.log(combinedRow);
+    const newValue = { ...value };
+    newValue[`row_${rowIndex}`] = columnValue;
+    onChange(newValue);
+  };
 
   // Check if there's a duplicate column error
   const hasDuplicateError = errors.some(error => 
@@ -62,15 +64,22 @@ export function MatrixAssessment({
   const duplicateColumns = getDuplicateColumns()
 
   return (
+
     <div className={cn(
       "bg-card border rounded-lg p-3 sm:p-5 shadow-sm transition-colors relative",
       errors.length > 0 && "border-red-500 border-1"
     )}>
       <div className="space-y-2 sm:space-y-3">
         <div>
-          <h3 className="text-base sm:text-lg font-semibold mb-2" id={`${matrixId}-title`}>{question}</h3>
-          <Separator className="mb-2 sm:mb-3" />
+          <h3
+            className='text-base sm:text-lg font-semibold mb-2'
+            id={`${matrixId}-title`}
+          >
+            {question}
+          </h3>
+          <Separator className='mb-2 sm:mb-3' />
         </div>
+
       
       {/* Wrapper for column headers and matrix grid with seamless overlay */}
       <div className="relative">
@@ -91,6 +100,7 @@ export function MatrixAssessment({
             ))}
           </div>
         </div>
+
         
         {/* Matrix Grid */}
         <div className="space-y-1 sm:space-y-2">
@@ -125,12 +135,14 @@ export function MatrixAssessment({
                           />
                         </Label>
                       </div>
+
                     )
                   })}
                 </RadioGroup>
               </div>
             </div>
           ))}
+
         </div>
         
         {/* Seamless Column Overlay Boxes */}
@@ -155,8 +167,14 @@ export function MatrixAssessment({
           <AlertCircle className="h-4 w-4" />
           <span>{errors[0]}</span>
         </div>
-      )}
+
+        {errors.length > 0 && (
+          <div className='pt-2 flex items-center gap-x-2 text-sm text-red-600'>
+            <AlertCircle className='h-4 w-4' />
+            <span>{errors[0]}</span>
+          </div>
+        )}
       </div>
     </div>
-  )
-} 
+  );
+}
