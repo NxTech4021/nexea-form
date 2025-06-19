@@ -1,109 +1,126 @@
-"use client"
+'use client';
 
-import { AlertCircle } from "lucide-react"
+import { AlertCircle } from 'lucide-react';
 
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 // Matrix Assessment Component
 export interface MatrixAssessmentProps {
-  columns: string[]
-  errors?: string[]
-  matrixId: string
-  onChange: (value: Record<string, string>) => void
-  question: string
-  rows: string[]
-  value: Record<string, string>
+  columns: string[];
+  errors?: string[];
+  matrixId: string;
+  onChange: (value: Record<string, string>) => void;
+  question: string;
+  rows: string[];
+  value: Record<string, string>;
 }
 
-export function MatrixAssessment({ 
-  columns, 
-  errors = [], 
-  matrixId, 
-  onChange, 
-  question, 
+export function MatrixAssessment({
+  columns,
+  errors = [],
+  matrixId,
+  onChange,
+  question,
   rows,
-  value 
+  value,
 }: MatrixAssessmentProps) {
   const handleRowChange = (rowIndex: number, columnValue: string) => {
-    const newValue = { ...value }
-    newValue[`row_${rowIndex}`] = columnValue
-    onChange(newValue)
-  }
+    const newValue = { ...value };
+    newValue[`row_${rowIndex}`] = columnValue;
+    onChange(newValue);
+  };
 
   return (
-    <div className={cn(
-      "bg-card border rounded-lg p-3 sm:p-5 shadow-sm transition-colors",
-      errors.length > 0 && "border-red-500 border-1"
-    )}>
-      <div className="space-y-2 sm:space-y-3">
+    <div
+      className={cn(
+        'bg-card border rounded-lg p-3 sm:p-5 shadow-sm transition-colors',
+        errors.length > 0 && 'border-red-500 border-1'
+      )}
+    >
+      <div className='space-y-2 sm:space-y-3'>
         <div>
-          <h3 className="text-base sm:text-lg font-semibold mb-2" id={`${matrixId}-title`}>{question}</h3>
-          <Separator className="mb-2 sm:mb-3" />
+          <h3
+            className='text-base sm:text-lg font-semibold mb-2'
+            id={`${matrixId}-title`}
+          >
+            {question}
+          </h3>
+          <Separator className='mb-2 sm:mb-3' />
         </div>
-      
-      {/* Column Headers */}
-      <div className="pb-1 sm:pb-2">
-        <div className="grid grid-cols-5 gap-1 sm:gap-2 text-xs sm:text-sm font-semibold text-foreground items-end">
-          <div></div> {/* Empty cell for row labels */}
-          {columns.map((column, index) => (
-            <div className="text-center px-1" key={index}>
-              {column}
+
+        {/* Column Headers */}
+        <div className='pb-1 sm:pb-2'>
+          <div className='grid grid-cols-5 gap-1 sm:gap-2 text-xs sm:text-sm font-semibold text-foreground items-end'>
+            <div></div> {/* Empty cell for row labels */}
+            {columns.map((column, index) => (
+              <div className='text-center px-1' key={index}>
+                {column}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Matrix Grid */}
+        <div className='space-y-1 sm:space-y-2'>
+          {rows.map((row, rowIndex) => (
+            <div
+              className='bg-muted/30 rounded-lg p-2 sm:p-3 border border-muted/50 hover:bg-muted/40 transition-colors'
+              key={rowIndex}
+            >
+              <div className='grid grid-cols-5 gap-1 sm:gap-2 items-center'>
+                <div className='text-xs sm:text-sm font-medium text-foreground pr-1 sm:pr-2'>
+                  {row}
+                </div>
+
+                <RadioGroup
+                  className='contents'
+                  onValueChange={(columnValue) =>
+                    handleRowChange(rowIndex, columnValue)
+                  }
+                  value={value[`row_${rowIndex}`] || ''}
+                >
+                  {columns.map((_column, columnIndex) => {
+                    const columnValue = `col_${columnIndex}`;
+                    const isColumnSelected =
+                      Object.values(value).includes(columnValue);
+                    const isCurrentCellSelected =
+                      value[`row_${rowIndex}`] === columnValue;
+                    const isMuted = isColumnSelected && !isCurrentCellSelected;
+
+                    return (
+                      <div className='flex justify-center' key={columnIndex}>
+                        <Label
+                          className='p-2 rounded-full hover:bg-muted/80 transition-colors cursor-pointer flex items-center justify-center'
+                          htmlFor={`${matrixId}-${rowIndex}-${columnIndex}`}
+                        >
+                          <RadioGroupItem
+                            className={cn(
+                              'w-4 h-4 cursor-pointer',
+                              isMuted && 'opacity-30'
+                            )}
+                            id={`${matrixId}-${rowIndex}-${columnIndex}`}
+                            value={columnValue}
+                          />
+                        </Label>
+                      </div>
+                    );
+                  })}
+                </RadioGroup>
+              </div>
             </div>
           ))}
         </div>
-      </div>
-      
-      {/* Matrix Grid */}
-      <div className="space-y-1 sm:space-y-2">
-        {rows.map((row, rowIndex) => (
-          <div className="bg-muted/30 rounded-lg p-2 sm:p-3 border border-muted/50 hover:bg-muted/40 transition-colors" key={rowIndex}>
-            <div className="grid grid-cols-5 gap-1 sm:gap-2 items-center">
-              <div className="text-xs sm:text-sm font-medium text-foreground pr-1 sm:pr-2">
-                {row}
-              </div>
-              
-              <RadioGroup
-                className="contents"
-                onValueChange={(columnValue) => handleRowChange(rowIndex, columnValue)}
-                value={value[`row_${rowIndex}`] || ""}
-              >
-                {columns.map((_column, columnIndex) => {
-                  const columnValue = `col_${columnIndex}`
-                  const isColumnSelected = Object.values(value).includes(columnValue);
-                  const isCurrentCellSelected = value[`row_${rowIndex}`] === columnValue;
-                  const isMuted = isColumnSelected && !isCurrentCellSelected;
-                  
-                  return (
-                    <div className="flex justify-center" key={columnIndex}>
-                      <Label
-                        className="p-2 rounded-full hover:bg-muted/80 transition-colors cursor-pointer flex items-center justify-center"
-                        htmlFor={`${matrixId}-${rowIndex}-${columnIndex}`}
-                      >
-                        <RadioGroupItem
-                          className={cn("w-4 h-4 cursor-pointer", isMuted && "opacity-30")}
-                          id={`${matrixId}-${rowIndex}-${columnIndex}`}
-                          value={columnValue}
-                        />
-                      </Label>
-                    </div>
-                  )
-                })}
-              </RadioGroup>
-            </div>
+
+        {errors.length > 0 && (
+          <div className='pt-2 flex items-center gap-x-2 text-sm text-red-600'>
+            <AlertCircle className='h-4 w-4' />
+            <span>{errors[0]}</span>
           </div>
-        ))}
-      </div>
-      
-      {errors.length > 0 && (
-        <div className="pt-2 flex items-center gap-x-2 text-sm text-red-600">
-          <AlertCircle className="h-4 w-4" />
-          <span>{errors[0]}</span>
-        </div>
-      )}
+        )}
       </div>
     </div>
-  )
-} 
+  );
+}
