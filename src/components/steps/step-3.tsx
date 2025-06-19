@@ -1,11 +1,11 @@
 // src/components/steps/step-3.tsx
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { FormNavigation } from '@/components/form-navigation'
 import { MatrixAssessment } from '@/components/matrix-assessment'
@@ -108,21 +108,27 @@ export function Step3() {
   // initialize react-hook-form with any saved answers
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      matrix1: formData.matrix1 || {},
-      matrix2: formData.matrix2 || {},
-      matrix3: formData.matrix3 || {},
+      matrix1:
+        formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix2:
+        formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
+      matrix3:
+        formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
     },
     resolver: zodResolver(formSchema),
-  })
+  });
 
-  // reset whenever formData changes (e.g. coming back to this step)
+  // only for autofill
   useEffect(() => {
     form.reset({
-      matrix1: formData.matrix1 || {},
-      matrix2: formData.matrix2 || {},
-      matrix3: formData.matrix3 || {},
-    })
-  }, [formData, form])
+      matrix1:
+        formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix2:
+        formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
+      matrix3:
+        formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
+    });
+  }, [formData, form]);
 
   const validationMessages = {
     duplicate: "Please don't select more than one response per column",
@@ -185,21 +191,72 @@ export function Step3() {
       if (e.length > 0 && !firstError) firstError = name
     })
 
-    setTouchedMatrices(newTouched)
-    if (firstError) {
-      scrollToMatrix(firstError)
-      return
+    setTouchedMatrices(newTouchedState);
+
+    if (firstErrorMatrix) {
+      scrollToMatrix(firstErrorMatrix);
+      return;
     }
 
-    // save flat values back into context
     updateFormData({
-      matrix1: values.matrix1,
-      matrix2: values.matrix2,
-      matrix3: values.matrix3,
-    })
-    markStepCompleted(3)
-    setCurrentStep(4)
+      matrixes: [
+        { matrix1: values.matrix1 },
+        { matrix2: values.matrix2 },
+        { matrix3: values.matrix3 },
+      ],
+    });
+    markStepCompleted(3);
+    setCurrentStep(4);
   }
+
+  const columns = [
+    'Least Accurate',
+    'Somewhat Accurate',
+    'Quite Accurate',
+    'Most Accurate',
+  ];
+
+  const matrix1Rows = [
+    'Get them to cooperate and collaborate',
+    'Get the day-by-day work done',
+    'Change things',
+    'Work systematically',
+  ];
+
+  const matrix2Rows = [
+    'Work hard',
+    'Am accurate',
+    'Understand others',
+    'Am creative',
+  ];
+
+  const matrix3Rows = [
+    'Maintain a high standard of quality in everything they do',
+    'Demonstrate a will and ability to put in extra work',
+    'Bring good new ideas',
+    'Work well with others to bring out the best in them',
+  ];
+
+  const matrixTitles = [
+    {
+      id: 'matrix1',
+      question: 'What my colleagues value most about me is my ability to:',
+      shortTitle: 'Values',
+      title: 'Colleague Values',
+    },
+    {
+      id: 'matrix2',
+      question: 'I want to be praised because I:',
+      shortTitle: 'Praise',
+      title: 'Personal Praise',
+    },
+    {
+      id: 'matrix3',
+      question: 'Heroes (those we admire) in our organization are those that:',
+      shortTitle: 'Heroes',
+      title: 'Organization Heroes',
+    },
+  ];
 
   return (
     <div className="min-h-screen">
