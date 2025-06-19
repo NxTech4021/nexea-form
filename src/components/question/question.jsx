@@ -14,9 +14,10 @@ const Question = ({ data, columns, errors, handleChange, form }) => {
               columns={columns}
               errors={errors}
               matrixId={data.id}
-              onChange={(newValue) =>
-                handleChange(data.id, field.onChange, newValue)
-              }
+              onChange={(newValue) => {
+                console.log(newValue);
+                handleChange(data.id, field.onChange, newValue);
+              }}
               question={data.question}
               rows={data.rows || []}
               value={field.value}

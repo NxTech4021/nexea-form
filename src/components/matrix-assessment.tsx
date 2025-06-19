@@ -28,6 +28,8 @@ export function MatrixAssessment({
   value,
 }: MatrixAssessmentProps) {
   const handleRowChange = (rowIndex: number, columnValue: string) => {
+    // const combinedRow = `${question} [${rows[rowIndex]}]`;
+    // console.log(combinedRow);
     const newValue = { ...value };
     newValue[`row_${rowIndex}`] = columnValue;
     onChange(newValue);

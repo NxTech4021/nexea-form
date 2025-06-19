@@ -95,7 +95,7 @@ export function Assessment() {
   };
 
   return (
-    <div>
+    <>
       <div className='max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6'>
         <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
           <div className='text-left space-y-2 sm:space-y-3'>
@@ -149,6 +149,6 @@ export function Assessment() {
           {renderStep()}
         </div>
       </div>
-    </div>
+    </>
   );
 }
