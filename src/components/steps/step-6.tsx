@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -18,7 +18,7 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useFormContext } from '@/contexts/form-context';
+import { FormData, useFormContext } from '@/contexts/form-context';
 import { cn } from '@/lib/utils';
 
 // Radio Button Question Component
@@ -127,6 +127,23 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
+const radioKeys = [
+  'radio1',
+  'radio2',
+  'radio3',
+  'radio4',
+  'radio5',
+  'radio6',
+  'radio7',
+  'radio8',
+  'radio9',
+  'radio10',
+  'radio11',
+  'radio12',
+];
+
+const matrixKeys = ['matrix34', 'matrix35', 'matrix36'];
+
 const radioOptions = [
   'Strongly Agree',
   'Agree',
@@ -142,19 +159,19 @@ const columns = [
 ];
 
 const questionTitles = [
+  { id: 'matrix34', title: 'Meetings' },
+  { id: 'matrix35', title: 'Colleagues Expectations' },
+  { id: 'matrix36', title: 'Change' },
   { id: 'radio1', title: 'Introverted' },
   { id: 'radio2', title: 'Planning' },
   { id: 'radio3', title: 'Awkward' },
-  { id: 'matrix34', title: 'Change' },
   { id: 'radio4', title: 'Inventive' },
   { id: 'radio5', title: 'Group Activities' },
-  { id: 'radio6', title: 'Long Term Plans' },
-  { id: 'radio7', title: 'Detailed Plans' },
+  { id: 'radio6', title: 'Long Term Planning' }, 
+  { id: 'radio7', title: 'Detailed Planning' },
   { id: 'radio8', title: 'Around New People' },
-  { id: 'matrix35', title: 'Meetings' },
   { id: 'radio9', title: 'Spend Time By Myself' },
   { id: 'radio10', title: 'Inventive' },
-  { id: 'matrix36', title: 'Colleagues Expectations' },
   { id: 'radio11', title: 'Planned Activities' },
   { id: 'radio12', title: 'Planning for the Future' },
 ];
@@ -167,6 +184,39 @@ type Question = {
 };
 
 const questionsData: Question[] = [
+  {
+    id: 'matrix34',
+    question: 'For me, meetings are:',
+    rows: [
+      'A chance to listen to other points of view and understand the politics',
+      'A nuisance as they take time away from more important work',
+      'A place to see all of the risks associated with a new endevour',
+      'An opportunity to provide the big ideas and new solutions',
+    ],
+    type: 'matrix',
+  },
+  {
+    id: 'matrix35',
+    question: 'My colleagues expect me to:',
+    rows: [
+      'Work quickly',
+      'Dare to try new ideas or ways of doing things',
+      'Contribute to the maintenance of high quality',
+      'Help sort out conflicts',
+    ],
+    type: 'matrix',
+  },
+  {
+    id: 'matrix36',
+    question: 'Of greatest concern to me when things change is that:',
+    rows: [
+      'There is acceptance by the people involved',
+      "We don't lose sight of the big picture",
+      'Things are done right and in the proper sequence',
+      'Things get done rapidly',
+    ],
+    type: 'matrix',
+  },
   {
     id: 'radio1',
     question: 'I am usually an introverted person',
@@ -182,17 +232,6 @@ const questionsData: Question[] = [
     question: 'I feel awkward when meeting new people',
     type: 'radio',
   },
-  {
-    id: 'matrix34',
-    question: 'Of greatest concern to me when things change is that:',
-    rows: [
-      'There is acceptance by the people involved',
-      "We don't lose sight of the big picture",
-      'Things are done right and in the proper sequence',
-      'Things get done rapidly',
-    ],
-    type: 'matrix',
-  },
   { id: 'radio4', question: 'People describe me as inventive', type: 'radio' },
   { id: 'radio5', question: 'I really enjoy group activities', type: 'radio' },
   { id: 'radio6', question: 'I like to make long term plans', type: 'radio' },
@@ -206,33 +245,12 @@ const questionsData: Question[] = [
     question: 'I feel comfortable around new people',
     type: 'radio',
   },
-  {
-    id: 'matrix35',
-    question: 'For me, meetings are:',
-    rows: [
-      'A chance to listen to other points of view and understand the politics',
-      'A nuisance as they take time away from more important work',
-      'A place to see all of the risks associated with a new endevour',
-      'An opportunity to provide the big ideas and new solutions',
-    ],
-    type: 'matrix',
-  },
+
   { id: 'radio9', question: 'I like to spend time by myself', type: 'radio' },
   {
     id: 'radio10',
     question: 'I find it difficult to be inventive',
     type: 'radio',
-  },
-  {
-    id: 'matrix36',
-    question: 'My colleagues expect me to:',
-    rows: [
-      'Work quickly',
-      'Dare to try new ideas or ways of doing things',
-      'Contribute to the maintenance of high quality',
-      'Help sort out conflicts',
-    ],
-    type: 'matrix',
   },
   {
     id: 'radio11',
@@ -265,21 +283,17 @@ export function Step6() {
 
   const form = useForm<FormSchemaType>({
     defaultValues: {
-      matrix34: formData.matrix34 || {},
-      matrix35: formData.matrix35 || {},
-      matrix36: formData.matrix36 || {},
-      radio1: formData.radio1,
-      radio10: formData.radio10,
-      radio11: formData.radio11,
-      radio12: formData.radio12,
-      radio2: formData.radio2,
-      radio3: formData.radio3,
-      radio4: formData.radio4,
-      radio5: formData.radio5,
-      radio6: formData.radio6,
-      radio7: formData.radio7,
-      radio8: formData.radio8,
-      radio9: formData.radio9,
+      ...radioKeys.reduce((acc, key) => {
+        acc[key as keyof typeof acc] =
+          formData.radios?.find((r) => r[key])?.[key] || '';
+        return acc;
+      }, {} as any),
+      ...matrixKeys.reduce((acc, key) => {
+        acc[key as keyof typeof acc] =
+          formData.matrixes?.find((m) => m[key])?.[key] || {};
+        return acc;
+      }, {} as any),
+
     },
     mode: 'onTouched',
     resolver: zodResolver(formSchema),
@@ -382,7 +396,17 @@ export function Step6() {
       return;
     }
 
-    updateFormData(values);
+    const radioData = radioKeys.map((key) => ({
+      [key]: values[key as keyof FormSchemaType],
+    }));
+    const matrixData = matrixKeys.map((key) => ({
+      [key]: values[key as keyof FormSchemaType],
+    }));
+
+    updateFormData({
+      matrixes: matrixData as FormData['matrixes'],
+      radios: radioData as FormData['radios'],
+    });
     markStepCompleted(6);
     setCurrentStep(7);
   }

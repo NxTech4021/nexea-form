@@ -2,9 +2,8 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircle } from 'lucide-react'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -13,103 +12,100 @@ import { MatrixAssessment } from '@/components/matrix-assessment'
 import { QuestionSidebar } from '@/components/question-sidebar'
 import { Form, FormField, FormItem } from '@/components/ui/form'
 import { useFormContext } from '@/contexts/form-context'
-import { QuestionDefinition } from '@/contexts/form-context'  // ← import the shared type
+import { QuestionDefinition } from '@/contexts/form-context'
 
-// ——— 1) Move these out of the component ———
-const columns: string[] = [
+//
+// ——— 1) Static definitions ———
+//
+const columns = [
   'Least Accurate',
   'Somewhat Accurate',
   'Quite Accurate',
   'Most Accurate',
 ]
 
-const matrix1Rows: string[] = [
+const matrix1Rows = [
   'Get them to cooperate and collaborate',
   'Get the day-by-day work done',
   'Change things',
   'Work systematically',
 ]
 
-const matrix2Rows: string[] = [
+const matrix2Rows = [
   'Work hard',
   'Am accurate',
   'Understand others',
   'Am creative',
 ]
 
-const matrix3Rows: string[] = [
+const matrix3Rows = [
   'Maintain a high standard of quality in everything they do',
   'Demonstrate a will and ability to put in extra work',
   'Bring good new ideas',
   'Work well with others to bring out the best in them',
 ]
 
-const matrixTitles: {
-  id: 'matrix1' | 'matrix2' | 'matrix3'
-  question: string
-  shortTitle: string
-  title: string
-  rows: string[]
-}[] = [
+const matrixTitles = [
   {
-    id: 'matrix1',
-    question:
-      'What my colleagues value most about me is my ability to:',
+    id: 'matrix1' as const,
+    question: 'What my colleagues value most about me is my ability to:',
     shortTitle: 'Values',
     title: 'Colleague Values',
     rows: matrix1Rows,
   },
   {
-    id: 'matrix2',
+    id: 'matrix2' as const,
     question: 'I want to be praised because I:',
     shortTitle: 'Praise',
     title: 'Personal Praise',
     rows: matrix2Rows,
   },
   {
-    id: 'matrix3',
-    question:
-      'Heroes (those we admire) in our organization are those that:',
+    id: 'matrix3' as const,
+    question: 'Heroes (those we admire) in our organization are those that:',
     shortTitle: 'Heroes',
     title: 'Organization Heroes',
     rows: matrix3Rows,
   },
 ]
 
-// ——— 2) Export for Admin/FormContext at top level ———
+//
+// ——— 2) Export for FormContext / Admin ———
+//
 export const questionsDataStep3: QuestionDefinition[] = matrixTitles.map(
   (m): QuestionDefinition => ({
-    id:      m.id,
-    step:    3,
-    text:    m.question,
-    type:    'matrix',
+    id: m.id,
+    step: 3,
+    text: m.question,
+    type: 'matrix',
     options: columns,
-    rows:    m.rows,
+    rows: m.rows,
   })
 )
 
-// ——— 3) The Step3 component itself ———
+//
+// ——— 3) Zod schema ———
+//
 const formSchema = z.object({
   matrix1: z.record(z.string()),
   matrix2: z.record(z.string()),
   matrix3: z.record(z.string()),
 })
 
+//
+// ——— 4) The Step3 component ———
+//
 export function Step3() {
-  const {
-    formData,
-    markStepCompleted,
-    setCurrentStep,
-    updateFormData,
-  } = useFormContext()
+  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+    useFormContext()
 
-  const [matrixErrors, setMatrixErrors] = useState<
-    Record<string, string[]>
-  >({})
-  const [touchedMatrices, setTouchedMatrices] = useState<
-    Record<string, boolean>
-  >({})
+  // track validation errors & touched state
+  const [matrixErrors, setMatrixErrors] = useState<Record<string, string[]>>({})
+  const [touchedMatrices, setTouchedMatrices] = useState<Record<string, boolean>>(
+    {}
+  )
 
+  // initialize react-hook-form with any saved answers
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       matrix1: formData.matrix1 || {},
@@ -119,69 +115,74 @@ export function Step3() {
     resolver: zodResolver(formSchema),
   })
 
+  // reset whenever formData changes (e.g. coming back to this step)
+  useEffect(() => {
+    form.reset({
+      matrix1: formData.matrix1 || {},
+      matrix2: formData.matrix2 || {},
+      matrix3: formData.matrix3 || {},
+    })
+  }, [formData, form])
+
   const validationMessages = {
     duplicate: "Please don't select more than one response per column",
     incomplete: 'This question requires one response per row',
   }
 
+  // validate one matrix at a time
   const runValidation = (
     matrixName: string,
     matrixValue: Record<string, string>,
     forceTouch = false
   ) => {
-    const newErrors: string[] = []
+    const errs: string[] = []
     const rowCount = 4
     const isTouched = touchedMatrices[matrixName] || forceTouch
 
     if (isTouched && Object.keys(matrixValue).length < rowCount) {
-      newErrors.push(validationMessages.incomplete)
+      errs.push(validationMessages.incomplete)
     } else {
-      const selectedValues = Object.values(matrixValue)
-      if (new Set(selectedValues).size < selectedValues.length) {
-        newErrors.push(validationMessages.duplicate)
+      const vals = Object.values(matrixValue)
+      if (new Set(vals).size < vals.length) {
+        errs.push(validationMessages.duplicate)
       }
     }
 
-    setMatrixErrors((prev) => ({
-      ...prev,
-      [matrixName]: newErrors,
-    }))
-    return newErrors
+    setMatrixErrors((prev) => ({ ...prev, [matrixName]: errs }))
+    return errs
   }
 
   const handleMatrixChange = (
-    matrixName: 'matrix1' | 'matrix2' | 'matrix3',
-    formOnChange: (value: Record<string, string>) => void,
+    matrixName: typeof matrixTitles[number]['id'],
+    formOnChange: (v: Record<string, string>) => void,
     newValue: Record<string, string>
   ) => {
     formOnChange(newValue)
     if (!touchedMatrices[matrixName]) {
-      setTouchedMatrices((prev) => ({
-        ...prev,
-        [matrixName]: true,
-      }))
+      setTouchedMatrices((prev) => ({ ...prev, [matrixName]: true }))
     }
     runValidation(matrixName, newValue, true)
   }
 
+  // scroll-and-focus on first invalid matrix
   const scrollToMatrix = (matrixId: string) => {
-    const target = document.getElementById(`${matrixId}-section`)
-    if (target) {
-      const rect = target.getBoundingClientRect()
-      const top = rect.top + window.pageYOffset - 120
+    const el = document.getElementById(`${matrixId}-section`)
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.pageYOffset - 120
       window.scrollTo({ top, behavior: 'smooth' })
     }
     setCurrentStep(3)
   }
 
+  // final submit
   function onSubmit(values: z.infer<typeof formSchema>) {
     let firstError: string | null = null
     const newTouched: Record<string, boolean> = {}
 
     ;(['matrix1', 'matrix2', 'matrix3'] as const).forEach((name) => {
       newTouched[name] = true
-      const errs = runValidation(name, values[name], true)
-      if (errs.length > 0 && !firstError) firstError = name
+      const e = runValidation(name, values[name], true)
+      if (e.length > 0 && !firstError) firstError = name
     })
 
     setTouchedMatrices(newTouched)
@@ -190,7 +191,12 @@ export function Step3() {
       return
     }
 
-    updateFormData(values)
+    // save flat values back into context
+    updateFormData({
+      matrix1: values.matrix1,
+      matrix2: values.matrix2,
+      matrix3: values.matrix3,
+    })
     markStepCompleted(3)
     setCurrentStep(4)
   }
@@ -208,8 +214,8 @@ export function Step3() {
             <Image
               alt="NEXEA Logo"
               height={40}
-              src="/nexealogo.png"
               width={40}
+              src="/nexealogo.png"
             />
             <h1 className="text-2xl sm:text-3xl font-bold">
               Entrepreneurs Behaviour Assessment
@@ -219,99 +225,33 @@ export function Step3() {
 
         <Form {...form}>
           <form
-            className="space-y-3 sm:space-y-4"
+            className="space-y-6"
             onSubmit={form.handleSubmit(onSubmit)}
           >
-            {/* Matrix 1 */}
-            <div id="matrix1-section">
-              {/* ← ADD THIS TITLE */}
-              <h2 className="text-xl font-semibold mb-2">
-                {matrixTitles[0].title}
-              </h2>
-              <FormField
-                control={form.control}
-                name="matrix1"
-                render={({ field }) => (
-                  <FormItem>
-                    <MatrixAssessment
-                      columns={columns}
-                      errors={matrixErrors.matrix1}
-                      matrixId="matrix1"
-                      onChange={(nv) =>
-                        handleMatrixChange(
-                          'matrix1',
-                          field.onChange,
-                          nv
-                        )
-                      }
-                      question={
-                        matrixTitles[0].question
-                      }
-                      rows={matrix1Rows}
-                      value={field.value}
-                    />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Matrix 2 */}
-            <div id="matrix2-section">
-              <FormField
-                control={form.control}
-                name="matrix2"
-                render={({ field }) => (
-                  <FormItem>
-                    <MatrixAssessment
-                      columns={columns}
-                      errors={matrixErrors.matrix2}
-                      matrixId="matrix2"
-                      onChange={(nv) =>
-                        handleMatrixChange(
-                          'matrix2',
-                          field.onChange,
-                          nv
-                        )
-                      }
-                      question={
-                        matrixTitles[1].question
-                      }
-                      rows={matrix2Rows}
-                      value={field.value}
-                    />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Matrix 3 */}
-            <div id="matrix3-section">
-              <FormField
-                control={form.control}
-                name="matrix3"
-                render={({ field }) => (
-                  <FormItem>
-                    <MatrixAssessment
-                      columns={columns}
-                      errors={matrixErrors.matrix3}
-                      matrixId="matrix3"
-                      onChange={(nv) =>
-                        handleMatrixChange(
-                          'matrix3',
-                          field.onChange,
-                          nv
-                        )
-                      }
-                      question={
-                        matrixTitles[2].question
-                      }
-                      rows={matrix3Rows}
-                      value={field.value}
-                    />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {matrixTitles.map((m) => (
+              <div key={m.id} id={`${m.id}-section`}>
+                <h2 className="text-xl font-semibold mb-2">{m.title}</h2>
+                <FormField
+                  control={form.control}
+                  name={m.id}
+                  render={({ field }) => (
+                    <FormItem>
+                      <MatrixAssessment
+                        columns={columns}
+                        errors={matrixErrors[m.id]}
+                        matrixId={m.id}
+                        onChange={(nv) =>
+                          handleMatrixChange(m.id, field.onChange, nv)
+                        }
+                        question={m.question}
+                        rows={m.rows}
+                        value={field.value}
+                      />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            ))}
           </form>
         </Form>
 

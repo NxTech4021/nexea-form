@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -18,6 +19,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useFormContext } from '@/contexts/form-context';
+
+import { Button } from '../ui/button';
 
 const formSchema = z.object({
   company: z.string().min(2, {
@@ -52,6 +55,16 @@ export function Step1() {
     },
     resolver: zodResolver(formSchema),
   });
+
+  // only for autofill
+  useEffect(() => {
+    form.reset({
+      company: formData.company || '',
+      email: formData.email || '',
+      fullName: formData.fullName || '',
+      phoneNumber: formData.phoneNumber || '',
+    });
+  }, [formData, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Update the global form context
@@ -218,6 +231,21 @@ export function Step1() {
               </Form>
             </div>
           </div>
+
+          {/* <Button
+            onClick={async () => {
+              try {
+                await fetch('/api/sheet/', {
+                  body: JSON.stringify({ username: 'Afiq' }),
+                  method: 'POST',
+                });
+              } catch (error) {
+                console.log(error);
+              }
+            }}
+          >
+            DSAD
+          </Button> */}
 
           {/* Navigation */}
           <FormNavigation

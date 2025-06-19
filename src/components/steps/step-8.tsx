@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle } from "lucide-react"
 import Image from "next/image"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -85,6 +85,8 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>
 
+const radioKeys = Object.keys(formSchema.shape) as (keyof FormSchemaType)[];
+
 const radioOptions = ['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree']
 
 const questionTitles = [
@@ -143,25 +145,12 @@ export function Step8() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   
   const form = useForm<FormSchemaType>({
-    defaultValues: {
-      radio28: formData.radio28,
-      radio29: formData.radio29,
-      radio30: formData.radio30,
-      radio31: formData.radio31,
-      radio32: formData.radio32,
-      radio33: formData.radio33,
-      radio34: formData.radio34,
-      radio35: formData.radio35,
-      radio36: formData.radio36,
-      radio37: formData.radio37,
-      radio38: formData.radio38,
-      radio39: formData.radio39,
-      radio40: formData.radio40,
-      radio41: formData.radio41,
-      radio42: formData.radio42,
-    },
+    defaultValues: radioKeys.reduce((acc, key) => {
+      acc[key] = formData.radios?.find((r) => r[key])?.[key] || ''
+      return acc
+    }, {} as FormSchemaType),
     resolver: zodResolver(formSchema),
-  })
+  });
 
   const validationMessages = {
     radio_incomplete: "This question requires a response",
@@ -227,7 +216,9 @@ export function Step8() {
       return;
     }
     
-    updateFormData(values)
+    updateFormData({
+      radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
+    });
     markStepCompleted(8)
     setCurrentStep(9)
   }
