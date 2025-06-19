@@ -160,34 +160,34 @@ export function Step4() {
   ];
 
   const matrix4Rows = [
-    'Work and get results',
-    'Work well with others',
-    'Work systematically',
-    'Think creatively',
+    'Opportunities to be creative',
+    'Stability and job security',
+    'Demands on the individual to perform',
+    'An environment where teamwork is valued',
   ];
   const matrix5Rows = [
-    'Well liked',
-    'In control of situations',
-    'Using my creativity',
-    'Making progress and getting things done',
+    'Completing my tasks',
+    'Planning and structuring my work day',
+    'Spotting new opportunities',
+    'Listening to others',
   ];
   const matrix6Rows = [
-    'Pleasant and easy to work with',
-    'Focused and organized',
-    'Creative and forward thinking',
-    'Good at getting things done',
+    'Systemtically following internal procedures',
+    'Cooperating and collaborating across departmental units',
+    'Getting the day to day work done',
+    "Thinking of new ways to face tomorrow's challenges",
   ];
   const matrix7Rows = [
-    'I am able to work without interruption',
-    'My new ideas have won acceptance',
-    'I have met all my objectives for the day',
-    'We start from different viewpoints but in the end come out as an aligned team',
+    'Inter-departmental teamwork',
+    'Being at the cutting edge of our profession',
+    'Having procedures and systems that work',
+    'Getting things done',
   ];
   const matrix8Rows = [
-    'Efficient and systematic',
-    'A good judge of character and a mediator',
-    'Creative and progressive',
-    'Motivated by results',
+    'Looking for innovative ways to get things done',
+    'Ensuring compliance of decisions made',
+    'Getting results from projects/tasks',
+    'Ensuring acceptance of decisions/solutions by the parties concerned',
   ];
   const matrix9Rows = [
     'Clean up or organize my paper work',
@@ -202,85 +202,84 @@ export function Step4() {
     'My job changes too often to be characterized',
   ];
   const matrix11Rows = [
-    'Opportunities to be creative',
-    'Stability and job security',
-    'Demands on the individual to perform',
-    'An environment where teamwork is valued',
+    'Pleasant and easy to work with',
+    'Focused and organized',
+    'Creative and forward thinking',
+    'Good at getting things done',
   ];
   const matrix12Rows = [
-    'Completing my tasks',
-    'Planning and structuring my work day',
-    'Spotting new opportunities',
-    'Listening to others',
-  ];
-  const matrix13Rows = [
-    'Looking for innovative ways to get things done',
-    'Ensuring compliance of decisions made',
-    'Getting results from projects/tasks',
-    'Ensuring acceptance of decisions/solutions by the parties concerned',
-  ];
-  const matrix14Rows = [
-    'A job that is challenging and offers opportunities to be creative',
-    'A job that is stable and offers job security',
-    'A job that is demanding and offers opportunities to perform',
-    'A job that is team-oriented and offers opportunities to work with others',
-  ];
-  const matrix15Rows = [
-    'Inter-departmental teamwork',
-    'Being at the cutting edge of our profession',
-    'Having procedures and systems that work',
-    'Getting things done',
-  ];
-  const matrix16Rows = [
     'Be with people I like',
     'Be creative and develop my own ideas',
     'Concentrate on getting results',
     'Structure my work',
   ];
-  const matrix17Rows = [
+  const matrix13Rows = [
+    'Efficient and systematic',
+    'A good judge of character and a mediator',
+    'Creative and progressive',
+    'Motivated by results',
+  ];
+  const matrix14Rows = [
     'Rules, regulations and standard operating procedures of our business',
     'Nuts and bolts of getting the job done',
     'Future of our industry',
     'Different individuals in our organization and how to get them to work together',
   ];
+  const matrix15Rows = [
+    'I am able to work without interruption',
+    'My new ideas have won acceptance',
+    'I have met all my objectives for the day',
+    'We start from different viewpoints but in the end come out as an aligned team',
+  ];
+  const matrix16Rows = [
+    'Well liked',
+    'In control of situations',
+    'Using my creativity',
+    'Making progress and getting things done',
+  ];
+  const matrix17Rows = [
+    'Work and get results',
+    'Work well with others',
+    'Work systematically',
+    'Think creatively',
+  ];
   const matrix18Rows = [
-    'Systemtically following internal procedures',
-    'Cooperating and collaborating across departmental units',
-    'Getting the day to day work done',
-    "Thinking of new ways to face tomorrow's challenges",
+    'Constantly changing tasks and challenges',
+    'Orderly and secure working conditions',
+    'Good working and social environment',
+    'Clarity of tasks and if I work hard, I am able to succeed',
   ];
 
   const matrixTitles = [
     {
       id: 'matrix4',
-      question: 'What I want others to notice about me is my ability to:',
-      shortTitle: 'Abilities',
-      title: 'Abilities',
+      question: 'In considering a new job, what is most important to me is:',
+      shortTitle: 'New Job',
+      title: 'New Job',
     },
     {
       id: 'matrix5',
-      question: 'I need to feel that I am:',
-      shortTitle: 'Feeling',
-      title: 'Feeling',
+      question: 'What characterizes me in my day-to-day work as a manager is that I am good at:',
+      shortTitle: 'Manager',
+      title: 'Manager',
     },
     {
       id: 'matrix6',
-      question: 'My closest colleagues think I am:',
-      shortTitle: 'Colleague Values',
-      title: 'Colleague Values',
+      question: "Our organization's culture is characterized by:",
+      shortTitle: 'Culture',
+      title: 'Culture',
     },
     {
       id: 'matrix7',
-      question: 'A good day for me is when:',
-      shortTitle: 'Good Day',
-      title: 'Good Day',
+      question: 'The most important thing for our daily operation is:',
+      shortTitle: 'Daily Operation',
+      title: 'Daily Operation',
     },
     {
       id: 'matrix8',
-      question:
-        'To complement the style of others in the team, the person holding my position should be:',
-      shortTitle: 'Complement',
-      title: 'Complement',
+      question: 'I spend most of my time:',
+      shortTitle: 'Time Spent',
+      title: 'Time Spent',
     },
     {
       id: 'matrix9',
@@ -296,81 +295,78 @@ export function Step4() {
     },
     {
       id: 'matrix11',
-      question: 'In considering a new job, what is most important to me is:',
-      shortTitle: 'New Job',
-      title: 'New Job',
+      question: 'My closest colleagues think I am:',
+      shortTitle: 'Colleague Values',
+      title: 'Colleague Values',
     },
     {
       id: 'matrix12',
-      question:
-        'What characterizes me in my day-to-day work as a manager is that I am good at:',
-      shortTitle: 'Manager',
-      title: 'Manager',
-    },
-    {
-      id: 'matrix13',
-      question: 'I spend most of my time:',
-      shortTitle: 'Time Spent',
-      title: 'Time Spent',
-    },
-    {
-      id: 'matrix14',
-      question:
-        'The kind of new job I would like to apply for is characterized by:',
-      shortTitle: 'New Job Characteristics',
-      title: 'New Job Characteristics',
-    },
-    {
-      id: 'matrix15',
-      question: 'The most important thing for our daily operation is:',
-      shortTitle: 'Daily Operation',
-      title: 'Daily Operation',
-    },
-    {
-      id: 'matrix16',
       question: 'In a perfect world, my job would permit me to:',
       shortTitle: 'Perfect World',
       title: 'Perfect World',
     },
     {
-      id: 'matrix17',
+      id: 'matrix13',
+      question: 'To complement the style of others in the team, the person holding my position should be:',
+      shortTitle: 'Complement',
+      title: 'Complement',
+    },
+    {
+      id: 'matrix14',
       question: 'My boss expects me to know the:',
       shortTitle: 'Boss Expectations',
       title: 'Boss Expectations',
     },
     {
+      id: 'matrix15',
+      question: 'A good day for me is when:',
+      shortTitle: 'Good Day',
+      title: 'Good Day',
+    },
+    {
+      id: 'matrix16',
+      question: 'I need to feel that I am:',
+      shortTitle: 'Feeling',
+      title: 'Feeling',
+    },
+    {
+      id: 'matrix17',
+      question: 'What I want others to notice about me is my ability to:',
+      shortTitle: 'Abilities',
+      title: 'Abilities',
+    },
+    {
       id: 'matrix18',
-      question: "Our organization's culture is characterized by:",
-      shortTitle: 'Culture',
-      title: 'Culture',
+      question: 'The kind of new job I would like to apply for is characterized by:',
+      shortTitle: 'New Job Characteristics',
+      title: 'New Job Characteristics',
     },
   ];
 
   const matrixData: { name: MatrixName; question: string; rows: string[] }[] = [
     {
       name: 'matrix4',
-      question: 'What I want others to notice about me is my ability to:',
+      question: 'In considering a new job, what is most important to me is:',
       rows: matrix4Rows,
     },
     {
       name: 'matrix5',
-      question: 'I need to feel that I am:',
+      question: 'What characterizes me in my day-to-day work as a manager is that I am good at:',
       rows: matrix5Rows,
     },
     {
       name: 'matrix6',
-      question: 'My closest colleagues think I am:',
+      question: "Our organization's culture is characterized by:",
       rows: matrix6Rows,
     },
     {
       name: 'matrix7',
-      question: 'A good day for me is when:',
+      question: 'The most important thing for our daily operation is:',
       rows: matrix7Rows,
     },
     {
       name: 'matrix8',
-      question:
-        'To complement the style of others in the team, the person holding my position should be:',
+      question: 'I spend most of my time:',
       rows: matrix8Rows,
     },
     {
@@ -385,44 +381,42 @@ export function Step4() {
     },
     {
       name: 'matrix11',
-      question: 'In considering a new job, what is most important to me is:',
+      question: 'My closest colleagues think I am:',
       rows: matrix11Rows,
     },
     {
       name: 'matrix12',
-      question:
-        'What characterizes me in my day-to-day work as a manager is that I am good at:',
+      question: 'In a perfect world, my job would permit me to:',
       rows: matrix12Rows,
     },
     {
       name: 'matrix13',
-      question: 'I spend most of my time:',
+      question: 'To complement the style of others in the team, the person holding my position should be:',
       rows: matrix13Rows,
     },
     {
       name: 'matrix14',
-      question:
-        'The kind of new job I would like to apply for is characterized by:',
+      question: 'My boss expects me to know the:',
       rows: matrix14Rows,
     },
     {
       name: 'matrix15',
-      question: 'The most important thing for our daily operation is:',
+      question: 'A good day for me is when:',
       rows: matrix15Rows,
     },
     {
       name: 'matrix16',
-      question: 'In a perfect world, my job would permit me to:',
+      question: 'I need to feel that I am:',
       rows: matrix16Rows,
     },
     {
       name: 'matrix17',
-      question: 'My boss expects me to know the:',
+      question: 'What I want others to notice about me is my ability to:',
       rows: matrix17Rows,
     },
     {
       name: 'matrix18',
-      question: "Our organization's culture is characterized by:",
+      question: 'The kind of new job I would like to apply for is characterized by:',
       rows: matrix18Rows,
     },
   ];
