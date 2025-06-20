@@ -45,3 +45,4 @@ next-env.d.ts
 eba-credentials.json
 
 test.js
+/src/generated/prisma
