@@ -28,16 +28,19 @@ const fs   = require('fs')
 const path = require('path')
 
 // 3) require each of your step exports (ts-node + tsconfig-paths will handle TSX + aliases)
-const { questionsDataStep1  } = require('../src/components/steps/step-1.tsx')
-const { questionsDataStep2  } = require('../src/components/steps/step-2.tsx')
-const { questionsDataStep3  } = require('../src/components/steps/step-3.tsx')
-const { questionsDataStep4  } = require('../src/components/steps/step-4.tsx')
-const { questionsDataStep5  } = require('../src/components/steps/step-5.tsx')
-const { questionsDataStep6  } = require('../src/components/steps/step-6.tsx')
-const { questionsDataStep7  } = require('../src/components/steps/step-7.tsx')
-const { questionsDataStep8  } = require('../src/components/steps/step-8.tsx')
-const { questionsDataStep9  } = require('../src/components/steps/step-9.tsx')
-const { questionsDataStep10 } = require('../src/components/steps/step-10.tsx')
+const { questionsDataStep1 } = require('../src/components/steps/step-1')
+const { questionsDataStep2 } = require('../src/components/steps/step-2')
+const { questionsDataStep3 } = require('../src/components/steps/step-3')
+const { questionsDataStep4 } = require('../src/components/steps/step-4')
+const { questionsDataStep5 } = require('../src/components/steps/step-5')
+const { questionsDataStep6 } = require('../src/components/steps/step-6')
+const { questionsDataStep7 } = require('../src/components/steps/step-7')
+const { questionsDataStep8 } = require('../src/components/steps/step-8')
+const { questionsDataStep9 } = require('../src/components/steps/step-9')
+const { questionsDataStep10 } = require('../src/components/steps/step-10')
+const { questionsDataStep11 } = require('../src/components/steps/step-11')
+const { questionsDataStep12 } = require('../src/components/steps/step-12')
+const { questionsDataStep13 } = require('../src/components/steps/step-13')
 // …and if you have 11–13:
 // const { questionsDataStep11 } = require('../src/components/steps/step-11.tsx')
 // …etc
@@ -54,6 +57,9 @@ const allQuestions = [
   ...questionsDataStep8,
   ...questionsDataStep9,
   ...questionsDataStep10,
+  ...questionsDataStep11,
+  ...questionsDataStep12,
+  ...questionsDataStep13,
   // …questionsDataStep11, etc.
 ]
 

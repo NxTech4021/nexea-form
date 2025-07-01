@@ -363,7 +363,10 @@ export function Step5() {
 
   return (
     <div>
-      <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
+      <QuestionSidebar
+        onTitleClick={scrollToMatrix}
+        titles={matrixTitles.map(({ id, title }) => ({ id, title }))}
+      />
 
       <div className='space-y-4 sm:space-y-6'>
         <Form {...form}>
@@ -371,7 +374,7 @@ export function Step5() {
             className='space-y-3 sm:space-y-4'
             onSubmit={form.handleSubmit(onSubmit)}
           >
-            {matrixData.map(({ name, question, rows }) => (
+            {matrixTitles.map(({ id: name, question, rows }) => (
               <div id={`${name}-section`} key={name}>
                 <FormField
                   control={form.control}
