@@ -1,18 +1,17 @@
 // src/components/steps/step-3.tsx
-'use client'
+'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-import { FormNavigation } from '@/components/form-navigation'
-import { MatrixAssessment } from '@/components/matrix-assessment'
-import { QuestionSidebar } from '@/components/question-sidebar'
-import { Form, FormField, FormItem } from '@/components/ui/form'
-import { useFormContext } from '@/contexts/form-context'
-import { QuestionDefinition } from '@/contexts/form-context'
+import { FormNavigation } from '@/components/form-navigation';
+import { QuestionSidebar } from '@/components/question-sidebar';
+import Question from '@/components/question/question';
+import { Form } from '@/components/ui/form';
+import { useFormContext, QuestionDefinition } from '@/contexts/form-context';
 
 //
 // ——— 1) Static definitions ———
@@ -22,67 +21,77 @@ const columns = [
   'Somewhat Accurate',
   'Quite Accurate',
   'Most Accurate',
-]
+];
 
-const matrix1Rows = [
-  'Get them to cooperate and collaborate',
-  'Get the day-by-day work done',
-  'Change things',
-  'Work systematically',
-]
+// const matrix1Rows = [
+//   'Get them to cooperate and collaborate',
+//   'Get the day-by-day work done',
+//   'Change things',
+//   'Work systematically',
+// ];
 
-const matrix2Rows = [
-  'Work hard',
-  'Am accurate',
-  'Understand others',
-  'Am creative',
-]
+// const matrix2Rows = [
+//   'Work hard',
+//   'Am accurate',
+//   'Understand others',
+//   'Am creative',
+// ];
 
-const matrix3Rows = [
-  'Maintain a high standard of quality in everything they do',
-  'Demonstrate a will and ability to put in extra work',
-  'Bring good new ideas',
-  'Work well with others to bring out the best in them',
-]
+// const matrix3Rows = [
+//   'Maintain a high standard of quality in everything they do',
+//   'Demonstrate a will and ability to put in extra work',
+//   'Bring good new ideas',
+//   'Work well with others to bring out the best in them',
+// ];
 
 const matrixTitles = [
   {
-    id: 'matrix1' as const,
+    id: 'matrix1',
     question: 'What my colleagues value most about me is my ability to:',
+    rows: [
+      'Get them to cooperate and collaborate',
+      'Get the day-by-day work done',
+      'Change things',
+      'Work systematically',
+    ],
     shortTitle: 'Values',
     title: 'Colleague Values',
-    rows: matrix1Rows,
   },
   {
-    id: 'matrix2' as const,
+    id: 'matrix2',
     question: 'I want to be praised because I:',
+    rows: ['Work hard', 'Am accurate', 'Understand others', 'Am creative'],
     shortTitle: 'Praise',
     title: 'Personal Praise',
-    rows: matrix2Rows,
   },
   {
-    id: 'matrix3' as const,
-    question:
-      'Heroes (those we admire) in our organization are those that:',
+    id: 'matrix3',
+    question: 'Heroes (those we admire) in our organization are those that:',
+    rows: [
+      'Maintain a high standard of quality in everything they do',
+      'Demonstrate a will and ability to put in extra work',
+      'Bring good new ideas',
+      'Work well with others to bring out the best in them',
+    ],
     shortTitle: 'Heroes',
     title: 'Organization Heroes',
-    rows: matrix3Rows,
   },
-]
+];
 
 //
-// ——— 2) Export for admin UI / context registration ———
+// ——— 2) Context registration for admin UI ———
 //
 export const questionsDataStep3: QuestionDefinition[] = matrixTitles.map(
-  (m): QuestionDefinition => ({
-    id: m.id,
-    step: 3,
-    text: m.question,
-    type: 'matrix',
-    options: columns,
-    rows: m.rows,
-  })
-)
+  (m) =>
+    ({
+      id: m.id as any,
+      step: 3,
+      text: m.question,
+      type: 'matrix',
+      options: columns,
+      rows: m.rows,
+    } as QuestionDefinition)
+);
 
 //
 // ——— 3) Zod schema ———
@@ -91,116 +100,116 @@ const formSchema = z.object({
   matrix1: z.record(z.string()),
   matrix2: z.record(z.string()),
   matrix3: z.record(z.string()),
-})
+});
 
 //
 // ——— 4) Step3 component ———
 //
 export function Step3() {
-  const {
-    formData,
-    markStepCompleted,
-    setCurrentStep,
-    updateFormData,
-  } = useFormContext()
+  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+    useFormContext();
 
-  const [matrixErrors, setMatrixErrors] = useState<
-    Record<string, string[]>
-  >({})
+  const [matrixErrors, setMatrixErrors] = useState<Record<string, string[]>>(
+    {}
+  );
   const [touchedMatrices, setTouchedMatrices] = useState<
     Record<string, boolean>
-  >({})
+  >({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      matrix1:
-        formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
-      matrix2:
-        formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
-      matrix3:
-        formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
+      matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
+      matrix3: formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
     },
     resolver: zodResolver(formSchema),
-  })
+  });
 
-  // reset on context change (e.g. coming back to this step)
+  // only for autofill
   useEffect(() => {
     form.reset({
-      matrix1:
-        formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
-      matrix2:
-        formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
-      matrix3:
-        formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
-    })
-  }, [formData, form])
+      matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
+      matrix3: formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
+    });
+  }, [formData, form]);
 
   const validationMessages = {
     duplicate: "Please don't select more than one response per column",
     incomplete: 'This question requires one response per row',
-  }
+  };
 
   const runValidation = (
     matrixName: string,
     matrixValue: Record<string, string>,
     forceTouch = false
   ) => {
-    const errs: string[] = []
-    const rowCount = 4
-    const isTouched = touchedMatrices[matrixName] || forceTouch
+    const newErrors: string[] = [];
+    const rowCount = 4;
+    const isTouched = touchedMatrices[matrixName] || forceTouch;
 
     if (isTouched && Object.keys(matrixValue).length < rowCount) {
-      errs.push(validationMessages.incomplete)
+      newErrors.push(validationMessages.incomplete);
     } else {
-      const vals = Object.values(matrixValue)
-      if (new Set(vals).size < vals.length) {
-        errs.push(validationMessages.duplicate)
+      const selectedValues = Object.values(matrixValue);
+      if (new Set(selectedValues).size < selectedValues.length) {
+        newErrors.push(validationMessages.duplicate);
       }
     }
 
-    setMatrixErrors((prev) => ({ ...prev, [matrixName]: errs }))
-    return errs
-  }
+    setMatrixErrors((prev) => ({ ...prev, [matrixName]: newErrors }));
+    return newErrors;
+  };
 
   const handleMatrixChange = (
-    matrixName: typeof matrixTitles[number]['id'],
-    onChange: (v: Record<string, string>) => void,
+    matrixName: 'matrix1' | 'matrix2' | 'matrix3',
+    formOnChange: (value: Record<string, string>) => void,
     newValue: Record<string, string>
   ) => {
-    onChange(newValue)
+    formOnChange(newValue);
     if (!touchedMatrices[matrixName]) {
-      setTouchedMatrices((prev) => ({ ...prev, [matrixName]: true }))
+      setTouchedMatrices((prev) => ({ ...prev, [matrixName]: true }));
     }
-    runValidation(matrixName, newValue, true)
-  }
+    runValidation(matrixName, newValue, true);
+  };
 
   const scrollToMatrix = (matrixId: string) => {
-    const el = document.getElementById(`${matrixId}-section`)
-    if (el) {
-      const top =
-        el.getBoundingClientRect().top + window.pageYOffset - 120
-      window.scrollTo({ top, behavior: 'smooth' })
+    const targetElement = document.getElementById(`${matrixId}-section`);
+    if (targetElement) {
+      const elementRect = targetElement.getBoundingClientRect();
+      const absoluteElementTop = elementRect.top + window.pageYOffset;
+      const targetPosition = Math.max(0, absoluteElementTop - 120);
+      window.scrollTo({
+        behavior: 'smooth',
+        top: targetPosition,
+      });
     }
-    setCurrentStep(3)
-  }
+    setCurrentStep(3);
+  };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    let firstError: string | null = null
-    const newTouched: Record<string, boolean> = {}
+    let firstErrorMatrix: null | string = null;
+    const newTouchedState: Record<string, boolean> = {};
 
-    ;(['matrix1', 'matrix2', 'matrix3'] as const).forEach((name) => {
-      newTouched[name] = true
-      const errs = runValidation(name, values[name], true)
-      if (errs.length > 0 && !firstError) {
-        firstError = name
+    const matricesToValidate: ('matrix1' | 'matrix2' | 'matrix3')[] = [
+      'matrix1',
+      'matrix2',
+      'matrix3',
+    ];
+
+    matricesToValidate.forEach((matrixName) => {
+      newTouchedState[matrixName] = true;
+      const errors = runValidation(matrixName, values[matrixName], true);
+      if (errors.length > 0 && !firstErrorMatrix) {
+        firstErrorMatrix = matrixName;
       }
-    })
+    });
 
-    setTouchedMatrices(newTouched)
+    setTouchedMatrices(newTouchedState);
 
-    if (firstError) {
-      scrollToMatrix(firstError)
-      return
+    if (firstErrorMatrix) {
+      scrollToMatrix(firstErrorMatrix);
+      return;
     }
 
     updateFormData({
@@ -209,17 +218,14 @@ export function Step3() {
         { matrix2: values.matrix2 },
         { matrix3: values.matrix3 },
       ],
-    })
-    markStepCompleted(3)
-    setCurrentStep(4)
+    });
+    markStepCompleted(3);
+    setCurrentStep(4);
   }
 
   return (
     <div className="min-h-screen">
-      <QuestionSidebar
-        onTitleClick={scrollToMatrix}
-        titles={matrixTitles}
-      />
+      <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
 
       <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
         <div className="bg-card border rounded-lg p-4 shadow-sm">
@@ -238,38 +244,18 @@ export function Step3() {
 
         <Form {...form}>
           <form
+            className="space-y-4 sm:space-y-6"
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6"
           >
-            {matrixTitles.map((m) => (
-              <div key={m.id} id={`${m.id}-section`}>
-                <h2 className="text-xl font-semibold mb-2">
-                  {m.title}
-                </h2>
-                <FormField
-                  control={form.control}
-                  name={m.id}
-                  render={({ field }) => (
-                    <FormItem>
-                      <MatrixAssessment
-                        matrixId={m.id}
-                        columns={columns}
-                        rows={m.rows}
-                        question={m.question}
-                        value={field.value}
-                        errors={matrixErrors[m.id] || []}
-                        onChange={(nv) =>
-                          handleMatrixChange(
-                            m.id,
-                            field.onChange,
-                            nv
-                          )
-                        }
-                      />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            {matrixTitles.map((data) => (
+              <Question
+                columns={columns}
+                data={data}
+                errors={matrixErrors[data.id]}
+                form={form}
+                handleChange={handleMatrixChange}
+                key={data.id}
+              />
             ))}
           </form>
         </Form>
@@ -280,5 +266,5 @@ export function Step3() {
         />
       </div>
     </div>
-  )
+  );
 }

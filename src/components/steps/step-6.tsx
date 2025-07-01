@@ -293,7 +293,6 @@ export function Step6() {
           formData.matrixes?.find((m) => m[key])?.[key] || {};
         return acc;
       }, {} as any),
-
     },
     mode: 'onTouched',
     resolver: zodResolver(formSchema),
@@ -412,78 +411,60 @@ export function Step6() {
   }
 
   return (
-    <div className='min-h-screen'>
+    <div>
       <QuestionSidebar
         onTitleClick={scrollToQuestion}
         titles={questionTitles}
       />
-      <div className='max-w-2xl mx-auto p-4 sm:p-6'>
-        <div className='space-y-4 sm:space-y-6'>
-          {/* Persistent Form Title */}
-          <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
-            <div className='text-left space-y-2 sm:space-y-3'>
-              <div className='flex items-center gap-4'>
-                <Image
-                  alt='NEXEA Logo'
-                  height={40}
-                  src='/nexealogo.png'
-                  width={40}
+
+      <div className='space-y-4 sm:space-y-6'>
+        <Form {...form}>
+          <form
+            className='space-y-3 sm:space-y-4'
+            onSubmit={() => form.handleSubmit(onSubmit)()}
+          >
+            {questionsData.map((q) => (
+              <div id={`${q.id}-section`} key={q.id}>
+                <FormField
+                  control={form.control}
+                  name={q.id}
+                  render={({ field }) => (
+                    <FormItem>
+                      {q.type === 'matrix' && q.rows && (
+                        <MatrixAssessment
+                          columns={columns}
+                          errors={errors[q.id] || []}
+                          matrixId={q.id}
+                          onChange={(newValue) =>
+                            handleMatrixChange(q.id, field.onChange, newValue)
+                          }
+                          question={q.question}
+                          rows={q.rows}
+                          value={field.value as Record<string, string>}
+                        />
+                      )}
+                      {q.type === 'radio' && (
+                        <RadioQuestion
+                          error={errors[q.id]?.[0]}
+                          onChange={(newValue) =>
+                            handleRadioChange(q.id, field.onChange, newValue)
+                          }
+                          options={radioOptions}
+                          question={q.question}
+                          questionId={q.id}
+                          value={field.value as string}
+                        />
+                      )}
+                    </FormItem>
+                  )}
                 />
-                <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
-                  Entrepreneurs Behaviour Assessment
-                </h1>
               </div>
-            </div>
-          </div>
+            ))}
+          </form>
+        </Form>
 
-          <Form {...form}>
-            <form
-              className='space-y-3 sm:space-y-4'
-              onSubmit={() => form.handleSubmit(onSubmit)()}
-            >
-              {questionsData.map((q) => (
-                <div id={`${q.id}-section`} key={q.id}>
-                  <FormField
-                    control={form.control}
-                    name={q.id}
-                    render={({ field }) => (
-                      <FormItem>
-                        {q.type === 'matrix' && q.rows && (
-                          <MatrixAssessment
-                            columns={columns}
-                            errors={errors[q.id] || []}
-                            matrixId={q.id}
-                            onChange={(newValue) =>
-                              handleMatrixChange(q.id, field.onChange, newValue)
-                            }
-                            question={q.question}
-                            rows={q.rows}
-                            value={field.value as Record<string, string>}
-                          />
-                        )}
-                        {q.type === 'radio' && (
-                          <RadioQuestion
-                            error={errors[q.id]?.[0]}
-                            onChange={(newValue) =>
-                              handleRadioChange(q.id, field.onChange, newValue)
-                            }
-                            options={radioOptions}
-                            question={q.question}
-                            questionId={q.id}
-                            value={field.value as string}
-                          />
-                        )}
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              ))}
-            </form>
-          </Form>
-
-          {/* Navigation */}
-          <FormNavigation onNext={() => form.handleSubmit(onSubmit)()} />
-        </div>
+        {/* Navigation */}
+        <FormNavigation onNext={() => form.handleSubmit(onSubmit)()} />
       </div>
     </div>
   );

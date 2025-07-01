@@ -7,22 +7,162 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { FormNavigation } from '@/components/form-navigation'
-import { MatrixAssessment } from '@/components/matrix-assessment'
-import { QuestionSidebar } from '@/components/question-sidebar'
-import { Form, FormField, FormItem } from '@/components/ui/form'
-import { useFormContext } from '@/contexts/form-context'
+import { FormNavigation } from '@/components/form-navigation';
+import { MatrixAssessment } from '@/components/matrix-assessment';
+import { QuestionSidebar } from '@/components/question-sidebar';
+import { Form, FormField, FormItem } from '@/components/ui/form';
+import { useFormContext } from '@/contexts/form-context';
 import { QuestionDefinition } from '@/contexts/form-context'
 
-//
-// ——— 1) Static definitions ———
-//
-const columns = [
-  'Least Accurate',
-  'Somewhat Accurate',
-  'Quite Accurate',
-  'Most Accurate',
-]
+
+const formSchema = z.object({
+  matrix10: z.record(z.string()),
+  matrix11: z.record(z.string()),
+  matrix12: z.record(z.string()),
+  matrix13: z.record(z.string()),
+  matrix14: z.record(z.string()),
+  matrix15: z.record(z.string()),
+  matrix16: z.record(z.string()),
+  matrix17: z.record(z.string()),
+  matrix18: z.record(z.string()),
+  matrix4: z.record(z.string()),
+  matrix5: z.record(z.string()),
+  matrix6: z.record(z.string()),
+  matrix7: z.record(z.string()),
+  matrix8: z.record(z.string()),
+  matrix9: z.record(z.string()),
+});
+
+type MatrixName = keyof z.infer<typeof formSchema>;
+
+export function Step4() {
+  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+    useFormContext();
+  const [matrixErrors, setMatrixErrors] = useState<Record<string, string[]>>(
+    {}
+  );
+  const [touchedMatrices, setTouchedMatrices] = useState<
+    Record<string, boolean>
+  >({});
+
+  const matricesToValidate: MatrixName[] = [
+    'matrix4',
+    'matrix5',
+    'matrix6',
+    'matrix7',
+    'matrix8',
+    'matrix9',
+    'matrix10',
+    'matrix11',
+    'matrix12',
+    'matrix13',
+    'matrix14',
+    'matrix15',
+    'matrix16',
+    'matrix17',
+    'matrix18',
+  ];
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    defaultValues: matricesToValidate.reduce(
+      (acc, matrixName) => {
+        acc[matrixName] =
+          formData.matrixes?.find((m) => m[matrixName])?.[matrixName] || {};
+        return acc;
+      },
+      {} as { [key in MatrixName]: Record<string, string> }
+    ),
+
+    resolver: zodResolver(formSchema),
+  });
+
+  const validationMessages = {
+    duplicate: "Please don't select more than one response per column",
+    incomplete: 'This question requires one response per row',
+  };
+
+  const runValidation = (
+    matrixName: string,
+    matrixValue: Record<string, string>,
+    forceTouch = false
+  ) => {
+    const newErrors: string[] = [];
+    const rowCount = 4;
+    const isTouched = touchedMatrices[matrixName] || forceTouch;
+
+    if (isTouched && Object.keys(matrixValue).length < rowCount) {
+      newErrors.push(validationMessages.incomplete);
+    } else {
+      const selectedValues = Object.values(matrixValue);
+      if (new Set(selectedValues).size < selectedValues.length) {
+        newErrors.push(validationMessages.duplicate);
+      }
+    }
+
+    setMatrixErrors((prev) => ({ ...prev, [matrixName]: newErrors }));
+    return newErrors;
+  };
+
+  const handleMatrixChange = (
+    matrixName: MatrixName,
+    formOnChange: (value: Record<string, string>) => void,
+    newValue: Record<string, string>
+  ) => {
+    formOnChange(newValue);
+    if (!touchedMatrices[matrixName]) {
+      setTouchedMatrices((prev) => ({ ...prev, [matrixName]: true }));
+    }
+    runValidation(matrixName, newValue, true);
+  };
+
+  const scrollToMatrix = (matrixId: string) => {
+    const targetElement = document.getElementById(`${matrixId}-section`);
+    if (targetElement) {
+      const elementRect = targetElement.getBoundingClientRect();
+      const absoluteElementTop = elementRect.top + window.pageYOffset;
+      const targetPosition = Math.max(0, absoluteElementTop - 120);
+      window.scrollTo({
+        behavior: 'smooth',
+        top: targetPosition,
+      });
+    }
+    setCurrentStep(4);
+  };
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    let firstErrorMatrix: null | string = null;
+    const newTouchedState: Record<string, boolean> = {};
+
+    matricesToValidate.forEach((matrixName) => {
+      newTouchedState[matrixName] = true;
+      const errors = runValidation(matrixName, values[matrixName], true);
+      if (errors.length > 0 && !firstErrorMatrix) {
+        firstErrorMatrix = matrixName;
+      }
+    });
+
+    setTouchedMatrices(newTouchedState);
+
+    if (firstErrorMatrix) {
+      scrollToMatrix(firstErrorMatrix);
+      return;
+    }
+
+    updateFormData({
+      matrixes: matricesToValidate.map((matrixName) => ({
+        [matrixName]: values[matrixName],
+      })),
+    });
+    markStepCompleted(4);
+    setCurrentStep(5);
+  }
+
+  const columns = [
+    'Least Accurate',
+    'Somewhat Accurate',
+    'Quite Accurate',
+    'Most Accurate',
+  ];
 
 const matrix4Rows = [
   'Opportunities to be creative',
@@ -334,54 +474,32 @@ export function Step4() {
   }
 
   return (
-    <div className="min-h-screen">
-      <QuestionSidebar
-        titles={matrixTitles.map(({ id, title }) => ({ id, title }))}
-        onTitleClick={scrollToMatrix}
-      />
+    <>
+      <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
 
-      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
-        <div className="bg-card border rounded-lg p-4 shadow-sm flex items-center gap-4">
-          <Image
-            src="/nexealogo.png"
-            alt="NEXEA Logo"
-            width={40}
-            height={40}
-          />
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            Entrepreneurs Behaviour Assessment
-          </h1>
-        </div>
-
+      <div className='space-y-4 sm:space-y-6'>
         <Form {...form}>
           <form
+            className='space-y-3 sm:space-y-4'
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6"
           >
-            {matrixTitles.map((m) => (
-              <div key={m.id} id={`${m.id}-section`}>
-                <h2 className="text-xl font-semibold mb-2">
-                  {m.title}
-                </h2>
+            {matrixData.map(({ name, question, rows }) => (
+              <div id={`${name}-section`} key={name}>
                 <FormField
                   control={form.control}
-                  name={m.id}
+                  name={name}
                   render={({ field }) => (
                     <FormItem>
                       <MatrixAssessment
-                        matrixId={m.id}
                         columns={columns}
-                        rows={m.rows}
-                        question={m.question}
-                        value={field.value}
-                        errors={matrixErrors[m.id] || []}
-                        onChange={(nv) =>
-                          handleMatrixChange(
-                            m.id,
-                            field.onChange,
-                            nv
-                          )
+                        errors={matrixErrors[name]}
+                        matrixId={name}
+                        onChange={(newValue) =>
+                          handleMatrixChange(name, field.onChange, newValue)
                         }
+                        question={question}
+                        rows={rows}
+                        value={field.value}
                       />
                     </FormItem>
                   )}
@@ -391,11 +509,12 @@ export function Step4() {
           </form>
         </Form>
 
+        {/* Navigation */}
         <FormNavigation
           isNextDisabled={!form.formState.isValid}
           onNext={() => form.handleSubmit(onSubmit)()}
         />
       </div>
-    </div>
-  )
+    </>
+  );
 }
