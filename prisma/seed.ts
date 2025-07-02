@@ -1,7 +1,7 @@
 // @ts-nocheck
 const fs = require('fs');
 const path = require('path');
-const { PrismaClient, QuestionType } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -21,35 +21,36 @@ function mapType(t) {
 }
 
 async function main() {
-  for (const q of questions) {
-    await prisma.question.upsert({
-      where: { id: q.id },
-      update: {
-        text:      q.text,
-        step:      q.step,
-        type:      mapType(q.type),
-        updatedAt: new Date(),
-      },
-      create: {
-        id:    q.id,
-        step:  q.step,
-        text:  q.text,
-        type:  mapType(q.type),
-        options: q.options.length
-          ? { create: q.options.map((value, idx) => ({ value, order: idx })) }
-          : undefined,
-        matrixRows: q.rows && q.rows.length
-          ? { create: q.rows.map((label, idx) => ({ label, order: idx })) }
-          : undefined,
+  // Clear existing records (optional)
+  await prisma.allowlist.deleteMany({});
+
+  // Sample emails to add to allowlist
+  const sampleEmails = [
+    { email: 'john@example.com', credits: 2 },
+    { email: 'jane@example.com', credits: 1 },
+    { email: 'test@nexea.co', credits: 3 },
+    { email: 'demo@example.com', credits: 1 },
+    { email: 'user@test.com', credits: 0 }, // Example of user with no credits
+  ];
+
+  console.log('Start seeding Allowlist...');
+
+  for (const data of sampleEmails) {
+    const allowlist = await prisma.allowlist.create({
+      data: {
+        email: data.email,
+        credits: data.credits,
       },
     });
+    console.log(`Created Allowlist entry: ${allowlist.email} (${allowlist.credits} credits)`);
   }
-  console.log(`✅ Seeded ${questions.length} questions`);
+
+  console.log('Seeding finished.');
 }
 
 main()
-  .catch(e => {
-    console.error(e);
+  .catch((e) => {
+    console.error('Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {

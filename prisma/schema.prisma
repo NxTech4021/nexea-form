@@ -84,3 +84,11 @@ model Answer {
   @@index([responseId])
   @@index([questionId])
 }
+
+model Allowlist {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  credits   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
