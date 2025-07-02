@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { decrypt } from './lib/session';
 
-const protectedRoutes = ['/dashboard'];
+const protectedRoutes = ['/dashboard', '/admin', '/api/admin'];
 const publicRoutes = ['/auth/login', '/signup', '/', '/begin-quiz'];
 
 export async function middleware(req: NextRequest) {
@@ -14,7 +14,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const isProtectedRoute = protectedRoutes.includes(path);
+  // Check if path starts with any protected route
+  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
   const isPublicRoute = publicRoutes.includes(path);
 
   const cookie = (await cookies()).get('session')?.value;
@@ -27,9 +28,9 @@ export async function middleware(req: NextRequest) {
   if (
     isPublicRoute &&
     session?.userId &&
-    !req.nextUrl.pathname.startsWith('/dashboard')
+    !req.nextUrl.pathname.startsWith('/admin')
   ) {
-    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
+    return NextResponse.redirect(new URL('/admin', req.nextUrl));
   }
 
   return NextResponse.next();

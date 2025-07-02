@@ -5,9 +5,10 @@ import { cookies } from 'next/headers';
 import { SessionPayload } from './definitions';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 export async function createSession(userId: string) {
-  const expiresAt = new Date(Date.now() + 60 * 1000);
+  const expiresAt = new Date(Date.now() + SESSION_DURATION);
   const session = await encrypt({ expiresAt, userId });
   const cookieStore = await cookies();
 
@@ -53,7 +54,7 @@ export async function updateSession() {
     return null;
   }
 
-  const expires = new Date(Date.now() + 60 * 1000);
+  const expires = new Date(Date.now() + SESSION_DURATION);
 
   const cookieStore = await cookies();
 

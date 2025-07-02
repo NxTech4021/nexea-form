@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 async function addEmail() {
   try {
-    const email = 'syafinion@gmail.com';
+    const email = 'norsyafiq@m.nexea.co';
     
     // Check if email already exists
     const existing = await prisma.allowlist.findUnique({

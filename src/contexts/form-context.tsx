@@ -11,22 +11,6 @@ import React, {
   SetStateAction,
 } from 'react'
 
-
-import { questionsDataStep1 } from '@/components/steps/step-1'
-import { questionsDataStep2 } from '@/components/steps/step-2'
-import { questionsDataStep3 } from '@/components/steps/step-3'
-import { questionsDataStep4 } from '@/components/steps/step-4'
-import { questionsDataStep5 } from '@/components/steps/step-5'
-import { questionsDataStep6 } from '@/components/steps/step-6'
-import { questionsDataStep7 } from '@/components/steps/step-7'
-import { questionsDataStep8 } from '@/components/steps/step-8'
-import { questionsDataStep9 } from '@/components/steps/step-9'
-import { questionsDataStep10 } from '@/components/steps/step-10'
-import { questionsDataStep11 } from '@/components/steps/step-11'
-import { questionsDataStep12 } from '@/components/steps/step-12'
-import { questionsDataStep13 } from '@/components/steps/step-13'
-
-
 // ——— 1) Your data shapes ———
 export interface FormData {
   [key: string]: any
@@ -44,9 +28,8 @@ export interface QuestionDefinition {
   text: string
   type: 'text' | 'radio' | 'matrix'
   options: string[]
- rows?: string[]
+  rows?: string[]
 }
-
 
 // ——— 2) Context type ———
 export interface FormContextType {
@@ -64,9 +47,13 @@ export interface FormContextType {
   // admin UI
   questions: QuestionDefinition[]
   setQuestions: Dispatch<SetStateAction<QuestionDefinition[]>>
+  createQuestion: (question: Omit<QuestionDefinition, 'id'>) => Promise<void>
+  updateQuestion: (question: QuestionDefinition) => Promise<void>
+  deleteQuestion: (id: string) => Promise<void>
+  isLoading: boolean
+  error: string | null
 }
 
-// ——— 3) Create context ———
 const FormContext = createContext<FormContextType | undefined>(undefined)
 
 interface FormProviderProps {
@@ -84,27 +71,122 @@ export function FormProvider({ children }: FormProviderProps) {
     radios: [],
   })
   const [currentStep, setCurrentStep] = useState(1)
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(
-    new Set()
-  )
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const totalSteps = 13
 
   // admin UI state
-  const [questions, setQuestions] = useState<QuestionDefinition[]>([
-    ...questionsDataStep1,
-    ...questionsDataStep2,
-    ...questionsDataStep3,
-    ...questionsDataStep4,
-    ...questionsDataStep5,   // ← ensure this is here
-    ...questionsDataStep6,
-    ...questionsDataStep7,
-    ...questionsDataStep8,
-    ...questionsDataStep9,
-    ...questionsDataStep10,
-    ...questionsDataStep11,
-    ...questionsDataStep12,
-    ...questionsDataStep13,
-  ])
+  const [questions, setQuestions] = useState<QuestionDefinition[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch questions on mount
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const res = await fetch('/api/admin/questions')
+        if (!res.ok) throw new Error('Failed to fetch questions')
+        const data = await res.json()
+        
+        // Transform database format to QuestionDefinition format
+        const transformedQuestions = data.map((q: any) => ({
+          id: q.id,
+          step: q.step,
+          text: q.text,
+          type: q.type.toLowerCase(),
+          options: q.options.map((o: any) => o.value),
+          rows: q.matrixRows.map((r: any) => r.label)
+        }))
+        
+        setQuestions(transformedQuestions)
+      } catch (err: any) {
+        setError(err.message)
+        console.error('Error fetching questions:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchQuestions()
+  }, [])
+
+  // Create a new question
+  const createQuestion = async (question: Omit<QuestionDefinition, 'id'>) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/admin/questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...question,
+          id: Date.now().toString(),
+          type: question.type.toUpperCase()
+        })
+      })
+      
+      if (!res.ok) throw new Error('Failed to create question')
+      
+      const data = await res.json()
+      setQuestions(prev => [...prev, {
+        ...question,
+        id: data.id
+      }])
+    } catch (err: any) {
+      setError(err.message)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Update a question
+  const updateQuestion = async (question: QuestionDefinition) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/admin/questions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...question,
+          type: question.type.toUpperCase()
+        })
+      })
+      
+      if (!res.ok) throw new Error('Failed to update question')
+      
+      setQuestions(prev => 
+        prev.map(q => q.id === question.id ? question : q)
+      )
+    } catch (err: any) {
+      setError(err.message)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Delete a question
+  const deleteQuestion = async (id: string) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/admin/questions?id=${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (!res.ok) throw new Error('Failed to delete question')
+      
+      setQuestions(prev => prev.filter(q => q.id !== id))
+    } catch (err: any) {
+      setError(err.message)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // debug log
   useEffect(() => {
@@ -145,8 +227,10 @@ export function FormProvider({ children }: FormProviderProps) {
   }
 
   const isStepCompleted = (step: number) => completedSteps.has(step)
-  const markStepCompleted = (step: number) =>
+
+  const markStepCompleted = (step: number) => {
     setCompletedSteps((prev) => new Set(prev).add(step))
+  }
 
   const resetForm = () => {
     setFormData({
@@ -161,34 +245,36 @@ export function FormProvider({ children }: FormProviderProps) {
     setCompletedSteps(new Set())
   }
 
-  const value: FormContextType = {
-    formData,
-    updateFormData,
-    currentStep,
-    setCurrentStep,
-    completedSteps,
-    isStepCompleted,
-    markStepCompleted,
-    resetForm,
-    totalSteps,
-    questions,
-    setQuestions,
-  }
-
   return (
-    <FormContext.Provider value={value}>
+    <FormContext.Provider
+      value={{
+        formData,
+        updateFormData,
+        currentStep,
+        setCurrentStep,
+        completedSteps,
+        isStepCompleted,
+        markStepCompleted,
+        resetForm,
+        totalSteps,
+        questions,
+        setQuestions,
+        createQuestion,
+        updateQuestion,
+        deleteQuestion,
+        isLoading,
+        error
+      }}
+    >
       {children}
     </FormContext.Provider>
   )
 }
 
-// ——— 4) Single hook to consume ———
-export function useFormContext(): FormContextType {
+export function useFormContext() {
   const context = useContext(FormContext)
-  if (!context) {
-    throw new Error(
-      'useFormContext must be used within a FormProvider'
-    )
+  if (context === undefined) {
+    throw new Error('useFormContext must be used within a FormProvider')
   }
   return context
 }

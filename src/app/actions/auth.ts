@@ -58,7 +58,6 @@ export async function signin(state: FormState, formData: FormData) {
     },
   });
 
-  // if (user?.passwordHash !== password)
   if (user?.passwordHash !== password)
     return {
       message: 'Password is incorrect',
@@ -69,8 +68,7 @@ export async function signin(state: FormState, formData: FormData) {
       message: 'Please register first',
     };
     
-// await createSession(user.id);
   await createSession(user.id.toString());
 
-  redirect('/dashboard');
+  redirect('/admin');
 }
