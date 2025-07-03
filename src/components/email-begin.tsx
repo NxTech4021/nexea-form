@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import FormField from './form/form-field';
@@ -57,6 +58,7 @@ const AuthForm = () => {
       const responseData = await res.json();
 
       if (!res.ok) {
+        toast.error(responseData.error || 'Failed to send verification email');
         setError(responseData.error || 'Failed to send verification email');
         return;
       }
@@ -134,11 +136,11 @@ const AuthForm = () => {
                         )}
                       </Button>
                     </div>
-                    {error && (
+                    {/* {error && (
                       <div className='text-red-600 text-center text-sm'>
                         {error}
                       </div>
-                    )}
+                    )} */}
                   </>
                 )}
               </div>
