@@ -11,38 +11,25 @@ import { FormNavigation } from '@/components/form-navigation';
 import { QuestionSidebar } from '@/components/question-sidebar';
 import Question from '@/components/question/question';
 import { Form } from '@/components/ui/form';
-import { useFormContext, QuestionDefinition } from '@/contexts/form-context';
+import { useFormContext } from '@/contexts/form-context';
 
-//
-// ——— 1) Static definitions ———
-//
+// Types
+interface QuestionDefinition {
+  id: string;
+  step: number;
+  text: string;
+  type: 'matrix';
+  options: string[];
+  rows: string[];
+}
+
+// Static definitions
 const columns = [
   'Least Accurate',
   'Somewhat Accurate',
   'Quite Accurate',
   'Most Accurate',
 ];
-
-// const matrix1Rows = [
-//   'Get them to cooperate and collaborate',
-//   'Get the day-by-day work done',
-//   'Change things',
-//   'Work systematically',
-// ];
-
-// const matrix2Rows = [
-//   'Work hard',
-//   'Am accurate',
-//   'Understand others',
-//   'Am creative',
-// ];
-
-// const matrix3Rows = [
-//   'Maintain a high standard of quality in everything they do',
-//   'Demonstrate a will and ability to put in extra work',
-//   'Bring good new ideas',
-//   'Work well with others to bring out the best in them',
-// ];
 
 const matrixTitles = [
   {
@@ -78,45 +65,35 @@ const matrixTitles = [
   },
 ];
 
-//
-// ——— 2) Context registration for admin UI ———
-//
-export const questionsDataStep3: QuestionDefinition[] = matrixTitles.map(
-  (m) =>
-    ({
-      id: m.id as any,
-      step: 3,
-      text: m.question,
-      type: 'matrix',
-      options: columns,
-      rows: m.rows,
-    } as QuestionDefinition)
-);
+// Context registration for admin UI
+export const questionsDataStep3: QuestionDefinition[] = matrixTitles.map((m) => ({
+  id: m.id,
+  step: 3,
+  text: m.question,
+  type: 'matrix',
+  options: columns,
+  rows: m.rows,
+}));
 
-//
-// ——— 3) Zod schema ———
-//
+// Zod schema
 const formSchema = z.object({
   matrix1: z.record(z.string()),
   matrix2: z.record(z.string()),
   matrix3: z.record(z.string()),
 });
 
-//
-// ——— 4) Step3 component ———
-//
+type FormValues = z.infer<typeof formSchema>;
+
 export function Step3() {
   const { formData, markStepCompleted, setCurrentStep, updateFormData } =
     useFormContext();
 
-  const [matrixErrors, setMatrixErrors] = useState<Record<string, string[]>>(
+  const [matrixErrors, setMatrixErrors] = useState<Record<string, string[]>>({});
+  const [touchedMatrices, setTouchedMatrices] = useState<Record<string, boolean>>(
     {}
   );
-  const [touchedMatrices, setTouchedMatrices] = useState<
-    Record<string, boolean>
-  >({});
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     defaultValues: {
       matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
       matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
@@ -125,7 +102,7 @@ export function Step3() {
     resolver: zodResolver(formSchema),
   });
 
-  // only for autofill
+  // Autofill effect
   useEffect(() => {
     form.reset({
       matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
@@ -162,7 +139,7 @@ export function Step3() {
   };
 
   const handleMatrixChange = (
-    matrixName: 'matrix1' | 'matrix2' | 'matrix3',
+    matrixName: keyof FormValues,
     formOnChange: (value: Record<string, string>) => void,
     newValue: Record<string, string>
   ) => {
@@ -187,11 +164,10 @@ export function Step3() {
     setCurrentStep(3);
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    let firstErrorMatrix: null | string = null;
+  function onSubmit(values: FormValues) {
+    let firstErrorMatrix: keyof FormValues | null = null;
     const newTouchedState: Record<string, boolean> = {};
-
-    const matricesToValidate: ('matrix1' | 'matrix2' | 'matrix3')[] = [
+    const matricesToValidate: Array<keyof FormValues> = [
       'matrix1',
       'matrix2',
       'matrix3',
@@ -227,43 +203,49 @@ export function Step3() {
     <div className="min-h-screen">
       <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
 
-      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
-        <div className="bg-card border rounded-lg p-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <Image
-              src="/nexealogo.png"
-              alt="NEXEA Logo"
-              width={40}
-              height={40}
-            />
-            <h1 className="text-2xl sm:text-3xl font-bold">
-              Entrepreneurs Behaviour Assessment
-            </h1>
+      <div className="max-w-2xl mx-auto p-4 sm:p-6">
+        <div className="space-y-4 sm:space-y-6">
+          {/* Persistent Form Title */}
+          <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
+            <div className="text-left space-y-2 sm:space-y-3">
+              <div className="flex items-center gap-4">
+                <Image
+                  alt="NEXEA Logo"
+                  height={40}
+                  src="/nexealogo.png"
+                  width={40}
+                />
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  Entrepreneurs Behaviour Assessment
+                </h1>
+              </div>
+            </div>
           </div>
+
+          <Form {...form}>
+            <form
+              className="space-y-3 sm:space-y-4"
+              onSubmit={form.handleSubmit(onSubmit)}
+            >
+              {matrixTitles.map((data) => (
+                <Question
+                  columns={columns}
+                  data={data}
+                  errors={matrixErrors[data.id]}
+                  form={form}
+                  handleChange={handleMatrixChange}
+                  key={data.id}
+                />
+              ))}
+            </form>
+          </Form>
+
+          {/* Navigation */}
+          <FormNavigation
+            isNextDisabled={!form.formState.isValid}
+            onNext={() => form.handleSubmit(onSubmit)()}
+          />
         </div>
-
-        <Form {...form}>
-          <form
-            className="space-y-4 sm:space-y-6"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
-            {matrixTitles.map((data) => (
-              <Question
-                columns={columns}
-                data={data}
-                errors={matrixErrors[data.id]}
-                form={form}
-                handleChange={handleMatrixChange}
-                key={data.id}
-              />
-            ))}
-          </form>
-        </Form>
-
-        <FormNavigation
-          isNextDisabled={!form.formState.isValid}
-          onNext={() => form.handleSubmit(onSubmit)()}
-        />
       </div>
     </div>
   );

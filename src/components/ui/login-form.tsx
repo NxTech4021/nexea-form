@@ -1,11 +1,10 @@
-// @ts-nocheck
 'use client';
 
 import { LoaderIcon } from 'lucide-react';
 import { useActionState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { signin } from '@/app/actions/auth';
+import { authenticate } from '@/app/actions/auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,14 +17,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
+interface SignInState {
+  message?: string;
+  errors?: {
+    email?: string[];
+    password?: string[];
+  };
+}
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const [state, action, pending] = useActionState(
-    async (prevState, formData) => {
+    async (prevState: SignInState | undefined, formData: FormData) => {
       // Call the original signin action
-      const result = await signin(prevState, formData);
+      const result = await authenticate(prevState, formData);
       // Convert errors to string[] if needed
       if (result?.errors) {
         return {
@@ -97,7 +104,7 @@ export function LoginForm({
                 <ul className='ml-5 list-disc text-red-500'>
                   {state?.errors?.password &&
                   typeof state?.errors?.password === 'object'
-                    ? state?.errors?.password?.map((item, index) => (
+                    ? state?.errors?.password?.map((item: string, index: number) => (
                         <li key={index}>
                           <small className='text-xs leading-none font-medium text-red-500'>
                             {item}

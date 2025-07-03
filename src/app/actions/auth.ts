@@ -15,60 +15,69 @@ export async function beginAuth(email: string) {
   } catch (error) {
     return NextResponse.json(
       {
-        error: 'Error boh',
+        error: 'Error occurred during authentication',
       },
       { status: 400 }
     );
   }
 }
 
-export async function logout() {
-  await deleteSession();
-  redirect('/auth/login');
-}
-
-export async function signin(state: FormState, formData: FormData) {
-  const email = formData.get('email');
-  const password = formData.get('password');
-
-  if (!email)
-    return {
-      errors: { email: 'Not found' },
-    };
-
-  if (!password)
-    return {
-      errors: { password: 'Not found' },
-    };
-
+export async function authenticate(
+  prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
   const validatedFields = SigninFormSchema.safeParse({
-    email: email,
-    password: password,
+    email: formData.get('email'),
+    password: formData.get('password'),
   });
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Sign In.',
     };
   }
 
-  const user = await prisma.user.findFirst({
-    where: {
-      email: email.toString(),
-    },
-  });
+  const { email, password } = validatedFields.data;
 
-  if (user?.passwordHash !== password)
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, passwordHash: true },
+    });
+
+    if (!user) {
+      return {
+        message: 'Invalid credentials',
+      };
+    }
+
+    // Here you would typically verify the password hash
+    // For now, we'll do a simple comparison since it's a demo
+    if (password !== user.passwordHash) {
+      return {
+        message: 'Invalid credentials',
+      };
+    }
+
+    // Create a session
+    await createSession(user.id.toString());
+
+    redirect('/admin');
+  } catch (error) {
     return {
-      message: 'Password is incorrect',
+      message: 'Database Error: Failed to Sign In.',
     };
+  }
+}
 
-  if (!user)
+export async function signOut(): Promise<FormState> {
+  try {
+    await deleteSession();
+    redirect('/auth/login');
+  } catch (error) {
     return {
-      message: 'Please register first',
+      message: 'Database Error: Failed to Sign Out.',
     };
-    
-  await createSession(user.id.toString());
-
-  redirect('/admin');
+  }
 }

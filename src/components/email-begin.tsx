@@ -86,7 +86,7 @@ const AuthForm = () => {
         <CardHeader>
           <CardTitle>Welcome! Let&apos;s Get Started</CardTitle>
           <CardDescription>
-            Enter your email to begin answering the questions. We'll use this to
+            Enter your email to begin answering the questions. We&apos;ll use this to
             save your progress and send you a secure access link.
           </CardDescription>
         </CardHeader>
