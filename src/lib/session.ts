@@ -61,6 +61,12 @@ export async function encrypt(payload: SessionPayload) {
     .sign(secret);
 }
 
+export async function getSession() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get('session')?.value;
+  return decrypt(session);
+}
+
 export async function updateSession() {
   const cookieStore = await cookies();
   const session = cookieStore.get('session')?.value;
@@ -82,10 +88,4 @@ export async function updateSession() {
   });
 
   return newSession;
-}
-
-export async function getSession() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('session')?.value;
-  return decrypt(session);
 }

@@ -25,7 +25,9 @@ async function seedAllowlist() {
           credits: data.credits,
         },
       });
-      console.log(`Created Allowlist entry: ${allowlist.email} (${allowlist.credits} credits)`);
+      console.log(
+        `Created Allowlist entry: ${allowlist.email} (${allowlist.credits} credits)`
+      );
     }
 
     console.log('✅ Seeding finished.');
@@ -36,4 +38,4 @@ async function seedAllowlist() {
   }
 }
 
-seedAllowlist(); 
+seedAllowlist();

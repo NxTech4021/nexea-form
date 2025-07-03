@@ -7,40 +7,40 @@ require('ts-node').register({
   compilerOptions: {
     module: 'commonjs',
     moduleResolution: 'node',
-    jsx: 'react-jsx',               // erase JSX, keep your exports
+    jsx: 'react-jsx', // erase JSX, keep your exports
     esModuleInterop: true,
     allowSyntheticDefaultImports: true,
   },
-})
+});
 
 // 2) let tsconfig-paths resolve your `@/*` imports
-const tsConfigPaths = require('tsconfig-paths')
-const { resolve } = require('path')
-const baseUrl = resolve(__dirname, '../')
+const tsConfigPaths = require('tsconfig-paths');
+const { resolve } = require('path');
+const baseUrl = resolve(__dirname, '../');
 tsConfigPaths.register({
   baseUrl,
   paths: {
     '@/*': [`${baseUrl}/src/*`],
   },
-})
+});
 
-const fs   = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 
 // 3) require each of your step exports (ts-node + tsconfig-paths will handle TSX + aliases)
-const { questionsDataStep1 } = require('../src/components/steps/step-1')
-const { questionsDataStep2 } = require('../src/components/steps/step-2')
-const { questionsDataStep3 } = require('../src/components/steps/step-3')
-const { questionsDataStep4 } = require('../src/components/steps/step-4')
-const { questionsDataStep5 } = require('../src/components/steps/step-5')
-const { questionsDataStep6 } = require('../src/components/steps/step-6')
-const { questionsDataStep7 } = require('../src/components/steps/step-7')
-const { questionsDataStep8 } = require('../src/components/steps/step-8')
-const { questionsDataStep9 } = require('../src/components/steps/step-9')
-const { questionsDataStep10 } = require('../src/components/steps/step-10')
-const { questionsDataStep11 } = require('../src/components/steps/step-11')
-const { questionsDataStep12 } = require('../src/components/steps/step-12')
-const { questionsDataStep13 } = require('../src/components/steps/step-13')
+const { questionsDataStep1 } = require('../src/components/steps/step-1');
+const { questionsDataStep2 } = require('../src/components/steps/step-2');
+const { questionsDataStep3 } = require('../src/components/steps/step-3');
+const { questionsDataStep4 } = require('../src/components/steps/step-4');
+const { questionsDataStep5 } = require('../src/components/steps/step-5');
+const { questionsDataStep6 } = require('../src/components/steps/step-6');
+const { questionsDataStep7 } = require('../src/components/steps/step-7');
+const { questionsDataStep8 } = require('../src/components/steps/step-8');
+const { questionsDataStep9 } = require('../src/components/steps/step-9');
+const { questionsDataStep10 } = require('../src/components/steps/step-10');
+const { questionsDataStep11 } = require('../src/components/steps/step-11');
+const { questionsDataStep12 } = require('../src/components/steps/step-12');
+const { questionsDataStep13 } = require('../src/components/steps/step-13');
 // …and if you have 11–13:
 // const { questionsDataStep11 } = require('../src/components/steps/step-11.tsx')
 // …etc
@@ -61,9 +61,9 @@ const allQuestions = [
   ...questionsDataStep12,
   ...questionsDataStep13,
   // …questionsDataStep11, etc.
-]
+];
 
 // 5) write it out to prisma/questions.json
-const outPath = path.resolve(__dirname, '../prisma/questions.json')
-fs.writeFileSync(outPath, JSON.stringify(allQuestions, null, 2))
-console.log(`✅ Wrote ${allQuestions.length} questions to ${outPath}`)
+const outPath = path.resolve(__dirname, '../prisma/questions.json');
+fs.writeFileSync(outPath, JSON.stringify(allQuestions, null, 2));
+console.log(`✅ Wrote ${allQuestions.length} questions to ${outPath}`);

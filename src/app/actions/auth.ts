@@ -7,24 +7,9 @@ import { FormState, SigninFormSchema } from '@/lib/definitions';
 import { prisma } from '@/lib/prisma';
 import { createSession, deleteSession } from '@/lib/session';
 
-export async function beginAuth(email: string) {
-  try {
-    console.log(email);
-    return NextResponse.json({ message: 'Success' }, { status: 200 });
-  } catch (error) {
-    console.error('Error in beginAuth:', error);
-    return NextResponse.json(
-      {
-        error: 'Error occurred during authentication',
-      },
-      { status: 400 }
-    );
-  }
-}
-
 export async function authenticate(
   prevState: FormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<FormState> {
   try {
     const validatedFields = SigninFormSchema.safeParse({
@@ -43,8 +28,8 @@ export async function authenticate(
 
     console.log('Attempting to find user:', email);
     const user = await prisma.user.findUnique({
+      select: { email: true, id: true, passwordHash: true },
       where: { email },
-      select: { id: true, email: true, passwordHash: true },
     });
 
     if (!user) {
@@ -75,20 +60,22 @@ export async function authenticate(
   }
 }
 
-export async function signOut(): Promise<FormState> {
+export async function beginAuth(email: string) {
   try {
-    await deleteSession();
-    redirect('/auth/login');
+    console.log(email);
+    return NextResponse.json({ message: 'Success' }, { status: 200 });
   } catch (error) {
-    console.error('Error in signOut:', error);
-    return {
-      message: 'Database Error: Failed to Sign Out.',
-    };
+    console.error('Error in beginAuth:', error);
+    return NextResponse.json(
+      {
+        error: 'Error occurred during authentication',
+      },
+      { status: 400 }
+    );
   }
 }
 
 export async function clearLoginSession() {
-  'use server';
   try {
     await deleteSession();
     return { success: true };
@@ -96,4 +83,23 @@ export async function clearLoginSession() {
     console.error('Error clearing session:', error);
     return { success: false };
   }
+}
+
+// export async function signOut(): Promise<FormState> {
+//   try {
+//     await deleteSession();
+
+//     redirect('/auth/login');
+//   } catch (error) {
+//     console.error('Error in signOut:', error);
+//     return {
+//       message: 'Database Error: Failed to Sign Out.',
+//     };
+//   }
+// }
+
+export async function signOut(prevState: any): Promise<{ success: boolean }> {
+  await deleteSession();
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
+  return { success: true };
 }

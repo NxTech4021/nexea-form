@@ -23,8 +23,8 @@ async function testEmail() {
       pass: EMAIL_PASS,
     },
     tls: {
-      rejectUnauthorized: false
-    }
+      rejectUnauthorized: false,
+    },
   });
 
   try {
@@ -46,11 +46,13 @@ async function testEmail() {
     console.error('❌ Error:', error);
     if (error.code === 'EAUTH') {
       console.error('\nPossible solutions:');
-      console.error('1. Make sure you\'re using an App Password, not your regular Gmail password');
+      console.error(
+        "1. Make sure you're using an App Password, not your regular Gmail password"
+      );
       console.error('2. Enable 2-Step Verification in your Google Account');
       console.error('3. Generate a new App Password');
     }
   }
 }
 
-testEmail(); 
+testEmail();

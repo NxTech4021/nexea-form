@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
+import { NextRequest, NextResponse } from 'next/server';
+import nodemailer from 'nodemailer';
 
 const prisma = new PrismaClient();
 
@@ -20,16 +20,13 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
 
     if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
     // Check allowlist
     const allow = await prisma.allowlist.findUnique({
+      select: { credits: true, email: true },
       where: { email },
-      select: { email: true, credits: true }
     });
 
     if (!allow) {
@@ -47,24 +44,22 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate token (expires in 15 minutes)
-    const token = jwt.sign(
-      { email, allowlistId: allow.email },
-      JWT_SECRET,
-      { expiresIn: '15m' }
-    );
+    const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET, {
+      expiresIn: '15m',
+    });
 
     // Setup email transport
     const transporter = nodemailer.createTransport({
+      auth: {
+        pass: EMAIL_PASS, // This should be an app-specific password
+        user: EMAIL_USER,
+      },
       host: 'smtp.gmail.com',
       port: 587,
       secure: false, // Use TLS
-      auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_PASS, // This should be an app-specific password
-      },
       tls: {
-        rejectUnauthorized: false // Only for development
-      }
+        rejectUnauthorized: false, // Only for development
+      },
     });
 
     const link = `${BASE_URL}/begin-quiz?token=${token}`;
@@ -85,47 +80,45 @@ export async function POST(req: NextRequest) {
     try {
       const info = await transporter.sendMail({
         from: `"NEXEA Assessment" <${EMAIL_FROM}>`,
-        to: email,
-        subject: 'Your Entrepreneurs Behaviour Assessment Link',
         html: `
           <p>Hello,</p>
           <p>Click the link below to begin your Entrepreneurs Behaviour Assessment. This link will expire in 15 minutes.</p>
           <p><a href="${link}">${link}</a></p>
           <p>If you did not request this assessment, please ignore this email.</p>
         `,
+        subject: 'Your Entrepreneurs Behaviour Assessment Link',
+        to: email,
       });
 
       console.log('Email sent successfully:', info.messageId);
-      
+
       // Deduct one credit after successful email send
       await prisma.allowlist.update({
-        where: { email },
         data: {
           credits: {
-            decrement: 1
-          }
-        }
+            decrement: 1,
+          },
+        },
+        where: { email },
       });
-      
-      return NextResponse.json({ 
+
+      return NextResponse.json({
+        message: 'Assessment link sent successfully',
         success: true,
-        message: 'Assessment link sent successfully'
       });
-      
     } catch (emailError: any) {
       console.error('Failed to send email. Error details:', {
-        error: emailError.message,
         code: emailError.code,
         command: emailError.command,
-        response: emailError.response
+        error: emailError.message,
+        response: emailError.response,
       });
-      
+
       return NextResponse.json(
         { error: `Failed to send email: ${emailError.message}` },
         { status: 500 }
       );
     }
-
   } catch (error) {
     console.error('Error processing request:', error);
     return NextResponse.json(

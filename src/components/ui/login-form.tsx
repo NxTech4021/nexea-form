@@ -19,11 +19,11 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 interface SignInState {
-  message?: string;
   errors?: {
     email?: string[];
     password?: string[];
   };
+  message?: string;
   success?: boolean;
 }
 
@@ -36,6 +36,7 @@ export function LoginForm({
     async (prevState: SignInState | undefined, formData: FormData) => {
       // Call the original signin action
       const result = await authenticate(prevState, formData);
+
       // Convert errors to string[] if needed
       if (result?.errors) {
         return {
@@ -63,6 +64,7 @@ export function LoginForm({
     if (state?.message) {
       toast.error(state.message);
     }
+
     if (state?.success) {
       router.push('/admin');
     }
@@ -110,13 +112,15 @@ export function LoginForm({
                 <ul className='ml-5 list-disc text-red-500'>
                   {state?.errors?.password &&
                   typeof state?.errors?.password === 'object'
-                    ? state?.errors?.password?.map((item: string, index: number) => (
-                        <li key={index}>
-                          <small className='text-xs leading-none font-medium text-red-500'>
-                            {item}
-                          </small>
-                        </li>
-                      ))
+                    ? state?.errors?.password?.map(
+                        (item: string, index: number) => (
+                          <li key={index}>
+                            <small className='text-xs leading-none font-medium text-red-500'>
+                              {item}
+                            </small>
+                          </li>
+                        )
+                      )
                     : state?.errors?.password}
                 </ul>
               </div>
@@ -125,17 +129,8 @@ export function LoginForm({
                 <Button className='w-full' disabled={pending} type='submit'>
                   {pending ? <LoaderIcon className='animate-spin' /> : 'Login'}
                 </Button>
-                {/* <Button className='w-full' variant='outline'>
-                  Login with Google
-                </Button> */}
               </div>
             </div>
-            {/* <div className='mt-4 text-center text-sm'>
-              Don&apos;t have an account?{' '}
-              <a className='underline underline-offset-4' href='#'>
-                Sign up
-              </a>
-            </div> */}
           </form>
         </CardContent>
       </Card>

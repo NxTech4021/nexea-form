@@ -1,17 +1,63 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { decrypt } from '@/lib/session';
 
 const prisma = new PrismaClient();
 
+// Get all allowlist entries
+export async function GET() {
+  try {
+    const entries = await prisma.allowlist.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return NextResponse.json(entries);
+  } catch (error) {
+    console.error('Error fetching allowlist:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch allowlist' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const { credit, id } = await req.json();
+
+    const data = await prisma.allowlist.update({
+      data: {
+        credits: credit,
+      },
+      where: {
+        id: id,
+      },
+    });
+
+    return NextResponse.json(
+      { data, message: 'Updated Successfully' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      { error: 'Failed to update credits' },
+      { status: 400 }
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { email, credits = 1 } = await req.json();
+    const { credits = 1, email } = await req.json();
+    const session = (await cookies()).get('session')?.value;
+
+    const data = await decrypt(session);
 
     if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
     // Check if email already exists
@@ -26,19 +72,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const numericId = data?.userId ? parseInt(data?.userId, 10) : undefined;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        id: numericId,
+      },
+    });
+
     // Add to allowlist
     const allowlist = await prisma.allowlist.create({
       data: {
-        email,
+        addedBy: user?.email,
         credits,
+        email,
       },
     });
 
     return NextResponse.json({
+      data: allowlist,
+      message: 'Email added to allowlist successfully',
       success: true,
-      message: 'Email added to allowlist successfully'
     });
-
   } catch (error: any) {
     console.error('Error processing request:', error);
     return NextResponse.json(
@@ -47,20 +102,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-// Get all allowlist entries
-export async function GET() {
-  try {
-    const entries = await prisma.allowlist.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
-
-    return NextResponse.json(entries);
-  } catch (error) {
-    console.error('Error fetching allowlist:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch allowlist' },
-      { status: 500 }
-    );
-  }
-} 

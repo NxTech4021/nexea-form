@@ -1,9 +1,6 @@
-// schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
-
 
 datasource db {
   provider = "postgresql"
@@ -17,69 +14,70 @@ enum QuestionType {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
   passwordHash String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  responses    Response[]
+  responses Response[]
+
   @@map("users")
 }
 
 model Question {
-  id          String       @id
-  step        Int
-  text        String
-  type        QuestionType
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id        String       @id
+  step      Int
+  text      String
+  type      QuestionType
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
-  options     Option[]
-  matrixRows  MatrixRow[]
+  options    Option[]
+  matrixRows MatrixRow[]
 
   /// all answers given against this question
-  answers     Answer[]
+  answers Answer[]
 }
 
 model Option {
-  id          Int        @id @default(autoincrement())
-  question    Question   @relation(fields: [questionId], references: [id])
-  questionId  String
-  value       String
-  order       Int
+  id         Int      @id @default(autoincrement())
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+  value      String
+  order      Int
 
   @@index([questionId])
 }
 
 model MatrixRow {
-  id          Int        @id @default(autoincrement())
-  question    Question   @relation(fields: [questionId], references: [id])
-  questionId  String
-  label       String
-  order       Int
+  id         Int      @id @default(autoincrement())
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+  label      String
+  order      Int
 
   @@index([questionId])
 }
 
 model Response {
-  id          Int        @id @default(autoincrement())
-  user        User?      @relation(fields: [userId], references: [id])
+  id          Int      @id @default(autoincrement())
+  user        User?    @relation(fields: [userId], references: [id])
   userId      Int?
-  submittedAt DateTime   @default(now())
+  submittedAt DateTime @default(now())
 
-  answers     Answer[]
+  answers Answer[]
 
   @@index([userId])
 }
 
 model Answer {
-  id          Int        @id @default(autoincrement())
-  response    Response   @relation(fields: [responseId], references: [id])
-  responseId  Int
-  question    Question   @relation(fields: [questionId], references: [id])
-  questionId  String
-  value       Json
+  id         Int      @id @default(autoincrement())
+  response   Response @relation(fields: [responseId], references: [id])
+  responseId Int
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+  value      Json
 
   @@index([responseId])
   @@index([questionId])
@@ -91,4 +89,6 @@ model Allowlist {
   credits   Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  addedBy String?
 }

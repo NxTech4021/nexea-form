@@ -24,7 +24,7 @@ type FormValues = z.infer<typeof BeginSchema>;
 
 const AuthForm = () => {
   const [mounted, setMounted] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<null | string>(null);
   const [success, setSuccess] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -49,9 +49,9 @@ const AuthForm = () => {
 
     try {
       const res = await fetch('/api/begin-quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: data.email }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
       });
 
       const responseData = await res.json();
@@ -86,8 +86,8 @@ const AuthForm = () => {
         <CardHeader>
           <CardTitle>Welcome! Let&apos;s Get Started</CardTitle>
           <CardDescription>
-            Enter your email to begin answering the questions. We&apos;ll use this to
-            save your progress and send you a secure access link.
+            Enter your email to begin answering the questions. We&apos;ll use
+            this to save your progress and send you a secure access link.
           </CardDescription>
         </CardHeader>
         <FormProvider {...methods}>
@@ -95,32 +95,38 @@ const AuthForm = () => {
             <CardContent>
               <div className='flex flex-col gap-6'>
                 {success ? (
-                  <div className="text-green-600 text-center py-2">
+                  <div className='text-green-600 text-center py-2'>
                     <p>✓ Verification email sent!</p>
-                    <p className="text-sm mt-2">Please check your email for the assessment link.</p>
-                    <p className="text-sm text-gray-500 mt-1">The link will expire in 15 minutes.</p>
+                    <p className='text-sm mt-2'>
+                      Please check your email for the assessment link.
+                    </p>
+                    <p className='text-sm text-gray-500 mt-1'>
+                      The link will expire in 15 minutes.
+                    </p>
                   </div>
                 ) : (
                   <>
                     <div className='grid gap-3'>
                       <Label htmlFor='email'>Email</Label>
                       <FormField
+                        className={
+                          isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                        }
+                        disabled={isSubmitting}
                         name='email'
                         placeholder='m@example.com'
                         type='email'
-                        disabled={isSubmitting}
-                        className={isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
                       />
                     </div>
                     <div className='flex flex-col gap-3'>
-                      <Button 
-                        className='w-full' 
-                        type='submit'
+                      <Button
+                        className='w-full'
                         disabled={isSubmitting}
+                        type='submit'
                       >
                         {isSubmitting ? (
-                          <span className="flex items-center gap-2">
-                            <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span className='flex items-center gap-2'>
+                            <span className='h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
                             Sending...
                           </span>
                         ) : (
@@ -129,7 +135,7 @@ const AuthForm = () => {
                       </Button>
                     </div>
                     {error && (
-                      <div className="text-red-600 text-center text-sm">
+                      <div className='text-red-600 text-center text-sm'>
                         {error}
                       </div>
                     )}

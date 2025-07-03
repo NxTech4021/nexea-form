@@ -10,7 +10,7 @@ export default function AssessmentPage() {
   const searchParams = useSearchParams();
   const responseId = searchParams.get('responseId');
   const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<null | string>(null);
 
   useEffect(() => {
     if (!responseId) {
@@ -24,13 +24,13 @@ export default function AssessmentPage() {
       try {
         const res = await fetch(`/api/verify-response?id=${responseId}`);
         const data = await res.json();
-        
+
         if (!res.ok) {
           setIsValid(false);
           setError(data.error || 'Failed to verify response');
           return;
         }
-        
+
         setIsValid(true);
         setError(null);
       } catch (error) {
@@ -45,9 +45,9 @@ export default function AssessmentPage() {
 
   if (isValid === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='text-center'>
+          <div className='h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4'></div>
           <p>Loading assessment...</p>
         </div>
       </div>
@@ -56,13 +56,13 @@ export default function AssessmentPage() {
 
   if (!isValid) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Invalid Assessment Link</h1>
-          <p className="text-gray-600 mb-4">
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='text-center'>
+          <h1 className='text-2xl font-bold mb-2'>Invalid Assessment Link</h1>
+          <p className='text-gray-600 mb-4'>
             {error || 'This assessment link is invalid or has expired.'}
           </p>
-          <a href="/" className="text-primary hover:underline">
+          <a className='text-primary hover:underline' href='/'>
             Return to Homepage
           </a>
         </div>
@@ -75,4 +75,4 @@ export default function AssessmentPage() {
       <Assessment />
     </FormProvider>
   );
-} 
+}
