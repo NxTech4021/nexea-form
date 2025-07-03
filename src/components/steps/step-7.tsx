@@ -179,6 +179,14 @@ const questionsData: Question[] = [
   { id: 'radio27', question: 'I sometimes do not complete my tasks' },
 ];
 
+export const questionsDataStep7 = questionsData.map(q => ({
+  id: q.id,
+  step: 7,
+  text: q.question,
+  type: 'radio' as const,
+  options: radioOptions,
+}));
+
 export function Step7() {
   const { formData, markStepCompleted, setCurrentStep, updateFormData } =
     useFormContext();

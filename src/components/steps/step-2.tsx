@@ -63,3 +63,4 @@ export function Step2() {
     </div>
   );
 }
+export const questionsDataStep2: never[] = []

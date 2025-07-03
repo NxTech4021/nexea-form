@@ -290,3 +290,12 @@ export function Step12() {
     </>
   );
 }
+
+// ── Mirror Step12’s own questions for Admin/FormContext ──
+export const questionsDataStep12 = questionsData.map(q => ({
+    id:      q.id,
+    step:    12,
+    text:    q.question,
+    type:    'radio' as const,
+    options: radioOptions,
+  }))

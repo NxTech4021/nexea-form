@@ -10,65 +10,90 @@ import { createSession, deleteSession } from '@/lib/session';
 export async function beginAuth(email: string) {
   try {
     console.log(email);
-
     return NextResponse.json({ message: 'Success' }, { status: 200 });
   } catch (error) {
+    console.error('Error in beginAuth:', error);
     return NextResponse.json(
       {
-        error: 'Error boh',
+        error: 'Error occurred during authentication',
       },
       { status: 400 }
     );
   }
 }
 
-export async function logout() {
-  await deleteSession();
-  redirect('/auth/login');
-}
+export async function authenticate(
+  prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  try {
+    const validatedFields = SigninFormSchema.safeParse({
+      email: formData.get('email'),
+      password: formData.get('password'),
+    });
 
-export async function signin(state: FormState, formData: FormData) {
-  const email = formData.get('email');
-  const password = formData.get('password');
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Missing Fields. Failed to Sign In.',
+      };
+    }
 
-  if (!email)
+    const { email, password } = validatedFields.data;
+
+    console.log('Attempting to find user:', email);
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, passwordHash: true },
+    });
+
+    if (!user) {
+      console.log('User not found:', email);
+      return {
+        message: 'Invalid credentials',
+      };
+    }
+
+    console.log('User found, checking password');
+    if (password !== user.passwordHash) {
+      console.log('Password mismatch');
+      return {
+        message: 'Invalid credentials',
+      };
+    }
+
+    console.log('Password matched, creating session');
+    await createSession(user.id.toString());
+    console.log('Session created, redirecting');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error in authenticate:', error);
     return {
-      errors: { email: 'Not found' },
-    };
-
-  if (!password)
-    return {
-      errors: { password: 'Not found' },
-    };
-
-  const validatedFields = SigninFormSchema.safeParse({
-    email: email,
-    password: password,
-  });
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Database Error: Failed to Sign In.',
     };
   }
+}
 
-  const user = await prisma.user.findFirst({
-    where: {
-      email: email.toString(),
-    },
-  });
-
-  if (user?.password !== password)
+export async function signOut(): Promise<FormState> {
+  try {
+    await deleteSession();
+    redirect('/auth/login');
+  } catch (error) {
+    console.error('Error in signOut:', error);
     return {
-      message: 'Password is incorrect',
+      message: 'Database Error: Failed to Sign Out.',
     };
+  }
+}
 
-  if (!user)
-    return {
-      message: 'Please register first',
-    };
-
-  await createSession(user.id);
-
-  redirect('/dashboard');
+export async function clearLoginSession() {
+  'use server';
+  try {
+    await deleteSession();
+    return { success: true };
+  } catch (error) {
+    console.error('Error clearing session:', error);
+    return { success: false };
+  }
 }

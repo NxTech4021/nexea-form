@@ -1,4 +1,5 @@
-'use client';
+// src/components/steps/step-5.tsx
+'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
@@ -10,7 +11,7 @@ import { FormNavigation } from '@/components/form-navigation';
 import { MatrixAssessment } from '@/components/matrix-assessment';
 import { QuestionSidebar } from '@/components/question-sidebar';
 import { Form, FormField, FormItem } from '@/components/ui/form';
-import { useFormContext } from '@/contexts/form-context';
+import { QuestionDefinition, useFormContext } from '@/contexts/form-context';
 
 const formSchema = z.object({
   matrix19: z.record(z.string()),
@@ -254,174 +255,118 @@ export function Step5() {
       question: 'The most important areas of responsibility in my job are:',
       shortTitle: 'Job Responsibility',
       title: 'Job Responsibility',
+      rows: matrix19Rows,
     },
     {
       id: 'matrix20',
       question: 'What I consider most important when making a decision is:',
       shortTitle: 'Decision Making',
       title: 'Decision Making',
+      rows: matrix20Rows,
     },
     {
       id: 'matrix21',
       question: 'The most important aspect of my job is:',
       shortTitle: 'Job Importance',
       title: 'Job Importance',
+      rows: matrix21Rows,
     },
     {
       id: 'matrix22',
       question: 'In my job I am good at:',
       shortTitle: 'Job Abilities',
       title: 'Job Abilities',
+      rows: matrix22Rows,
     },
     {
       id: 'matrix23',
       question: 'My attitude toward development work is that it:',
       shortTitle: 'Development Work',
       title: 'Development Work',
+      rows: matrix23Rows,
     },
     {
       id: 'matrix24',
       question: 'The primary reason that I wait to make an important decision is that I:',
       shortTitle: 'Decision Delay',
       title: 'Decision Delay',
+      rows: matrix24Rows,
     },
     {
       id: 'matrix25',
       question: 'My job requires me to:',
       shortTitle: 'Job Requirements',
       title: 'Job Requirements',
+      rows: matrix25Rows,
     },
     {
       id: 'matrix26',
       question: 'The kinds of tasks I like are those that:',
       shortTitle: 'Tasks',
       title: 'Tasks',
+      rows: matrix26Rows,
     },
     {
       id: 'matrix27',
       question: 'My most important quality in my current job is my ability to:',
       shortTitle: 'Quality',
       title: 'Quality',
+      rows: matrix27Rows,
     },
     {
       id: 'matrix28',
       question: 'The person taking over from me should be motivated by:',
       shortTitle: 'Motivation',
       title: 'Motivation',
+      rows: matrix28Rows,
     },
     {
       id: 'matrix29',
       question: 'Deep down, I would like my colleagues to see me as someone:',
       shortTitle: 'Colleague Values',
       title: 'Colleague Values',
+      rows: matrix29Rows,
     },
     {
       id: 'matrix30',
       question: 'What pleases me most in my current job is when I am able to:',
       shortTitle: 'Job Pleasure',
       title: 'Job Pleasure',
+      rows: matrix30Rows,
     },
     {
       id: 'matrix31',
       question: 'The type of work where I perform well is work which requires:',
       shortTitle: 'Work Performance',
       title: 'Work Performance',
+      rows: matrix31Rows,
     },
     {
       id: 'matrix32',
       question: 'Managers in our organization are praised for their ability to:',
       shortTitle: 'Manager',
       title: 'Manager',
+      rows: matrix32Rows,
     },
     {
       id: 'matrix33',
       question: 'I want to be thought of as a:',
       shortTitle: 'Thought of as',
       title: 'Thought of as',
-    },
-  ];
-
-  const matrixData: { name: MatrixName; question: string; rows: string[] }[] = [
-    {
-      name: 'matrix19',
-      question: 'The most important areas of responsibility in my job are:',
-      rows: matrix19Rows,
-    },
-    {
-      name: 'matrix20',
-      question: 'What I consider most important when making a decision is:',
-      rows: matrix20Rows,
-    },
-    {
-      name: 'matrix21',
-      question: 'The most important aspect of my job is:',
-      rows: matrix21Rows,
-    },
-    {
-      name: 'matrix22',
-      question: 'In my job I am good at:',
-      rows: matrix22Rows,
-    },
-    {
-      name: 'matrix23',
-      question: 'My attitude toward development work is that it:',
-      rows: matrix23Rows,
-    },
-    {
-      name: 'matrix24',
-      question: 'The primary reason that I wait to make an important decision is that I:',
-      rows: matrix24Rows,
-    },
-    {
-      name: 'matrix25',
-      question: 'My job requires me to:',
-      rows: matrix25Rows,
-    },
-    {
-      name: 'matrix26',
-      question: 'The kinds of tasks I like are those that:',
-      rows: matrix26Rows,
-    },
-    {
-      name: 'matrix27',
-      question: 'My most important quality in my current job is my ability to:',
-      rows: matrix27Rows,
-    },
-    {
-      name: 'matrix28',
-      question: 'The person taking over from me should be motivated by:',
-      rows: matrix28Rows,
-    },
-    {
-      name: 'matrix29',
-      question: 'Deep down, I would like my colleagues to see me as someone:',
-      rows: matrix29Rows,
-    },
-    {
-      name: 'matrix30',
-      question: 'What pleases me most in my current job is when I am able to:',
-      rows: matrix30Rows,
-    },
-    {
-      name: 'matrix31',
-      question: 'The type of work where I perform well is work which requires:',
-      rows: matrix31Rows,
-    },
-    {
-      name: 'matrix32',
-      question: 'Managers in our organization are praised for their ability to:',
-      rows: matrix32Rows,
-    },
-    {
-      name: 'matrix33',
-      question: 'I want to be thought of as a:',
       rows: matrix33Rows,
     },
-  ];
+  ] as const;
+
+  function scrollToSection(id: string): void {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <div>
-      <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
+      <QuestionSidebar
+        onTitleClick={scrollToMatrix}
+        titles={matrixTitles.map(({ id, title }) => ({ id, title }))}
+      />
 
       <div className='space-y-4 sm:space-y-6'>
         <Form {...form}>
@@ -429,7 +374,7 @@ export function Step5() {
             className='space-y-3 sm:space-y-4'
             onSubmit={form.handleSubmit(onSubmit)}
           >
-            {matrixData.map(({ name, question, rows }) => (
+            {matrixTitles.map(({ id: name, question, rows }) => (
               <div id={`${name}-section`} key={name}>
                 <FormField
                   control={form.control}
@@ -461,3 +406,202 @@ export function Step5() {
     </div>
   );
 }
+
+// ** NEW: export question definitions for admin UI **
+export const questionsDataStep5: QuestionDefinition[] = [
+  {
+    id: 'matrix19',
+    step: 5,
+    text: 'The most important areas of responsibility in my job are:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Developing people',
+      'Assuring the day-to-day work is achieved',
+      'Developing new products/services/systems',
+      'Making sure that rules and systems are clearly defined and adhered to',
+    ],
+  },
+  {
+    id: 'matrix20',
+    step: 5,
+    text: 'What I consider most important when making a decision is:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Getting results fast',
+      'Minimizing risk',
+      'Finding a solution that is acceptable to everyone',
+      'Finding new and innovative solutions',
+    ],
+  },
+  {
+    id: 'matrix21',
+    step: 5,
+    text: 'The most important aspect of my job is:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Establishing procedures which ensure efficient use of our resources',
+      'Getting the day-to-day work done',
+      'Ensuring my organization remains on the cutting edge',
+      'Motivating my colleagues in their work',
+    ],
+  },
+  {
+    id: 'matrix22',
+    step: 5,
+    text: 'In my job I am good at:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Finding new ways to accomplish my work',
+      'Ensuring that things are done correctly',
+      'Getting results',
+      'Maintaining a collaborative working environment',
+    ],
+  },
+  {
+    id: 'matrix23',
+    step: 5,
+    text: 'My attitude toward development work is that it:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Takes me away from important day-to-day work',
+      'Is undesirable if it requires too many changes to our policies',
+      'Creates opportunities for creative thinking',
+      'Creates too much change and conflict/disharmony',
+    ],
+  },
+  {
+    id: 'matrix24',
+    step: 5,
+    text: 'The primary reason that I wait to make an important decision is that I:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Do not have enough information',
+      "Am not sure of other people's opinion",
+      'Have too much to do',
+      'See multiple solutions to the problem',
+    ],
+  },
+  {
+    id: 'matrix25',
+    step: 5,
+    text: 'My job requires me to:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Work quickly and in an orderly way',
+      'Inspire the commitment of my colleagues',
+      'Find new methods of working',
+      'Work carefully and systematically',
+    ],
+  },
+  {
+    id: 'matrix26',
+    step: 5,
+    text: 'The kinds of tasks I like are those that:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Require cooperation with colleagues',
+      'Give me the opportunity to think out side of the box',
+      'Are clearly defined and allow me to work systematically and within a structure',
+      'Allow me to see the results quickly',
+    ],
+  },
+  {
+    id: 'matrix27',
+    step: 5,
+    text: 'My most important quality in my current job is my ability to:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Systematize',
+      'Achieve goals',
+      'Change and be flexible',
+      'Work well with others',
+    ],
+  },
+  {
+    id: 'matrix28',
+    step: 5,
+    text: 'The person taking over from me should be motivated by:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Getting results',
+      'Working closely with others',
+      'Being in a secure and stable working environment',
+      'Risks and excitement',
+    ],
+  },
+  {
+    id: 'matrix29',
+    step: 5,
+    text: 'Deep down, I would like my colleagues to see me as someone:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Who is well-liked',
+      'They can approach for accurate information',
+      'Who can find new solutions',
+      'Who can get the job done',
+    ],
+  },
+  {
+    id: 'matrix30',
+    step: 5,
+    text: 'What pleases me most in my current job is when I am able to:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Meet my performance objectives',
+      'Foresee and plan for future developments',
+      'Work with others in a collaborative environment',
+      'See that the rules and regulations are followed',
+    ],
+  },
+  {
+    id: 'matrix31',
+    step: 5,
+    text: 'The type of work where I perform well is work which requires:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Systematic planning',
+      'Teamwork',
+      'Hard work',
+      'Creativity and risk taking',
+    ],
+  },
+  {
+    id: 'matrix32',
+    step: 5,
+    text: 'Managers in our organization are praised for their ability to:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Work hard',
+      'Foresee future trends and opportunities',
+      'Attend to details and minimize mistakes',
+      'Get others to view things from a different perspective',
+    ],
+  },
+  {
+    id: 'matrix33',
+    step: 5,
+    text: 'I want to be thought of as a:',
+    type: 'matrix',
+    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
+    rows: [
+      'Big idea person',
+      'Hard worker',
+      'Team player',
+      'Precise and accurate worker',
+    ],
+  },
+];

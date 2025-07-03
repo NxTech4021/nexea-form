@@ -1,10 +1,11 @@
 'use client';
 
 import { LoaderIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { signin } from '@/app/actions/auth';
+import { authenticate } from '@/app/actions/auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -17,17 +18,55 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
+interface SignInState {
+  message?: string;
+  errors?: {
+    email?: string[];
+    password?: string[];
+  };
+  success?: boolean;
+}
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const [state, action, pending] = useActionState(signin, undefined);
+  const router = useRouter();
+  const [state, action, pending] = useActionState(
+    async (prevState: SignInState | undefined, formData: FormData) => {
+      // Call the original signin action
+      const result = await authenticate(prevState, formData);
+      // Convert errors to string[] if needed
+      if (result?.errors) {
+        return {
+          ...result,
+          errors: {
+            email: Array.isArray(result.errors.email)
+              ? result.errors.email
+              : result.errors.email
+              ? [result.errors.email]
+              : undefined,
+            password: Array.isArray(result.errors.password)
+              ? result.errors.password
+              : result.errors.password
+              ? [result.errors.password]
+              : undefined,
+          },
+        };
+      }
+      return result;
+    },
+    undefined
+  );
 
   useEffect(() => {
     if (state?.message) {
       toast.error(state.message);
     }
-  }, [state]);
+    if (state?.success) {
+      router.push('/admin');
+    }
+  }, [state, router]);
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -71,7 +110,7 @@ export function LoginForm({
                 <ul className='ml-5 list-disc text-red-500'>
                   {state?.errors?.password &&
                   typeof state?.errors?.password === 'object'
-                    ? state?.errors?.password?.map((item, index) => (
+                    ? state?.errors?.password?.map((item: string, index: number) => (
                         <li key={index}>
                           <small className='text-xs leading-none font-medium text-red-500'>
                             {item}

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-
+import { Inter } from 'next/font/google';
+import './globals.css';
 import { Geist, Geist_Mono } from 'next/font/google';
-
 import { Toaster } from '@/components/ui/sonner';
 
-import './globals.css';
+const inter = Inter({ subsets: ['latin'] });
 
 const geistSans = Geist({
   subsets: ['latin'],
@@ -17,23 +17,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  description: 'TBD',
+  title: 'NEXEA Assessment',
+  description: 'Entrepreneurs Behaviour Assessment',
   robots: 'noindex, nofollow',
-  title: 'Entrepreneurs Behaviour Assessment',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50`}
       >
         {children}
-        <Toaster richColors />
+        <Toaster />
       </body>
     </html>
   );

@@ -1,40 +1,54 @@
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { Input } from '../ui/input';
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 
-export interface FormFieldType {
+export interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   name: string;
-  other?: object;
+  type?: string;
   placeholder?: string;
-  type: string;
+  className?: string;
+  disabled?: boolean;
 }
 
-const FormField = ({ name, type, ...other }: FormFieldType) => {
-  const { control } = useFormContext();
+const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
+  ({ name, type = 'text', className, disabled, ...props }, ref) => {
+    const { control, formState: { errors } } = useFormContext();
+    const error = errors[name];
 
-  return (
-    <Controller
-      control={control}
-      name={name}
-      render={({ field, fieldState: { error } }) => (
-        <>
-          <Input
-            {...field}
-            className={error && 'border-red-400 focus-visible:ring-red-400'}
-            onChange={(e) => field.onChange(e.target.value)}
-            type={type}
-            {...other}
-          />
-          {error && (
-            <p className='text-[12px] text-red-500 -mt-2 ml-2'>
-              {error.message}
-            </p>
-          )}
-        </>
-      )}
-    />
-  );
-};
+    return (
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <div className="space-y-2">
+            <Input
+              {...field}
+              {...props}
+              type={type}
+              className={cn(
+                'w-full',
+                error && 'border-red-500 focus-visible:ring-red-500',
+                disabled && 'opacity-50 cursor-not-allowed',
+                className
+              )}
+              disabled={disabled}
+              ref={ref}
+              aria-invalid={error ? 'true' : 'false'}
+            />
+            {error && (
+              <p className="text-sm text-red-500">
+                {error.message?.toString()}
+              </p>
+            )}
+          </div>
+        )}
+      />
+    );
+  }
+);
+
+FormField.displayName = 'FormField';
 
 export default FormField;

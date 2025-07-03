@@ -177,6 +177,7 @@ const questionsData: Question[] = [
   { id: 'radio87', question: 'I prefer to work with lots of people' },
 ];
 
+ 
 export function Step11() {
   const { formData, markStepCompleted, setCurrentStep, updateFormData } =
     useFormContext();
@@ -306,3 +307,12 @@ export function Step11() {
     </>
   );
 }
+
+// ── Mirror Step11’s own questions for Admin/FormContext ──
+export const questionsDataStep11 = questionsData.map(q => ({
+    id:      q.id,
+    step:    11,
+   text:    q.question,
+    type:    'radio' as const,
+    options: radioOptions,
+  }))
