@@ -10,10 +10,12 @@ export default function AssessmentPage() {
   const searchParams = useSearchParams();
   const responseId = searchParams.get('responseId');
   const [isValid, setIsValid] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!responseId) {
       setIsValid(false);
+      setError('No response ID provided');
       return;
     }
 
@@ -21,13 +23,20 @@ export default function AssessmentPage() {
     const verifyResponse = async () => {
       try {
         const res = await fetch(`/api/verify-response?id=${responseId}`);
+        const data = await res.json();
+        
         if (!res.ok) {
           setIsValid(false);
+          setError(data.error || 'Failed to verify response');
           return;
         }
+        
         setIsValid(true);
+        setError(null);
       } catch (error) {
+        console.error('Error verifying response:', error);
         setIsValid(false);
+        setError('Failed to verify response. Please try again.');
       }
     };
 
@@ -50,7 +59,9 @@ export default function AssessmentPage() {
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Invalid Assessment Link</h1>
-          <p className="text-gray-600 mb-4">This assessment link is invalid or has expired.</p>
+          <p className="text-gray-600 mb-4">
+            {error || 'This assessment link is invalid or has expired.'}
+          </p>
           <a href="/" className="text-primary hover:underline">
             Return to Homepage
           </a>

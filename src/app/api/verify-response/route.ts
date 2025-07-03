@@ -12,9 +12,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Response ID is required' }, { status: 400 });
     }
 
+    // Safely parse the ID
+    const parsedId = parseInt(id);
+    if (isNaN(parsedId)) {
+      return NextResponse.json({ error: 'Invalid response ID format' }, { status: 400 });
+    }
+
     // Check if response exists
     const response = await prisma.response.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: parsedId },
     });
 
     if (!response) {

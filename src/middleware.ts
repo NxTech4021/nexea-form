@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { decrypt } from './lib/session';
 
 const protectedRoutes = ['/dashboard', '/admin', '/api/admin'];
+const publicApiRoutes = ['/api/admin/questions'];
 const authRoutes = ['/auth/login'];
 
 export async function middleware(req: NextRequest) {
@@ -16,7 +17,13 @@ export async function middleware(req: NextRequest) {
 
   // Check if path starts with any protected route
   const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
+  const isPublicApiRoute = publicApiRoutes.some(route => path.startsWith(route));
   const isAuthRoute = authRoutes.some(route => path.startsWith(route));
+
+  // Allow GET requests to public API routes without authentication
+  if (isPublicApiRoute && req.method === 'GET') {
+    return NextResponse.next();
+  }
 
   // Get session cookie
   const sessionCookie = req.cookies.get('session')?.value;
@@ -38,7 +45,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // If trying to access protected route without being authenticated
-  if (isProtectedRoute && !isAuthenticated) {
+  if (isProtectedRoute && !isPublicApiRoute && !isAuthenticated) {
     console.log('Redirecting to login - protected route access without auth');
     return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
   }
