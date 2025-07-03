@@ -88,3 +88,5 @@ export const columns: ColumnDef<Allowlist>[] = [
     header: 'Created At',
   },
 ];
+
+// sad
