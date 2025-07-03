@@ -11,9 +11,9 @@ const EMAIL_PASS = process.env.EMAIL_PASS!;
 const BASE_URL = process.env.BASE_URL!; // e.g. https://yourdomain.com
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-if (!EMAIL_FROM || !EMAIL_USER || !EMAIL_PASS || !BASE_URL || !JWT_SECRET) {
-  throw new Error('Missing required environment variables');
-}
+// if (!EMAIL_FROM || !EMAIL_USER || !EMAIL_PASS || !BASE_URL || !JWT_SECRET) {
+//   throw new Error('Missing required environment variables');
+// }
 
 export async function POST(req: NextRequest) {
   try {
