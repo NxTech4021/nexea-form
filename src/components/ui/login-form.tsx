@@ -1,6 +1,7 @@
 'use client';
 
 import { LoaderIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -23,12 +24,14 @@ interface SignInState {
     email?: string[];
     password?: string[];
   };
+  success?: boolean;
 }
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const router = useRouter();
   const [state, action, pending] = useActionState(
     async (prevState: SignInState | undefined, formData: FormData) => {
       // Call the original signin action
@@ -60,7 +63,10 @@ export function LoginForm({
     if (state?.message) {
       toast.error(state.message);
     }
-  }, [state]);
+    if (state?.success) {
+      router.push('/admin');
+    }
+  }, [state, router]);
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>

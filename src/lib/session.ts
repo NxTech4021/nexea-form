@@ -17,29 +17,44 @@ export async function createSession(userId: string) {
     httpOnly: true,
     path: '/',
     sameSite: 'lax',
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
   });
+
+  return session;
 }
 
 export async function decrypt(session: string | undefined = '') {
+  if (!session) {
+    console.log('No session provided');
+    return null;
+  }
+
   try {
     const { payload } = await jwtVerify(session, secret, {
       algorithms: ['HS256'],
     });
-    return payload;
+
+    // Check if session has expired
+    const expiresAt = payload.expiresAt as string;
+    if (new Date(expiresAt) < new Date()) {
+      console.log('Session has expired');
+      return null;
+    }
+
+    return payload as SessionPayload;
   } catch (error) {
     console.log('Failed to verify session', error);
+    return null;
   }
 }
 
 export async function deleteSession() {
-  const cookie = await cookies();
-
-  cookie.delete('session');
+  const cookieStore = await cookies();
+  cookieStore.delete('session');
 }
 
 export async function encrypt(payload: SessionPayload) {
-  return new SignJWT(payload)
+  return new SignJWT({ ...payload, expiresAt: payload.expiresAt.toISOString() })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
@@ -47,7 +62,8 @@ export async function encrypt(payload: SessionPayload) {
 }
 
 export async function updateSession() {
-  const session = (await cookies()).get('session')?.value;
+  const cookieStore = await cookies();
+  const session = cookieStore.get('session')?.value;
   const payload = await decrypt(session);
 
   if (!session || !payload) {
@@ -55,14 +71,21 @@ export async function updateSession() {
   }
 
   const expires = new Date(Date.now() + SESSION_DURATION);
+  const newSession = await encrypt({ ...payload, expiresAt: expires });
 
-  const cookieStore = await cookies();
-
-  cookieStore.set('session', session, {
+  cookieStore.set('session', newSession, {
     expires: expires,
     httpOnly: true,
     path: '/',
     sameSite: 'lax',
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
   });
+
+  return newSession;
+}
+
+export async function getSession() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get('session')?.value;
+  return decrypt(session);
 }

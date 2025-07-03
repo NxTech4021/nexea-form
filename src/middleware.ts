@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { decrypt } from './lib/session';
 
 const protectedRoutes = ['/dashboard', '/admin', '/api/admin'];
-const publicRoutes = ['/auth/login', '/signup', '/', '/begin-quiz'];
+const authRoutes = ['/auth/login'];
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -16,20 +16,36 @@ export async function middleware(req: NextRequest) {
 
   // Check if path starts with any protected route
   const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
-  const isPublicRoute = publicRoutes.includes(path);
+  const isAuthRoute = authRoutes.some(route => path.startsWith(route));
 
-  const cookie = (await cookies()).get('session')?.value;
-  const session = await decrypt(cookie);
+  // Get session cookie
+  const sessionCookie = req.cookies.get('session')?.value;
+  console.log('Session cookie exists:', !!sessionCookie);
 
-  if (isProtectedRoute && !session?.userId) {
+  const session = await decrypt(sessionCookie);
+  console.log('Session valid:', !!session);
+  console.log('Session data:', session);
+
+  const isAuthenticated = session?.userId != null;
+  console.log('Is authenticated:', isAuthenticated);
+
+  // Clear invalid sessions
+  if (sessionCookie && !isAuthenticated) {
+    console.log('Clearing invalid session');
+    const response = NextResponse.redirect(new URL('/auth/login', req.nextUrl));
+    response.cookies.delete('session');
+    return response;
+  }
+
+  // If trying to access protected route without being authenticated
+  if (isProtectedRoute && !isAuthenticated) {
+    console.log('Redirecting to login - protected route access without auth');
     return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
   }
 
-  if (
-    isPublicRoute &&
-    session?.userId &&
-    !req.nextUrl.pathname.startsWith('/admin')
-  ) {
+  // If already authenticated and trying to access auth routes
+  if (isAuthRoute && isAuthenticated && req.method === 'GET') {
+    console.log('Redirecting to admin - authenticated user accessing auth route');
     return NextResponse.redirect(new URL('/admin', req.nextUrl));
   }
 
@@ -37,5 +53,8 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  matcher: [
+    // Match all paths except static files and api routes
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
 };

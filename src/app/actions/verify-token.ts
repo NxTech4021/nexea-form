@@ -11,7 +11,7 @@ export async function verifyToken(token: string) {
     // Verify and decode the token
     const decoded = jwt.verify(token, JWT_SECRET) as { email: string };
 
-    // Check if the email exists in allowlist and has credits
+    // Check if the email exists in allowlist
     const allowlist = await prisma.allowlist.findUnique({
       where: { email: decoded.email },
     });
@@ -20,22 +20,12 @@ export async function verifyToken(token: string) {
       return { error: 'Invalid token' };
     }
 
-    if (allowlist.credits <= 0) {
-      return { error: 'No assessment credits remaining' };
-    }
-
     // Create a new response record
     const response = await prisma.response.create({
       data: {
         userId: null, // Since we're not requiring user authentication
         submittedAt: new Date(),
       },
-    });
-
-    // Decrement the credits
-    await prisma.allowlist.update({
-      where: { email: decoded.email },
-      data: { credits: allowlist.credits - 1 },
     });
 
     return { success: true, responseId: response.id };
