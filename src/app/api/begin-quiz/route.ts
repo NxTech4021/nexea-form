@@ -97,6 +97,16 @@ export async function POST(req: NextRequest) {
 
       console.log('Email sent successfully:', info.messageId);
       
+      // Deduct one credit after successful email send
+      await prisma.allowlist.update({
+        where: { email },
+        data: {
+          credits: {
+            decrement: 1
+          }
+        }
+      });
+      
       return NextResponse.json({ 
         success: true,
         message: 'Assessment link sent successfully'
