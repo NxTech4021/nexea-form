@@ -86,3 +86,14 @@ export async function signOut(): Promise<FormState> {
     };
   }
 }
+
+export async function clearLoginSession() {
+  'use server';
+  try {
+    await deleteSession();
+    return { success: true };
+  } catch (error) {
+    console.error('Error clearing session:', error);
+    return { success: false };
+  }
+}

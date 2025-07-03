@@ -43,12 +43,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
   }
 
-  // If already authenticated and trying to access auth routes
-  if (isAuthRoute && isAuthenticated && req.method === 'GET') {
-    console.log('Redirecting to admin - authenticated user accessing auth route');
-    return NextResponse.redirect(new URL('/admin', req.nextUrl));
-  }
-
   return NextResponse.next();
 }
 
