@@ -11,11 +11,15 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN npx prisma generate
 RUN npm run build
 
 # Production image
 FROM node:18-alpine AS runner
 WORKDIR /app
+
+COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma /app/node_modules/@prisma
 
 # Only copy the necessary files
 COPY --from=builder /app/public ./public
