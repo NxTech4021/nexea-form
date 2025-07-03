@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({
     data,
     getCoreRowModel: getCoreRowModel(),
     meta: {
-      asdL: 'sdasd',
+      // asdL: 'sdasd',
       onChange: debouncedUpdate,
     },
   });

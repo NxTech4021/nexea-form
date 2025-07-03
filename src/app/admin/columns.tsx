@@ -4,8 +4,7 @@ import { Allowlist } from '@prisma/client';
 import { ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
-import { useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
 
 // import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -14,14 +13,6 @@ dayjs.extend(LocalizedFormat);
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-
-function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
-  let timer: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
 
 export const columns: ColumnDef<Allowlist>[] = [
   {
@@ -69,7 +60,10 @@ export const columns: ColumnDef<Allowlist>[] = [
           className='w-fit'
           onChange={(e) => {
             setCredit(parseInt(e.target.value, 10) || 0);
-            table.options.meta?.onChange(parseInt(e.target.value, 10), data.id);
+            (table.options.meta as any).onChange(
+              parseInt(e.target.value, 10),
+              data.id
+            );
           }}
           value={credit}
         />
