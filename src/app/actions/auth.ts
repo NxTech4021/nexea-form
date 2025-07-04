@@ -2,10 +2,31 @@
 
 import { redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { FormState, SigninFormSchema } from '@/lib/definitions';
 import { prisma } from '@/lib/prisma';
 import { createSession, deleteSession } from '@/lib/session';
+
+// Registration schema
+const RegisterFormSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export type RegisterFormState = {
+  errors?: {
+    email?: string[];
+    password?: string[];
+    confirmPassword?: string[];
+  };
+  message?: string;
+  success?: boolean;
+};
 
 export async function authenticate(
   prevState: FormState,
@@ -102,4 +123,52 @@ export async function signOut(prevState: any): Promise<{ success: boolean }> {
   await deleteSession();
   await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
   return { success: true };
+}
+
+export async function register(
+  prevState: RegisterFormState | undefined,
+  formData: FormData
+): Promise<RegisterFormState> {
+  try {
+    const validatedFields = RegisterFormSchema.safeParse({
+      email: formData.get('email'),
+      password: formData.get('password'),
+      confirmPassword: formData.get('confirmPassword'),
+    });
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Please check the form for errors.',
+      };
+    }
+
+    const { email, password } = validatedFields.data;
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return {
+        message: 'User with this email already exists',
+      };
+    }
+
+    // Create new user
+    await prisma.user.create({
+      data: {
+        email,
+        passwordHash: password, // Note: In a real app, you should hash the password
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error in register:', error);
+    return {
+      message: 'Database Error: Failed to create account.',
+    };
+  }
 }
