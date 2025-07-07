@@ -8,10 +8,37 @@ import { FormState, SigninFormSchema } from '@/lib/definitions';
 import { prisma } from '@/lib/prisma';
 import { createSession, deleteSession } from '@/lib/session';
 
+// Password validation regex
+const passwordRegex = {
+  hasUpperCase: /[A-Z]/,
+  hasLowerCase: /[a-z]/,
+  hasNumber: /[0-9]/,
+  hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/,
+  minLength: 8,
+};
+
 // Registration schema
 const RegisterFormSchema = z.object({
   email: z.string().email('Invalid email format'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(passwordRegex.minLength, `Password must be at least ${passwordRegex.minLength} characters`)
+    .refine(
+      (password) => passwordRegex.hasUpperCase.test(password),
+      'Password must contain at least one uppercase letter'
+    )
+    .refine(
+      (password) => passwordRegex.hasLowerCase.test(password),
+      'Password must contain at least one lowercase letter'
+    )
+    .refine(
+      (password) => passwordRegex.hasNumber.test(password),
+      'Password must contain at least one number'
+    )
+    .refine(
+      (password) => passwordRegex.hasSpecialChar.test(password),
+      'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
+    ),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",

@@ -1,8 +1,8 @@
 'use client';
 
-import { LoaderIcon } from 'lucide-react';
+import { CheckCircle2, LoaderIcon, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { register, RegisterFormState } from '@/app/actions/auth';
@@ -18,39 +18,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
+const passwordRequirements = {
+  minLength: { regex: /.{8,}/, text: 'At least 8 characters' },
+  hasUpperCase: { regex: /[A-Z]/, text: 'One uppercase letter' },
+  hasLowerCase: { regex: /[a-z]/, text: 'One lowercase letter' },
+  hasNumber: { regex: /[0-9]/, text: 'One number' },
+  hasSpecialChar: { regex: /[!@#$%^&*(),.?":{}|<>]/, text: 'One special character (!@#$%^&*(),.?":{}|<>)' },
+};
+
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const router = useRouter();
+  const [password, setPassword] = useState('');
+  const [validations, setValidations] = useState({
+    minLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSpecialChar: false,
+  });
+
   const [state, action, pending] = useActionState(
     async (prevState: RegisterFormState | undefined, formData: FormData) => {
-      // Call the register action
       const result = await register(prevState, formData);
-
-      // Convert errors to string[] if needed
-      if (result?.errors) {
-        return {
-          ...result,
-          errors: {
-            email: Array.isArray(result.errors.email)
-              ? result.errors.email
-              : result.errors.email
-              ? [result.errors.email]
-              : undefined,
-            password: Array.isArray(result.errors.password)
-              ? result.errors.password
-              : result.errors.password
-              ? [result.errors.password]
-              : undefined,
-            confirmPassword: Array.isArray(result.errors.confirmPassword)
-              ? result.errors.confirmPassword
-              : result.errors.confirmPassword
-              ? [result.errors.confirmPassword]
-              : undefined,
-          },
-        };
-      }
       return result;
     },
     undefined
@@ -66,6 +58,17 @@ export function RegisterForm({
       router.push('/auth/login');
     }
   }, [state, router]);
+
+  // Update validations when password changes
+  useEffect(() => {
+    setValidations({
+      minLength: passwordRequirements.minLength.regex.test(password),
+      hasUpperCase: passwordRequirements.hasUpperCase.regex.test(password),
+      hasLowerCase: passwordRequirements.hasLowerCase.regex.test(password),
+      hasNumber: passwordRequirements.hasNumber.regex.test(password),
+      hasSpecialChar: passwordRequirements.hasSpecialChar.regex.test(password),
+    });
+  }, [password]);
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -109,7 +112,31 @@ export function RegisterForm({
                   name='password'
                   required
                   type='password'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
+                <div className='text-sm space-y-2'>
+                  <p className='text-muted-foreground'>Password requirements:</p>
+                  <ul className='ml-1 space-y-1'>
+                    {Object.entries(passwordRequirements).map(([key, { text }]) => (
+                      <li key={key} className='flex items-center gap-2'>
+                        {validations[key as keyof typeof validations] ? (
+                          <CheckCircle2 className='h-4 w-4 text-green-500' />
+                        ) : (
+                          <XCircle className='h-4 w-4 text-red-500' />
+                        )}
+                        <span className={cn(
+                          'text-sm',
+                          validations[key as keyof typeof validations] 
+                            ? 'text-green-600' 
+                            : 'text-muted-foreground'
+                        )}>
+                          {text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                 {state?.errors?.password && (
                   <ul className='ml-5 list-disc text-red-500'>
                     {state.errors.password.map((error: string, index: number) => (
