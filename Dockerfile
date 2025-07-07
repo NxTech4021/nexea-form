@@ -11,7 +11,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV DATABASE_URL=postgresql://nexea:nexea123_@35.198.209.1:5432/eba
+ENV DATABASE_URL=postgresql://nexea:nexea123_@34.143.207.72:5432/eba
 
 RUN npx prisma generate
 RUN npx prisma migrate deploy
