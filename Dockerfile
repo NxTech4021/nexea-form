@@ -12,7 +12,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # ENV DATABASE_URL=postgresql://nexea:nexea123_@34.143.207.72:5432/eba
-ENV DATABASE_URL="postgresql://nexea:nexea123_@/eba?host=/cloudsql/my-project-nexea:asia-southeast1:nexea-prod"
+ENV DATABASE_URL="postgresql://nexea:nexea123_@/eba?host=/cloudsql/my-project-nexea:asia-southeast1:nexea-prod/.s.PGSQL.5432"
 
 
 RUN npx prisma generate
