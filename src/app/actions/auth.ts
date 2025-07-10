@@ -27,10 +27,12 @@ const secret = new TextEncoder().encode(
 const RegisterFormSchema = z
   .object({
     confirmPassword: z.string(),
-    email: z.string().email('Invalid email format'),
-    // .regex(/^[\w.-]+@nexea\.co$/, {
-    //   message: 'Email must be a nexea.co address',
-    // }),
+    email: z
+      .string()
+      .email('Invalid email format')
+      .regex(/^[\w.-]+@nexea\.co$/, {
+        message: 'Email must be a nexea.co address',
+      }),
     password: z
       .string()
       .min(
