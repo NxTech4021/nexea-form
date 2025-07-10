@@ -1,55 +1,69 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import bcrypt from 'bcryptjs';
+import { SignJWT } from 'jose';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { FormState, SigninFormSchema } from '@/lib/definitions';
 import { prisma } from '@/lib/prisma';
+import { sendEmailVerification } from '@/lib/sendMail';
 import { createSession, deleteSession } from '@/lib/session';
 
 // Password validation regex
 const passwordRegex = {
-  hasUpperCase: /[A-Z]/,
   hasLowerCase: /[a-z]/,
   hasNumber: /[0-9]/,
   hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/,
+  hasUpperCase: /[A-Z]/,
   minLength: 8,
 };
 
+const secret = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'super-secret-key'
+);
+
 // Registration schema
-const RegisterFormSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z
-    .string()
-    .min(passwordRegex.minLength, `Password must be at least ${passwordRegex.minLength} characters`)
-    .refine(
-      (password) => passwordRegex.hasUpperCase.test(password),
-      'Password must contain at least one uppercase letter'
-    )
-    .refine(
-      (password) => passwordRegex.hasLowerCase.test(password),
-      'Password must contain at least one lowercase letter'
-    )
-    .refine(
-      (password) => passwordRegex.hasNumber.test(password),
-      'Password must contain at least one number'
-    )
-    .refine(
-      (password) => passwordRegex.hasSpecialChar.test(password),
-      'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
-    ),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const RegisterFormSchema = z
+  .object({
+    confirmPassword: z.string(),
+    email: z.string().email('Invalid email format'),
+    // .regex(/^[\w.-]+@nexea\.co$/, {
+    //   message: 'Email must be a nexea.co address',
+    // }),
+    password: z
+      .string()
+      .min(
+        passwordRegex.minLength,
+        `Password must be at least ${passwordRegex.minLength} characters`
+      )
+      .refine(
+        (password) => passwordRegex.hasUpperCase.test(password),
+        'Password must contain at least one uppercase letter'
+      )
+      .refine(
+        (password) => passwordRegex.hasLowerCase.test(password),
+        'Password must contain at least one lowercase letter'
+      )
+      .refine(
+        (password) => passwordRegex.hasNumber.test(password),
+        'Password must contain at least one number'
+      )
+      .refine(
+        (password) => passwordRegex.hasSpecialChar.test(password),
+        'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
+      ),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 export type RegisterFormState = {
   errors?: {
+    confirmPassword?: string[];
     email?: string[];
     password?: string[];
-    confirmPassword?: string[];
   };
   message?: string;
   success?: boolean;
@@ -74,30 +88,28 @@ export async function authenticate(
 
     const { email, password } = validatedFields.data;
 
-    console.log('Attempting to find user:', email);
     const user = await prisma.user.findUnique({
-      select: { email: true, id: true, passwordHash: true },
+      select: { email: true, id: true, passwordHash: true, status: true },
       where: { email },
     });
 
     if (!user) {
-      console.log('User not found:', email);
+      // console.log('User not found:', email);
       return {
-        message: 'Invalid credentials',
+        message: 'User not found',
       };
     }
 
-    console.log('User found, checking password');
-    if (password !== user.passwordHash) {
-      console.log('Password mismatch');
-      return {
-        message: 'Invalid credentials',
-      };
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isValid && password !== user.passwordHash) {
+      return { message: 'Invalid credentials' };
     }
 
-    console.log('Password matched, creating session');
+    if (user.status !== 'active')
+      return { message: 'Please verify your email first' };
+
     await createSession(user.id.toString());
-    console.log('Session created, redirecting');
 
     return { success: true };
   } catch (error) {
@@ -146,21 +158,15 @@ export async function clearLoginSession() {
 //   }
 // }
 
-export async function signOut(prevState: any): Promise<{ success: boolean }> {
-  await deleteSession();
-  await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
-  return { success: true };
-}
-
 export async function register(
   prevState: RegisterFormState | undefined,
   formData: FormData
 ): Promise<RegisterFormState> {
   try {
     const validatedFields = RegisterFormSchema.safeParse({
+      confirmPassword: formData.get('confirmPassword'),
       email: formData.get('email'),
       password: formData.get('password'),
-      confirmPassword: formData.get('confirmPassword'),
     });
 
     if (!validatedFields.success) {
@@ -183,13 +189,24 @@ export async function register(
       };
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create new user
-    await prisma.user.create({
+    const data = await prisma.user.create({
       data: {
         email,
-        passwordHash: password, // Note: In a real app, you should hash the password
+        passwordHash: hashedPassword, // Note: In a real app, you should hash the password
+        status: 'pending',
       },
     });
+
+    const token = await new SignJWT({ email: data.email })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1h') // expires in 1 hour
+      .sign(secret);
+
+    await sendEmailVerification({ email, token });
 
     return { success: true };
   } catch (error) {
@@ -198,4 +215,10 @@ export async function register(
       message: 'Database Error: Failed to create account.',
     };
   }
+}
+
+export async function signOut(prevState: any): Promise<{ success: boolean }> {
+  await deleteSession();
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
+  return { success: true };
 }

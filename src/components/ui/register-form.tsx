@@ -19,11 +19,14 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 const passwordRequirements = {
-  minLength: { regex: /.{8,}/, text: 'At least 8 characters' },
-  hasUpperCase: { regex: /[A-Z]/, text: 'One uppercase letter' },
   hasLowerCase: { regex: /[a-z]/, text: 'One lowercase letter' },
   hasNumber: { regex: /[0-9]/, text: 'One number' },
-  hasSpecialChar: { regex: /[!@#$%^&*(),.?":{}|<>]/, text: 'One special character (!@#$%^&*(),.?":{}|<>)' },
+  hasSpecialChar: {
+    regex: /[!@#$%^&*(),.?":{}|<>]/,
+    text: 'One special character (!@#$%^&*(),.?":{}|<>)',
+  },
+  hasUpperCase: { regex: /[A-Z]/, text: 'One uppercase letter' },
+  minLength: { regex: /.{8,}/, text: 'At least 8 characters' },
 };
 
 export function RegisterForm({
@@ -33,11 +36,11 @@ export function RegisterForm({
   const router = useRouter();
   const [password, setPassword] = useState('');
   const [validations, setValidations] = useState({
-    minLength: false,
-    hasUpperCase: false,
     hasLowerCase: false,
     hasNumber: false,
     hasSpecialChar: false,
+    hasUpperCase: false,
+    minLength: false,
   });
 
   const [state, action, pending] = useActionState(
@@ -62,11 +65,11 @@ export function RegisterForm({
   // Update validations when password changes
   useEffect(() => {
     setValidations({
-      minLength: passwordRequirements.minLength.regex.test(password),
-      hasUpperCase: passwordRequirements.hasUpperCase.regex.test(password),
       hasLowerCase: passwordRequirements.hasLowerCase.regex.test(password),
       hasNumber: passwordRequirements.hasNumber.regex.test(password),
       hasSpecialChar: passwordRequirements.hasSpecialChar.regex.test(password),
+      hasUpperCase: passwordRequirements.hasUpperCase.regex.test(password),
+      minLength: passwordRequirements.minLength.regex.test(password),
     });
   }, [password]);
 
@@ -87,7 +90,7 @@ export function RegisterForm({
                 <Input
                   id='email'
                   name='email'
-                  placeholder='m@example.com'
+                  placeholder='m@nexea.co'
                   required
                   type='email'
                 />
@@ -110,42 +113,50 @@ export function RegisterForm({
                   className={state?.errors?.password ? 'border-red-500' : ''}
                   id='password'
                   name='password'
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   type='password'
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <div className='text-sm space-y-2'>
-                  <p className='text-muted-foreground'>Password requirements:</p>
+                  <p className='text-muted-foreground'>
+                    Password requirements:
+                  </p>
                   <ul className='ml-1 space-y-1'>
-                    {Object.entries(passwordRequirements).map(([key, { text }]) => (
-                      <li key={key} className='flex items-center gap-2'>
-                        {validations[key as keyof typeof validations] ? (
-                          <CheckCircle2 className='h-4 w-4 text-green-500' />
-                        ) : (
-                          <XCircle className='h-4 w-4 text-red-500' />
-                        )}
-                        <span className={cn(
-                          'text-sm',
-                          validations[key as keyof typeof validations] 
-                            ? 'text-green-600' 
-                            : 'text-muted-foreground'
-                        )}>
-                          {text}
-                        </span>
-                      </li>
-                    ))}
+                    {Object.entries(passwordRequirements).map(
+                      ([key, { text }]) => (
+                        <li className='flex items-center gap-2' key={key}>
+                          {validations[key as keyof typeof validations] ? (
+                            <CheckCircle2 className='h-4 w-4 text-green-500' />
+                          ) : (
+                            <XCircle className='h-4 w-4 text-red-500' />
+                          )}
+                          <span
+                            className={cn(
+                              'text-sm',
+                              validations[key as keyof typeof validations]
+                                ? 'text-green-600'
+                                : 'text-muted-foreground'
+                            )}
+                          >
+                            {text}
+                          </span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </div>
                 {state?.errors?.password && (
                   <ul className='ml-5 list-disc text-red-500'>
-                    {state.errors.password.map((error: string, index: number) => (
-                      <li key={index}>
-                        <small className='text-xs leading-none font-medium'>
-                          {error}
-                        </small>
-                      </li>
-                    ))}
+                    {state.errors.password.map(
+                      (error: string, index: number) => (
+                        <li key={index}>
+                          <small className='text-xs leading-none font-medium'>
+                            {error}
+                          </small>
+                        </li>
+                      )
+                    )}
                   </ul>
                 )}
               </div>
@@ -153,7 +164,9 @@ export function RegisterForm({
               <div className='grid gap-3'>
                 <Label htmlFor='confirmPassword'>Confirm Password</Label>
                 <Input
-                  className={state?.errors?.confirmPassword ? 'border-red-500' : ''}
+                  className={
+                    state?.errors?.confirmPassword ? 'border-red-500' : ''
+                  }
                   id='confirmPassword'
                   name='confirmPassword'
                   required
@@ -161,20 +174,26 @@ export function RegisterForm({
                 />
                 {state?.errors?.confirmPassword && (
                   <ul className='ml-5 list-disc text-red-500'>
-                    {state.errors.confirmPassword.map((error: string, index: number) => (
-                      <li key={index}>
-                        <small className='text-xs leading-none font-medium'>
-                          {error}
-                        </small>
-                      </li>
-                    ))}
+                    {state.errors.confirmPassword.map(
+                      (error: string, index: number) => (
+                        <li key={index}>
+                          <small className='text-xs leading-none font-medium'>
+                            {error}
+                          </small>
+                        </li>
+                      )
+                    )}
                   </ul>
                 )}
               </div>
 
               <div className='flex flex-col gap-3'>
                 <Button className='w-full' disabled={pending} type='submit'>
-                  {pending ? <LoaderIcon className='animate-spin' /> : 'Register'}
+                  {pending ? (
+                    <LoaderIcon className='animate-spin' />
+                  ) : (
+                    'Register'
+                  )}
                 </Button>
                 <div className='text-center text-sm'>
                   Already have an account?{' '}
@@ -192,4 +211,4 @@ export function RegisterForm({
       </Card>
     </div>
   );
-} 
+}
