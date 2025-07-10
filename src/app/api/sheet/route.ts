@@ -82,11 +82,13 @@ export async function POST(request: Request) {
     const flattenedRadios = radios.flatMap((obj: any) => Object.values(obj));
 
     await sheets.spreadsheets.values.append({
-      range: `${sheetTitle}!A2`,
+      // range: `${sheetTitle}!C2`,
+      range: `${sheetTitle}!B:B`,
+      insertDataOption: 'INSERT_ROWS',
       requestBody: {
         values: [
           [
-            '',
+            null,
             email,
             new Date(),
             fullName,
@@ -108,3 +110,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed' });
   }
 }
+
+
+// =ArrayFormula(C2:C&" "&text(D2:D,"DD.MM.YYYY"))
+// 
