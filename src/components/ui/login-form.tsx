@@ -129,6 +129,15 @@ export function LoginForm({
                 <Button className='w-full' disabled={pending} type='submit'>
                   {pending ? <LoaderIcon className='animate-spin' /> : 'Login'}
                 </Button>
+                <div className='text-center text-sm'>
+                  Don't have an account?{' '}
+                  <a
+                    className='text-primary hover:underline'
+                    href='/auth/register'
+                  >
+                    Register here
+                  </a>
+                </div>
               </div>
             </div>
           </form>
