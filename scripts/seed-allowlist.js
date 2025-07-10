@@ -14,6 +14,7 @@ async function seedAllowlist() {
       { email: 'demo@example.com', credits: 1 },
       { email: 'user@test.com', credits: 0 }, // Example of user with no credits
       { email: 'syafinion@gmail.com', credits: 3 }, // Added new email
+      { email: 'willy@nexea.co', credits: 3 },
     ];
 
     console.log('Start seeding Allowlist...');

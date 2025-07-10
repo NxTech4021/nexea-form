@@ -183,6 +183,7 @@ export function Step13() {
     useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormSchemaType>({
     defaultValues: radioKeys.reduce((acc, key) => {
@@ -237,6 +238,8 @@ export function Step13() {
   };
 
   async function onSubmit(values: FormSchemaType) {
+    if (isSubmitting) return; // Prevent double submission
+    
     let firstErrorId: null | string = null;
     const newTouchedState: Record<string, boolean> = {};
 
@@ -256,6 +259,8 @@ export function Step13() {
       return;
     }
 
+    setIsSubmitting(true);
+
     updateFormData({
       radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
     });
@@ -265,12 +270,14 @@ export function Step13() {
         body: JSON.stringify(formData),
         method: 'POST',
       });
+      
+      markStepCompleted(13);
+      setCurrentStep(14); // defaults to assessment complete
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    markStepCompleted(13);
-    setCurrentStep(14); // defaults to assessment complete
   }
 
   return (
@@ -313,8 +320,10 @@ export function Step13() {
 
         {/* Navigation */}
         <FormNavigation
+          isLoading={isSubmitting}
           nextLabel='Submit'
           onNext={() => form.handleSubmit(onSubmit)()}
+          preventScrollToTop={true}
         />
       </div>
     </>
