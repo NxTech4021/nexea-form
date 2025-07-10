@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Confetti from 'react-confetti';
 
@@ -25,6 +26,7 @@ export function Assessment() {
   const { currentStep, resetForm, updateFormData } = useFormContext();
   const [isVisible, setIsVisible] = useState(true);
   const [displayStep, setDisplayStep] = useState(currentStep);
+  const router = useRouter();
 
   // Fade out and in the step
   useEffect(() => {
@@ -84,9 +86,9 @@ export function Assessment() {
                 <p className='text-muted-foreground'>
                   Thank you for completing the assessment!
                 </p>
-                {/* <Button className='cursor-pointer' onClick={resetForm}>
-                  Take Another Test
-                </Button> */}
+                <Button className='cursor-pointer' onClick={() => router.push('/')}>
+                  Back to Home
+                </Button>
               </div>
             </div>
           </>
