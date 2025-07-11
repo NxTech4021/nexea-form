@@ -6,10 +6,6 @@ import { useEffect, useState } from 'react';
 import Confetti from 'react-confetti';
 
 import { Step1 } from '@/components/steps/step-1';
-import { Step10 } from '@/components/steps/step-10';
-import { Step11 } from '@/components/steps/step-11';
-import { Step12 } from '@/components/steps/step-12';
-import { Step13 } from '@/components/steps/step-13';
 import { Step2 } from '@/components/steps/step-2';
 import { Step3 } from '@/components/steps/step-3';
 import { Step4 } from '@/components/steps/step-4';
@@ -18,6 +14,15 @@ import { Step6 } from '@/components/steps/step-6';
 import { Step7 } from '@/components/steps/step-7';
 import { Step8 } from '@/components/steps/step-8';
 import { Step9 } from '@/components/steps/step-9';
+import { Step10 } from '@/components/steps/step-10';
+import { Step11 } from '@/components/steps/step-11';
+import { Step12 } from '@/components/steps/step-12';
+import { Step13 } from '@/components/steps/step-13';
+import { Step14 } from '@/components/steps/step-14';
+import { Step15 } from '@/components/steps/step-15';
+import { Step16 } from '@/components/steps/step-16';
+import { Step17 } from '@/components/steps/step-17';
+import { Step18 } from '@/components/steps/step-18';
 import { Button } from '@/components/ui/button';
 import { useFormContext } from '@/contexts/form-context';
 import { getAutofillData } from '@/lib/autofill';
@@ -52,14 +57,6 @@ export function Assessment() {
     switch (displayStep) {
       case 1:
         return <Step1 />;
-      case 10:
-        return <Step10 />;
-      case 11:
-        return <Step11 />;
-      case 12:
-        return <Step12 />;
-      case 13:
-        return <Step13 />;
       case 2:
         return <Step2 />;
       case 3:
@@ -76,6 +73,24 @@ export function Assessment() {
         return <Step8 />;
       case 9:
         return <Step9 />;
+      case 10:
+        return <Step10 />;
+      case 11:
+        return <Step11 />;
+      case 12:
+        return <Step12 />;
+      case 13:
+        return <Step13 />;
+      case 14:
+        return <Step14 />;
+      case 15:
+        return <Step15 />;
+      case 16:
+        return <Step16 />;
+      case 17:
+        return <Step17 />;
+      case 18:
+        return <Step18 />;
       default:
         return (
           <>

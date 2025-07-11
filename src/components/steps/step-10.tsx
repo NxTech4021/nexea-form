@@ -85,21 +85,16 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio58: z.string().optional(),
-  radio59: z.string().optional(),
-  radio60: z.string().optional(),
-  radio61: z.string().optional(),
-  radio62: z.string().optional(),
-  radio63: z.string().optional(),
-  radio64: z.string().optional(),
-  radio65: z.string().optional(),
-  radio66: z.string().optional(),
-  radio67: z.string().optional(),
-  radio68: z.string().optional(),
-  radio69: z.string().optional(),
-  radio70: z.string().optional(),
-  radio71: z.string().optional(),
-  radio72: z.string().optional(),
+  radio35: z.string().optional(),
+  radio36: z.string().optional(),
+  radio37: z.string().optional(),
+  radio38: z.string().optional(),
+  radio39: z.string().optional(),
+  radio40: z.string().optional(),
+  radio41: z.string().optional(),
+  radio42: z.string().optional(),
+  radio43: z.string().optional(),
+  radio44: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -115,21 +110,16 @@ const radioOptions = [
 ];
 
 const questionTitles = [
-  { id: 'radio58', title: 'Complete Tasks' },
-  { id: 'radio59', title: 'Ambitious Goals' },
-  { id: 'radio60', title: 'Work Hard' },
-  { id: 'radio61', title: 'Surpass Others' },
-  { id: 'radio62', title: 'Check Work Thoroughly' },
-  { id: 'radio63', title: 'Attention to Detail' },
-  { id: 'radio64', title: 'Highly Detailed Work' },
-  { id: 'radio65', title: 'Perfectionist' },
-  { id: 'radio66', title: 'Dislike Detailed Work' },
-  { id: 'radio67', title: 'Routines' },
-  { id: 'radio68', title: 'Variety' },
-  { id: 'radio69', title: 'Routine Work' },
-  { id: 'radio70', title: 'Understand Others' },
-  { id: 'radio71', title: 'Sensitive to Others' },
-  { id: 'radio72', title: 'Aware of Others' },
+  { id: 'radio35', title: 'Annoyance' },
+  { id: 'radio36', title: 'Temper' },
+  { id: 'radio37', title: 'Things Go Wrong' },
+  { id: 'radio38', title: 'Irritation' },
+  { id: 'radio39', title: 'Anger Control' },
+  { id: 'radio40', title: 'Impatience' },
+  { id: 'radio41', title: 'Stressful Situations' },
+  { id: 'radio42', title: 'Stressed Easily' },
+  { id: 'radio43', title: 'Tense' },
+  { id: 'radio44', title: 'Workload' },
 ];
 
 type Question = {
@@ -138,28 +128,25 @@ type Question = {
 };
 
 const questionsData: Question[] = [
-  { id: 'radio58', question: 'I always complete a task once I start it' },
-  { id: 'radio59', question: 'I enjoy setting ambitious personal goals' },
-  { id: 'radio60', question: 'I work hard to get ahead' },
-  { id: 'radio61', question: "I try to surpass others' accomplishments" },
-  { id: 'radio62', question: 'I take the time to check my work thoroughly' },
-  { id: 'radio63', question: 'I pay careful attention to detail' },
-  { id: 'radio64', question: 'I enjoy highly detailed work' },
-  { id: 'radio65', question: 'I like every detail to be perfect' },
-  { id: 'radio66', question: 'I dislike detailed work' },
+  { id: 'radio35', question: 'I am easily annoyed' },
+  { id: 'radio36', question: 'I hardly ever lose my temper' },
+  { id: 'radio37', question: 'I get upset when things go wrong' },
+  { id: 'radio38', question: 'I have never become irritated with a coworker' },
   {
-    id: 'radio67',
-    question:
-      'I feel that routines interfere with my ability to work effectively',
+    id: 'radio39',
+    question: 'I cannot always control my anger in front of others',
   },
-  { id: 'radio68', question: 'I prefer variety to routine' },
-  { id: 'radio69', question: 'I rarely enjoy routine work' },
+  { id: 'radio40', question: 'I am sometimes impatient with people' },
   {
-    id: 'radio70',
-    question: "I have the ability to understand others people's feelings.",
+    id: 'radio41',
+    question: 'I generally remain calm and composed in stressful situations',
   },
-  { id: 'radio71', question: 'I am sensitive to the needs of others' },
-  { id: 'radio72', question: 'I am not usually aware of how people feel' },
+  { id: 'radio42', question: 'I get stressed easily' },
+  {
+    id: 'radio43',
+    question: 'I become tense when too many things happen at once',
+  },
+  { id: 'radio44', question: 'I enjoy working less when there is lots to do' },
 ];
 
 export const questionsDataStep10 = questionsData.map(q => ({
@@ -234,7 +221,7 @@ export function Step10() {
 
     questionsData.forEach((q) => {
       newTouchedState[q.id] = true;
-      const value = values[q.id];
+      const value = values[q.id] || '';
       const validationErrors = runValidation(q.id, value, true);
       if (validationErrors.length > 0 && !firstErrorId) {
         firstErrorId = q.id;

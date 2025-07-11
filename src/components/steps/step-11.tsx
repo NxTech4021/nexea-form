@@ -85,21 +85,16 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio73: z.string().optional(),
-  radio74: z.string().optional(),
-  radio75: z.string().optional(),
-  radio76: z.string().optional(),
-  radio77: z.string().optional(),
-  radio78: z.string().optional(),
-  radio79: z.string().optional(),
-  radio80: z.string().optional(),
-  radio81: z.string().optional(),
-  radio82: z.string().optional(),
-  radio83: z.string().optional(),
-  radio84: z.string().optional(),
-  radio85: z.string().optional(),
-  radio86: z.string().optional(),
-  radio87: z.string().optional(),
+  radio45: z.string().optional(),
+  radio46: z.string().optional(),
+  radio47: z.string().optional(),
+  radio48: z.string().optional(),
+  radio49: z.string().optional(),
+  radio50: z.string().optional(),
+  radio51: z.string().optional(),
+  radio52: z.string().optional(),
+  radio53: z.string().optional(),
+  radio54: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -115,21 +110,16 @@ const radioOptions = [
 ];
 
 const questionTitles = [
-  { id: 'radio73', title: 'Sensitive to Others' },
-  { id: 'radio74', title: 'Pay Attention' },
-  { id: 'radio75', title: 'Unhappy' },
-  { id: 'radio76', title: 'Ignore Rules' },
-  { id: 'radio77', title: 'Order and Stability' },
-  { id: 'radio78', title: 'Ignore Regulations' },
-  { id: 'radio79', title: 'Strictly Enforced Rules' },
-  { id: 'radio80', title: 'Nonsense Rules' },
-  { id: 'radio81', title: 'Overperform' },
-  { id: 'radio82', title: 'Volunteer' },
-  { id: 'radio83', title: 'New Responsibilities' },
-  { id: 'radio84', title: 'Take Initiative' },
-  { id: 'radio85', title: 'Work Alone' },
-  { id: 'radio86', title: 'Work with Others' },
-  { id: 'radio87', title: 'Work with Lots of People' },
+  { id: 'radio45', title: 'Think Clearly' },
+  { id: 'radio46', title: 'Pressure' },
+  { id: 'radio47', title: 'Critically Analyze' },
+  { id: 'radio48', title: 'Analyze All Angles' },
+  { id: 'radio49', title: 'Pattern Recognition' },
+  { id: 'radio50', title: 'Underlying Themes' },
+  { id: 'radio51', title: 'At Ease With People' },
+  { id: 'radio52', title: 'Shy With Others' },
+  { id: 'radio53', title: 'Socially Confident' },
+  { id: 'radio54', title: 'Confidence' },
 ];
 
 type Question = {
@@ -138,43 +128,28 @@ type Question = {
 };
 
 const questionsData: Question[] = [
+  { id: 'radio45', question: 'I find it hard to think clearly when stressed' },
   {
-    id: 'radio73',
-    question: 'I am sensitive to the overall feelings of my co-workers',
+    id: 'radio46',
+    question: 'I am able to remain relaxed even under extreme pressure.',
+  },
+  { id: 'radio47', question: 'I like critically analyzing information' },
+  {
+    id: 'radio48',
+    question: 'I enjoy analyzing a problem from all possible angles',
   },
   {
-    id: 'radio74',
-    question: "I don't pay much attention to people's emotions",
+    id: 'radio49',
+    question: 'I enjoy searching for patterns among the details',
   },
   {
-    id: 'radio75',
-    question: 'No one has ever been unhappy with me in any way',
+    id: 'radio50',
+    question: 'I enjoy searching for underlying themes and patterns',
   },
-  {
-    id: 'radio76',
-    question:
-      'I am prepared to ignore the rules and regulations when it is necessary',
-  },
-  { id: 'radio77', question: 'I like to have order and stability' },
-  { id: 'radio78', question: 'I sometimes ignore regulations at work' },
-  {
-    id: 'radio79',
-    question: 'I believe that rules should be strictly enforced',
-  },
-  {
-    id: 'radio80',
-    question: 'I sometimes ignore rules that do not make any sense',
-  },
-  { id: 'radio81', question: 'I do more than what is expected of me' },
-  {
-    id: 'radio82',
-    question: 'I volunteer to do things that are not in my job description',
-  },
-  { id: 'radio83', question: 'I enjoy taking on new responsibilities' },
-  { id: 'radio84', question: 'I often take the initiative' },
-  { id: 'radio85', question: 'I would rather work by myself than with others' },
-  { id: 'radio86', question: 'I prefer to work with others rather than alone' },
-  { id: 'radio87', question: 'I prefer to work with lots of people' },
+  { id: 'radio51', question: 'I am at ease with people I have just met' },
+  { id: 'radio52', question: 'I often feel shy with others' },
+  { id: 'radio53', question: 'I am socially confident' },
+  { id: 'radio54', question: 'I am confident in formal situations' },
 ];
 
  
@@ -242,7 +217,7 @@ export function Step11() {
 
     questionsData.forEach((q) => {
       newTouchedState[q.id] = true;
-      const value = values[q.id];
+      const value = values[q.id] || '';
       const validationErrors = runValidation(q.id, value, true);
       if (validationErrors.length > 0 && !firstErrorId) {
         firstErrorId = q.id;

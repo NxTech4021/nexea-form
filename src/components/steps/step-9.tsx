@@ -85,21 +85,16 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio43: z.string().optional(),
-  radio44: z.string().optional(),
-  radio45: z.string().optional(),
-  radio46: z.string().optional(),
-  radio47: z.string().optional(),
-  radio48: z.string().optional(),
-  radio49: z.string().optional(),
-  radio50: z.string().optional(),
-  radio51: z.string().optional(),
-  radio52: z.string().optional(),
-  radio53: z.string().optional(),
-  radio54: z.string().optional(),
-  radio55: z.string().optional(),
-  radio56: z.string().optional(),
-  radio57: z.string().optional(),
+  radio25: z.string().optional(),
+  radio26: z.string().optional(),
+  radio27: z.string().optional(),
+  radio28: z.string().optional(),
+  radio29: z.string().optional(),
+  radio30: z.string().optional(),
+  radio31: z.string().optional(),
+  radio32: z.string().optional(),
+  radio33: z.string().optional(),
+  radio34: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -115,21 +110,16 @@ const radioOptions = [
 ];
 
 const questionTitles = [
-  { id: 'radio43', title: 'Tense' },
-  { id: 'radio44', title: 'Workload' },
-  { id: 'radio45', title: 'Think Clearly' },
-  { id: 'radio46', title: 'Pressure' },
-  { id: 'radio47', title: 'Critically Analyze' },
-  { id: 'radio48', title: 'Analyze All Angles' },
-  { id: 'radio49', title: 'Pattern Recognition' },
-  { id: 'radio50', title: 'Underlying Themes' },
-  { id: 'radio51', title: 'At Ease With People' },
-  { id: 'radio52', title: 'Shy With Others' },
-  { id: 'radio53', title: 'Socially Confident' },
-  { id: 'radio54', title: 'Confidence' },
-  { id: 'radio55', title: 'Timid With Others' },
-  { id: 'radio56', title: 'Demanding Goals' },
-  { id: 'radio57', title: 'Tough Goals' },
+  { id: 'radio25', title: 'Difficulty' },
+  { id: 'radio26', title: 'Persistence' },
+  { id: 'radio27', title: 'Tasks' },
+  { id: 'radio28', title: 'Give Up' },
+  { id: 'radio29', title: 'Commitment' },
+  { id: 'radio30', title: 'Persistent' },
+  { id: 'radio31', title: 'Stick With Things' },
+  { id: 'radio32', title: 'Difficult Problems' },
+  { id: 'radio33', title: 'Upset' },
+  { id: 'radio34', title: 'Composure' },
 ];
 
 type Question = {
@@ -139,35 +129,30 @@ type Question = {
 
 const questionsData: Question[] = [
   {
-    id: 'radio43',
-    question: 'I become tense when too many things happen at once',
-  },
-  { id: 'radio44', question: 'I enjoy working less when there is lots to do' },
-  { id: 'radio45', question: 'I find it hard to think clearly when stressed' },
-  {
-    id: 'radio46',
-    question: 'I am able to remain relaxed even under extreme pressure.',
-  },
-  { id: 'radio47', question: 'I like critically analyzing information' },
-  {
-    id: 'radio48',
-    question: 'I enjoy analyzing a problem from all possible angles',
+    id: 'radio25',
+    question: 'I find it difficult to make decisions on my own',
   },
   {
-    id: 'radio49',
-    question: 'I enjoy searching for patterns among the details',
+    id: 'radio26',
+    question: 'No matter how difficult a job is, see it through to the end',
   },
+  { id: 'radio27', question: 'I sometimes do not complete my tasks' },
   {
-    id: 'radio50',
-    question: 'I enjoy searching for underlying themes and patterns',
+    id: 'radio28',
+    question: 'I sometimes give up when things become difficult',
   },
-  { id: 'radio51', question: 'I am at ease with people I have just met' },
-  { id: 'radio52', question: 'I often feel shy with others' },
-  { id: 'radio53', question: 'I am socially confident ' },
-  { id: 'radio54', question: 'I am confident in formal situations' },
-  { id: 'radio55', question: 'I am generally timid with other people' },
-  { id: 'radio56', question: 'I set demanding goals for myself' },
-  { id: 'radio57', question: 'I establish tough goals for myself' },
+  { id: 'radio29', question: 'I always see the job through to the end' },
+  { id: 'radio30', question: 'People describe me as persistent' },
+  { id: 'radio31', question: 'I stick with things no matter what it takes' },
+  {
+    id: 'radio32',
+    question: 'I have the tendency to give up when I meet difficult problems',
+  },
+  { id: 'radio33', question: 'It takes a lot to upset me' },
+  {
+    id: 'radio34',
+    question: 'I maintain my composure even in difficult situations',
+  },
 ];
 
 export const questionsDataStep9 = questionsData.map(q => ({
@@ -242,7 +227,7 @@ export function Step9() {
 
     questionsData.forEach((q) => {
       newTouchedState[q.id] = true;
-      const value = values[q.id];
+      const value = values[q.id] || '';
       const validationErrors = runValidation(q.id, value, true);
       if (validationErrors.length > 0 && !firstErrorId) {
         firstErrorId = q.id;

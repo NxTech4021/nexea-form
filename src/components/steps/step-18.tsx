@@ -1,3 +1,4 @@
+// src/components/steps/step-18.tsx
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -84,16 +85,9 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio5: z.string().optional(),
-  radio6: z.string().optional(),
-  radio7: z.string().optional(),
-  radio8: z.string().optional(),
-  radio9: z.string().optional(),
-  radio10: z.string().optional(),
-  radio11: z.string().optional(),
-  radio12: z.string().optional(),
-  radio13: z.string().optional(),
-  radio14: z.string().optional(),
+  radio115: z.string().optional(),
+  radio116: z.string().optional(),
+  radio117: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -109,16 +103,9 @@ const radioOptions = [
 ];
 
 const questionTitles = [
-  { id: 'radio5', title: 'Planning Work' },
-  { id: 'radio6', title: 'Comfortable New People' },
-  { id: 'radio7', title: 'Introverted' },
-  { id: 'radio8', title: 'Spend Time Alone' },
-  { id: 'radio9', title: 'Awkward Meeting People' },
-  { id: 'radio10', title: 'Group Activities' },
-  { id: 'radio11', title: 'Difficult Inventive' },
-  { id: 'radio12', title: 'Inventive' },
-  { id: 'radio13', title: 'Proactive' },
-  { id: 'radio14', title: 'New Responsibilities' },
+  { id: 'radio115', title: 'Selling' },
+  { id: 'radio116', title: 'Bargaining' },
+  { id: 'radio117', title: 'Selling Easy' },
 ];
 
 type Question = {
@@ -127,46 +114,25 @@ type Question = {
 };
 
 const questionsData: Question[] = [
-  { id: 'radio5', question: 'I enjoy planning my work carefully' },
-  { id: 'radio6', question: 'I feel comfortable around new people' },
-  {
-    id: 'radio7',
-    question: 'I am usually an introverted person',
-  },
-  {
-    id: 'radio8',
-    question: 'I like to spend time by myself',
-  },
-  { id: 'radio9', question: 'I feel awkward when meeting new people' },
-  {
-    id: 'radio10',
-    question: 'I really enjoy group activities',
-  },
-  {
-    id: 'radio11',
-    question: 'I find it difficult to be inventive',
-  },
-  { id: 'radio12', question: 'People describe me as inventive' },
-  { id: 'radio13', question: 'I am proactive' },
-  {
-    id: 'radio14',
-    question: 'I dislike having new responsibilities added to my workload',
-  },
+  { id: 'radio115', question: 'I like to get involved in selling' },
+  { id: 'radio116', question: 'I have a natural ability for bargaining' },
+  { id: 'radio117', question: 'I find selling easy' },
 ];
 
-export const questionsDataStep7 = questionsData.map(q => ({
+export const questionsDataStep18 = questionsData.map(q => ({
   id: q.id,
-  step: 7,
+  step: 18,
   text: q.question,
   type: 'radio' as const,
   options: radioOptions,
 }));
 
-export function Step7() {
+export function Step18() {
   const { formData, markStepCompleted, setCurrentStep, updateFormData } =
     useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormSchemaType>({
     defaultValues: radioKeys.reduce((acc, key) => {
@@ -216,10 +182,12 @@ export function Step7() {
         top: targetPosition,
       });
     }
-    setCurrentStep(7);
+    setCurrentStep(18);
   };
 
-  function onSubmit(values: FormSchemaType) {
+  async function onSubmit(values: FormSchemaType) {
+    if (isSubmitting) return; // Prevent double submission
+    
     let firstErrorId: null | string = null;
     const newTouchedState: Record<string, boolean> = {};
 
@@ -239,11 +207,25 @@ export function Step7() {
       return;
     }
 
+    setIsSubmitting(true);
+
     updateFormData({
       radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
     });
-    markStepCompleted(7);
-    setCurrentStep(8);
+
+    try {
+      await fetch('/api/sheet/', {
+        body: JSON.stringify(formData),
+        method: 'POST',
+      });
+      
+      markStepCompleted(18);
+      setCurrentStep(19); // Assessment complete
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -285,8 +267,13 @@ export function Step7() {
         </Form>
 
         {/* Navigation */}
-        <FormNavigation onNext={() => form.handleSubmit(onSubmit)()} />
+        <FormNavigation
+          isLoading={isSubmitting}
+          nextLabel='Submit'
+          onNext={() => form.handleSubmit(onSubmit)()}
+          preventScrollToTop={true}
+        />
       </div>
     </>
   );
-}
+} 

@@ -72,7 +72,7 @@ export function FormProvider({ children }: FormProviderProps) {
   })
   const [currentStep, setCurrentStep] = useState(1)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
-  const totalSteps = 13
+  const totalSteps = 18
 
   // admin UI state
   const [questions, setQuestions] = useState<QuestionDefinition[]>([])

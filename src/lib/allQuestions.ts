@@ -14,6 +14,11 @@ import { questionsDataStep10 } from '../components/steps/step-10'
 import { questionsDataStep11 } from '../components/steps/step-11'
 import { questionsDataStep12 } from '../components/steps/step-12'
 import { questionsDataStep13 } from '../components/steps/step-13'
+import { questionsDataStep14 } from '../components/steps/step-14'
+import { questionsDataStep15 } from '../components/steps/step-15'
+import { questionsDataStep16 } from '../components/steps/step-16'
+import { questionsDataStep17 } from '../components/steps/step-17'
+import { questionsDataStep18 } from '../components/steps/step-18'
 
 // Concatenate them all into one array for seeding
 export const allQuestions = [
@@ -30,4 +35,9 @@ export const allQuestions = [
   ...questionsDataStep11,
   ...questionsDataStep12,
   ...questionsDataStep13,
+  ...questionsDataStep14,
+  ...questionsDataStep15,
+  ...questionsDataStep16,
+  ...questionsDataStep17,
+  ...questionsDataStep18,
 ]

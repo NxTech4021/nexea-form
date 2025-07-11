@@ -2,15 +2,14 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { FormNavigation } from '@/components/form-navigation';
+import { MatrixAssessment } from '@/components/matrix-assessment';
 import { QuestionSidebar } from '@/components/question-sidebar';
-import Question from '@/components/question/question';
-import { Form } from '@/components/ui/form';
+import { Form, FormField, FormItem } from '@/components/ui/form';
 import { useFormContext } from '@/contexts/form-context';
 
 // Types
@@ -63,6 +62,90 @@ const matrixTitles = [
     shortTitle: 'Heroes',
     title: 'Organization Heroes',
   },
+  {
+    id: 'matrix4',
+    question: 'In considering a new job, what is most important to me is:',
+    rows: [
+      'Opportunities to be creative',
+      'Stability and job security',
+      'Demands on the individual to perform',
+      'An environment where teamwork is valued',
+    ],
+    shortTitle: 'New Job',
+    title: 'New Job',
+  },
+  {
+    id: 'matrix5',
+    question: 'What characterizes me in my day-to-day work as a manager is that I am good at:',
+    rows: [
+      'Completing my tasks',
+      'Planning and structuring my work day',
+      'Spotting new opportunities',
+      'Listening to others',
+    ],
+    shortTitle: 'Manager',
+    title: 'Manager',
+  },
+  {
+    id: 'matrix6',
+    question: "Our organization's culture is characterized by:",
+    rows: [
+      'Systematically following internal procedures',
+      'Cooperating and collaborating across departmental units',
+      'Getting the day-to-day work done',
+      "Thinking of new ways to face tomorrow's challenges",
+    ],
+    shortTitle: 'Culture',
+    title: 'Culture',
+  },
+  {
+    id: 'matrix7',
+    question: 'The most important thing for our daily operation is:',
+    rows: [
+      'Inter-departmental teamwork',
+      'Being at the cutting edge of our profession',
+      'Having procedures and systems that work',
+      'Getting things done',
+    ],
+    shortTitle: 'Daily Operation',
+    title: 'Daily Operation',
+  },
+  {
+    id: 'matrix8',
+    question: 'I spend most of my time:',
+    rows: [
+      'Looking for innovative ways to get things done',
+      'Ensuring compliance of decisions made',
+      'Getting results from projects/tasks',
+      'Ensuring acceptance of decisions/solutions by the parties concerned',
+    ],
+    shortTitle: 'Time Spent',
+    title: 'Time Spent',
+  },
+  {
+    id: 'matrix9',
+    question: 'If I had some spare time at work, I would like to:',
+    rows: [
+      'Clean up or organize my paperwork',
+      'Get ahead on the day-to-day work',
+      'Develop a new project or explore new opportunities',
+      'Develop better relationships with my colleagues, external partners, clients, prospective clients',
+    ],
+    shortTitle: 'Spare Time',
+    title: 'Spare Time',
+  },
+  {
+    id: 'matrix10',
+    question: 'My job is characterized by:',
+    rows: [
+      'Working hard to get things done',
+      'Aligning colleagues, dealing with conflicts and fostering a team oriented climate',
+      'Ensuring we have the right rules and that they are followed',
+      'My job changes too often to be characterized',
+    ],
+    shortTitle: 'Job Characteristics',
+    title: 'Job Characteristics',
+  },
 ];
 
 // Context registration for admin UI
@@ -80,6 +163,13 @@ const formSchema = z.object({
   matrix1: z.record(z.string()),
   matrix2: z.record(z.string()),
   matrix3: z.record(z.string()),
+  matrix4: z.record(z.string()),
+  matrix5: z.record(z.string()),
+  matrix6: z.record(z.string()),
+  matrix7: z.record(z.string()),
+  matrix8: z.record(z.string()),
+  matrix9: z.record(z.string()),
+  matrix10: z.record(z.string()),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -98,6 +188,13 @@ export function Step3() {
       matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
       matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
       matrix3: formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
+      matrix4: formData.matrixes?.find((m) => m.matrix4)?.matrix4 || {},
+      matrix5: formData.matrixes?.find((m) => m.matrix5)?.matrix5 || {},
+      matrix6: formData.matrixes?.find((m) => m.matrix6)?.matrix6 || {},
+      matrix7: formData.matrixes?.find((m) => m.matrix7)?.matrix7 || {},
+      matrix8: formData.matrixes?.find((m) => m.matrix8)?.matrix8 || {},
+      matrix9: formData.matrixes?.find((m) => m.matrix9)?.matrix9 || {},
+      matrix10: formData.matrixes?.find((m) => m.matrix10)?.matrix10 || {},
     },
     resolver: zodResolver(formSchema),
   });
@@ -108,6 +205,13 @@ export function Step3() {
       matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
       matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
       matrix3: formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
+      matrix4: formData.matrixes?.find((m) => m.matrix4)?.matrix4 || {},
+      matrix5: formData.matrixes?.find((m) => m.matrix5)?.matrix5 || {},
+      matrix6: formData.matrixes?.find((m) => m.matrix6)?.matrix6 || {},
+      matrix7: formData.matrixes?.find((m) => m.matrix7)?.matrix7 || {},
+      matrix8: formData.matrixes?.find((m) => m.matrix8)?.matrix8 || {},
+      matrix9: formData.matrixes?.find((m) => m.matrix9)?.matrix9 || {},
+      matrix10: formData.matrixes?.find((m) => m.matrix10)?.matrix10 || {},
     });
   }, [formData, form]);
 
@@ -171,6 +275,13 @@ export function Step3() {
       'matrix1',
       'matrix2',
       'matrix3',
+      'matrix4',
+      'matrix5',
+      'matrix6',
+      'matrix7',
+      'matrix8',
+      'matrix9',
+      'matrix10',
     ];
 
     matricesToValidate.forEach((matrixName) => {
@@ -193,6 +304,13 @@ export function Step3() {
         { matrix1: values.matrix1 },
         { matrix2: values.matrix2 },
         { matrix3: values.matrix3 },
+        { matrix4: values.matrix4 },
+        { matrix5: values.matrix5 },
+        { matrix6: values.matrix6 },
+        { matrix7: values.matrix7 },
+        { matrix8: values.matrix8 },
+        { matrix9: values.matrix9 },
+        { matrix10: values.matrix10 },
       ],
     });
     markStepCompleted(3);
@@ -200,53 +318,50 @@ export function Step3() {
   }
 
   return (
-    <div className="min-h-screen">
-      <QuestionSidebar onTitleClick={scrollToMatrix} titles={matrixTitles} />
+    <>
+      <QuestionSidebar 
+        onTitleClick={scrollToMatrix} 
+        titles={matrixTitles.map(({ id, title }) => ({ id, title }))} 
+      />
 
-      <div className="max-w-2xl mx-auto p-4 sm:p-6">
-        <div className="space-y-4 sm:space-y-6">
-          {/* Persistent Form Title */}
-          <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm">
-            <div className="text-left space-y-2 sm:space-y-3">
-              <div className="flex items-center gap-4">
-                <Image
-                  alt="NEXEA Logo"
-                  height={40}
-                  src="/nexealogo.png"
-                  width={40}
+      <div className='space-y-4 sm:space-y-6'>
+        <Form {...form}>
+          <form
+            className='space-y-3 sm:space-y-4'
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            {matrixTitles.map((data) => (
+              <div id={`${data.id}-section`} key={data.id}>
+                <FormField
+                  control={form.control}
+                  name={data.id as keyof FormValues}
+                  render={({ field }) => (
+                    <FormItem>
+                      <MatrixAssessment
+                        columns={columns}
+                        errors={matrixErrors[data.id]}
+                        matrixId={data.id}
+                        onChange={(newValue) =>
+                          handleMatrixChange(data.id as keyof FormValues, field.onChange, newValue)
+                        }
+                        question={data.question}
+                        rows={data.rows}
+                        value={field.value as Record<string, string>}
+                      />
+                    </FormItem>
+                  )}
                 />
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                  Entrepreneurs Behaviour Assessment
-                </h1>
               </div>
-            </div>
-          </div>
+            ))}
+          </form>
+        </Form>
 
-          <Form {...form}>
-            <form
-              className="space-y-3 sm:space-y-4"
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              {matrixTitles.map((data) => (
-                <Question
-                  columns={columns}
-                  data={data}
-                  errors={matrixErrors[data.id]}
-                  form={form}
-                  handleChange={handleMatrixChange}
-                  key={data.id}
-                />
-              ))}
-            </form>
-          </Form>
-
-          {/* Navigation */}
-          <FormNavigation
-            isNextDisabled={!form.formState.isValid}
-            onNext={() => form.handleSubmit(onSubmit)()}
-          />
-        </div>
+        {/* Navigation */}
+        <FormNavigation
+          isNextDisabled={!form.formState.isValid}
+          onNext={() => form.handleSubmit(onSubmit)()}
+        />
       </div>
-    </div>
+    </>
   );
 }

@@ -85,21 +85,16 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio28: z.string().optional(),
-  radio29: z.string().optional(),
-  radio30: z.string().optional(),
-  radio31: z.string().optional(),
-  radio32: z.string().optional(),
-  radio33: z.string().optional(),
-  radio34: z.string().optional(),
-  radio35: z.string().optional(),
-  radio36: z.string().optional(),
-  radio37: z.string().optional(),
-  radio38: z.string().optional(),
-  radio39: z.string().optional(),
-  radio40: z.string().optional(),
-  radio41: z.string().optional(),
-  radio42: z.string().optional(),
+  radio15: z.string().optional(),
+  radio16: z.string().optional(),
+  radio17: z.string().optional(),
+  radio18: z.string().optional(),
+  radio19: z.string().optional(),
+  radio20: z.string().optional(),
+  radio21: z.string().optional(),
+  radio22: z.string().optional(),
+  radio23: z.string().optional(),
+  radio24: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -115,21 +110,16 @@ const radioOptions = [
 ];
 
 const questionTitles = [
-  { id: 'radio28', title: 'Give Up' },
-  { id: 'radio29', title: 'Commitment' },
-  { id: 'radio30', title: 'Persistent' },
-  { id: 'radio31', title: 'Stick With Things' },
-  { id: 'radio32', title: 'Difficult Problems' },
-  { id: 'radio33', title: 'Upset' },
-  { id: 'radio34', title: 'Composure' },
-  { id: 'radio35', title: 'Annoyance' },
-  { id: 'radio36', title: 'Temper' },
-  { id: 'radio37', title: 'Things Go Wrong' },
-  { id: 'radio38', title: 'Irritation' },
-  { id: 'radio39', title: 'Anger Control' },
-  { id: 'radio40', title: 'Impatience' },
-  { id: 'radio41', title: 'Stressful Situations' },
-  { id: 'radio42', title: 'Stressed Easily' },
+  { id: 'radio15', title: 'Way of Working' },
+  { id: 'radio16', title: 'New Ideas' },
+  { id: 'radio17', title: 'New Ways' },
+  { id: 'radio18', title: 'Risk Neutral' },
+  { id: 'radio19', title: 'Consultation' },
+  { id: 'radio20', title: 'Boss' },
+  { id: 'radio21', title: 'Insecurity' },
+  { id: 'radio22', title: 'Supervision' },
+  { id: 'radio23', title: 'Advice' },
+  { id: 'radio24', title: 'Decision Making' },
 ];
 
 type Question = {
@@ -138,36 +128,31 @@ type Question = {
 };
 
 const questionsData: Question[] = [
+  { id: 'radio15', question: 'I prefer established ways of working' },
+  { id: 'radio16', question: 'I find it easy to come up with new ideas' },
+  { id: 'radio17', question: 'I love to think up new ways of doings things' },
   {
-    id: 'radio28',
-    question: 'I sometimes give up when things become difficult',
+    id: 'radio18',
+    question: 'I like to do things the way they have always been done',
   },
-  { id: 'radio29', question: 'I always see the job through to the end' },
-  { id: 'radio30', question: 'People describe me as persistent' },
-  { id: 'radio31', question: 'I stick with things no matter what it takes' },
+  { id: 'radio19', question: 'I consult others when making a decision' },
   {
-    id: 'radio32',
-    question: 'I have the tendency to give up when I meet difficult problems',
+    id: 'radio20',
+    question: 'I always completely agree with every decision my boss makes',
   },
-  { id: 'radio33', question: 'It takes a lot to upset me' },
   {
-    id: 'radio34',
-    question: 'I maintain my composure even in difficult situations',
+    id: 'radio21',
+    question: 'I feel insecure when I do not have the support of others',
   },
-  { id: 'radio35', question: 'I am easily annoyed' },
-  { id: 'radio36', question: 'I hardly ever lose my temper' },
-  { id: 'radio37', question: 'I get upset when things go wrong' },
-  { id: 'radio38', question: 'I have never become irritated with a coworker' },
+  { id: 'radio22', question: 'I look to others for supervision and guidance' },
   {
-    id: 'radio39',
-    question: 'I cannot always control my anger in front of others',
+    id: 'radio23',
+    question: 'I seldom look for advice when making a decision',
   },
-  { id: 'radio40', question: 'I am sometimes impatient with people' },
   {
-    id: 'radio41',
-    question: 'I generally remain calm and composed in stressful situations',
+    id: 'radio24',
+    question: 'I rarely make a decision without consulting others',
   },
-  { id: 'radio42', question: 'I get stressed easily' },
 ];
 
 export const questionsDataStep8 = questionsData.map(q => ({
@@ -242,7 +227,7 @@ export function Step8() {
 
     questionsData.forEach((q) => {
       newTouchedState[q.id] = true;
-      const value = values[q.id];
+      const value = values[q.id] || '';
       const validationErrors = runValidation(q.id, value, true);
       if (validationErrors.length > 0 && !firstErrorId) {
         firstErrorId = q.id;

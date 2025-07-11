@@ -20,48 +20,6 @@ const columns = [
   'Most Accurate',
 ];
 
-const matrix4Rows = [
-  'Opportunities to be creative',
-  'Stability and job security',
-  'Demands on the individual to perform',
-  'An environment where teamwork is valued',
-];
-const matrix5Rows = [
-  'Completing my tasks',
-  'Planning and structuring my work day',
-  'Spotting new opportunities',
-  'Listening to others',
-];
-const matrix6Rows = [
-  'Systematically following internal procedures',
-  'Cooperating and collaborating across departmental units',
-  'Getting the day-to-day work done',
-  "Thinking of new ways to face tomorrow's challenges",
-];
-const matrix7Rows = [
-  'Inter-departmental teamwork',
-  'Being at the cutting edge of our profession',
-  'Having procedures and systems that work',
-  'Getting things done',
-];
-const matrix8Rows = [
-  'Looking for innovative ways to get things done',
-  'Ensuring compliance of decisions made',
-  'Getting results from projects/tasks',
-  'Ensuring acceptance of decisions/solutions by the parties concerned',
-];
-const matrix9Rows = [
-  'Clean up or organize my paperwork',
-  'Get ahead on the day-to-day work',
-  'Develop a new project or explore new opportunities',
-  'Develop better relationships with colleagues and partners',
-];
-const matrix10Rows = [
-  'Working hard to get things done',
-  'Aligning colleagues, dealing with conflicts and fostering teamwork',
-  'Ensuring we have the right rules and that they are followed',
-  'My job changes too often to be characterized',
-];
 const matrix11Rows = [
   'Pleasant and easy to work with',
   'Focused and organized',
@@ -81,7 +39,7 @@ const matrix13Rows = [
   'Motivated by results',
 ];
 const matrix14Rows = [
-  'Rules, regulations and SOPs of our business',
+  'Rules, regulations and standard operating procedures of our business',
   'Nuts and bolts of getting the job done',
   'Future of our industry',
   'Different individuals in our organization and how to get them to work together',
@@ -90,7 +48,7 @@ const matrix15Rows = [
   'I am able to work without interruption',
   'My new ideas have won acceptance',
   'I have met all my objectives for the day',
-  'We start from different viewpoints but in the end come out aligned',
+  'We start from different viewpoints but in the end come out as an aligned team',
 ];
 const matrix16Rows = [
   'Well liked',
@@ -108,52 +66,22 @@ const matrix18Rows = [
   'Constantly changing tasks and challenges',
   'Orderly and secure working conditions',
   'Good working and social environment',
-  'Clarity of tasks and success when I work hard',
+  'Clarity of tasks and if I work hard, I am able to succeed',
+];
+const matrix19Rows = [
+  'Developing people',
+  'Assuring the day-to-day work is achieved',
+  'Developing new products/services/systems',
+  'Making sure that rules and systems are clearly defined and adhered to',
+];
+const matrix20Rows = [
+  'Getting results fast',
+  'Minimizing risk',
+  'Finding a solution that is acceptable to everyone',
+  'Finding new and innovative solutions',
 ];
 
 const matrixTitles = [
-  {
-    id: 'matrix4' as const,
-    question: 'In considering a new job, what is most important to me is:',
-    title: 'New Job',
-    rows: matrix4Rows,
-  },
-  {
-    id: 'matrix5' as const,
-    question: 'What characterizes me in my day-to-day work as a manager is that I am good at:',
-    title: 'Manager',
-    rows: matrix5Rows,
-  },
-  {
-    id: 'matrix6' as const,
-    question: "Our organization's culture is characterized by:",
-    title: 'Culture',
-    rows: matrix6Rows,
-  },
-  {
-    id: 'matrix7' as const,
-    question: 'The most important thing for our daily operation is:',
-    title: 'Daily Operation',
-    rows: matrix7Rows,
-  },
-  {
-    id: 'matrix8' as const,
-    question: 'I spend most of my time:',
-    title: 'Time Spent',
-    rows: matrix8Rows,
-  },
-  {
-    id: 'matrix9' as const,
-    question: 'If I had some spare time at work, I would like to:',
-    title: 'Spare Time',
-    rows: matrix9Rows,
-  },
-  {
-    id: 'matrix10' as const,
-    question: 'My job is characterized by:',
-    title: 'Job Characteristics',
-    rows: matrix10Rows,
-  },
   {
     id: 'matrix11' as const,
     question: 'My closest colleagues think I am:',
@@ -203,6 +131,18 @@ const matrixTitles = [
       'The kind of new job I would like to apply for is characterized by:',
     title: 'Job Characteristics II',
     rows: matrix18Rows,
+  },
+  {
+    id: 'matrix19' as const,
+    question: 'The most important areas of responsibility in my job are:',
+    title: 'Job Responsibility',
+    rows: matrix19Rows,
+  },
+  {
+    id: 'matrix20' as const,
+    question: 'What I consider most important when making a decision is:',
+    title: 'Decision Making',
+    rows: matrix20Rows,
   },
 ] as const;
 

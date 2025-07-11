@@ -1,9 +1,8 @@
 // src/components/steps/step-5.tsx
-'use client'
+'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -11,11 +10,78 @@ import { FormNavigation } from '@/components/form-navigation';
 import { MatrixAssessment } from '@/components/matrix-assessment';
 import { QuestionSidebar } from '@/components/question-sidebar';
 import { Form, FormField, FormItem } from '@/components/ui/form';
-import { QuestionDefinition, useFormContext } from '@/contexts/form-context';
+import { useFormContext } from '@/contexts/form-context';
+import { QuestionDefinition } from '@/contexts/form-context';
+
+const columns = [
+  'Least Accurate',
+  'Somewhat Accurate',
+  'Quite Accurate',
+  'Most Accurate',
+];
+
+const matrix21Rows = [
+  'Establishing procedures which ensure efficient use of our resources',
+  'Getting the day-to-day work done',
+  'Ensuring my organization remains on the cutting edge',
+  'Motivating my colleagues in their work',
+];
+const matrix22Rows = [
+  'Finding new ways to accomplish my work',
+  'Ensuring that things are done correctly',
+  'Getting results',
+  'Maintaining a collaborative working environment',
+];
+const matrix23Rows = [
+  'Takes me away from important day-to-day work',
+  'Is undesirable if it requires too many changes to our policies',
+  'Creates opportunities for creative thinking',
+  'Creates too much change and conflict/disharmony',
+];
+const matrix24Rows = [
+  'Do not have enough information',
+  'Am not sure of other people’s opinion',
+  'Have too much to do',
+  'See multiple solutions to the problem',
+];
+const matrix25Rows = [
+  'Work quickly and in an orderly way',
+  'Inspire the commitment of my colleagues',
+  'Find new methods of working',
+  'Work carefully and systematically',
+];
+const matrix26Rows = [
+  'Require cooperation with colleagues',
+  'Give me the opportunity to think out side of the box',
+  'Are clearly defined and allow me to work systematically and within a structure',
+  'Allow me to see the results quickly',
+];
+const matrix27Rows = [
+  'Systematize',
+  'Achieve goals',
+  'Change and be flexible',
+  'Work well with others',
+];
+const matrix28Rows = [
+  'Getting results',
+  'Working closely with others',
+  'Being in a secure and stable working environment',
+  'Risks and excitement',
+];
+const matrix29Rows = [
+  'Who is well-liked',
+  'They can approach for accurate information',
+  'Who can find new solutions',
+  'Who can get the job done',
+];
+const matrix30Rows = [
+  'Meet my performance objectives',
+  'Foresee and plan for future developments',
+  'Work with others in a collaborative environment',
+  'See that the rules and regulations are followed',
+];
 
 const formSchema = z.object({
-  matrix19: z.record(z.string()),
-  matrix20: z.record(z.string()),
   matrix21: z.record(z.string()),
   matrix22: z.record(z.string()),
   matrix23: z.record(z.string()),
@@ -26,9 +92,6 @@ const formSchema = z.object({
   matrix28: z.record(z.string()),
   matrix29: z.record(z.string()),
   matrix30: z.record(z.string()),
-  matrix31: z.record(z.string()),
-  matrix32: z.record(z.string()),
-  matrix33: z.record(z.string()),
 });
 
 type MatrixName = keyof z.infer<typeof formSchema>;
@@ -44,8 +107,6 @@ export function Step5() {
   >({});
 
   const matricesToValidate: MatrixName[] = [
-    'matrix19',
-    'matrix20',
     'matrix21',
     'matrix22',
     'matrix23',
@@ -56,9 +117,6 @@ export function Step5() {
     'matrix28',
     'matrix29',
     'matrix30',
-    'matrix31',
-    'matrix32',
-    'matrix33',
   ];
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -124,7 +182,7 @@ export function Step5() {
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    let firstErrorMatrix: null | string = null;
+    let firstErrorMatrix: MatrixName | null = null;
     const newTouchedState: Record<string, boolean> = {};
 
     matricesToValidate.forEach((matrixName) => {
@@ -151,119 +209,7 @@ export function Step5() {
     setCurrentStep(6);
   }
 
-  const columns = [
-    'Least Accurate',
-    'Somewhat Accurate',
-    'Quite Accurate',
-    'Most Accurate',
-  ];
-
-  const matrix19Rows = [
-    'Developing people',
-    'Assuring the day-to-day work is achieved',
-    'Developing new products/services/systems',
-    'Making sure that rules and systems are clearly defined and adhered to',
-  ];
-  const matrix20Rows = [
-    'Getting results fast',
-    'Minimizing risk',
-    'Finding a solution that is acceptable to everyone',
-    'Finding new and innovative solutions',
-  ];
-  const matrix21Rows = [
-    'Establishing procedures which ensure efficient use of our resources',
-    'Getting the day-to-day work done',
-    'Ensuring my organization remains on the cutting edge',
-    'Motivating my colleagues in their work',
-  ];
-  const matrix22Rows = [
-    'Finding new ways to accomplish my work',
-    'Ensuring that things are done correctly',
-    'Getting results',
-    'Maintaining a collaborative working environment',
-  ];
-  const matrix23Rows = [
-    'Takes me away from important day-to-day work',
-    'Is undesirable if it requires too many changes to our policies',
-    'Creates opportunities for creative thinking',
-    'Creates too much change and conflict/disharmony',
-  ];
-  const matrix24Rows = [
-    'Do not have enough information',
-    "Am not sure of other people's opinion",
-    'Have too much to do',
-    'See multiple solutions to the problem',
-  ];
-  const matrix25Rows = [
-    'Work quickly and in an orderly way',
-    'Inspire the commitment of my colleagues',
-    'Find new methods of working',
-    'Work carefully and systematically',
-  ];
-  const matrix26Rows = [
-    'Require cooperation with colleagues',
-    'Give me the opportunity to think out side of the box',
-    'Are clearly defined and allow me to work systematically and within a structure',
-    'Allow me to see the results quickly',
-  ];
-  const matrix27Rows = [
-    'Systematize',
-    'Achieve goals',
-    'Change and be flexible',
-    'Work well with others',
-  ];
-  const matrix28Rows = [
-    'Getting results',
-    'Working closely with others',
-    'Being in a secure and stable working environment',
-    'Risks and excitement',
-  ];
-  const matrix29Rows = [
-    'Who is well-liked',
-    'They can approach for accurate information',
-    'Who can find new solutions',
-    'Who can get the job done',
-  ];
-  const matrix30Rows = [
-    'Meet my performance objectives',
-    'Foresee and plan for future developments',
-    'Work with others in a collaborative environment',
-    'See that the rules and regulations are followed',
-  ];
-  const matrix31Rows = [
-    'Systematic planning',
-    'Teamwork',
-    'Hard work',
-    'Creativity and risk taking',
-  ];
-  const matrix32Rows = [
-    'Work hard',
-    'Foresee future trends and opportunities',
-    'Attend to details and minimize mistakes',
-    'Get others to view things from a different perspective',
-  ];
-  const matrix33Rows = [
-    'Big idea person',
-    'Hard worker',
-    'Team player',
-    'Precise and accurate worker',
-  ];
-
   const matrixTitles = [
-    {
-      id: 'matrix19',
-      question: 'The most important areas of responsibility in my job are:',
-      shortTitle: 'Job Responsibility',
-      title: 'Job Responsibility',
-      rows: matrix19Rows,
-    },
-    {
-      id: 'matrix20',
-      question: 'What I consider most important when making a decision is:',
-      shortTitle: 'Decision Making',
-      title: 'Decision Making',
-      rows: matrix20Rows,
-    },
     {
       id: 'matrix21',
       question: 'The most important aspect of my job is:',
@@ -334,32 +280,7 @@ export function Step5() {
       title: 'Job Pleasure',
       rows: matrix30Rows,
     },
-    {
-      id: 'matrix31',
-      question: 'The type of work where I perform well is work which requires:',
-      shortTitle: 'Work Performance',
-      title: 'Work Performance',
-      rows: matrix31Rows,
-    },
-    {
-      id: 'matrix32',
-      question: 'Managers in our organization are praised for their ability to:',
-      shortTitle: 'Manager',
-      title: 'Manager',
-      rows: matrix32Rows,
-    },
-    {
-      id: 'matrix33',
-      question: 'I want to be thought of as a:',
-      shortTitle: 'Thought of as',
-      title: 'Thought of as',
-      rows: matrix33Rows,
-    },
   ] as const;
-
-  function scrollToSection(id: string): void {
-    throw new Error('Function not implemented.');
-  }
 
   return (
     <div>
@@ -410,32 +331,6 @@ export function Step5() {
 // ** NEW: export question definitions for admin UI **
 export const questionsDataStep5: QuestionDefinition[] = [
   {
-    id: 'matrix19',
-    step: 5,
-    text: 'The most important areas of responsibility in my job are:',
-    type: 'matrix',
-    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
-    rows: [
-      'Developing people',
-      'Assuring the day-to-day work is achieved',
-      'Developing new products/services/systems',
-      'Making sure that rules and systems are clearly defined and adhered to',
-    ],
-  },
-  {
-    id: 'matrix20',
-    step: 5,
-    text: 'What I consider most important when making a decision is:',
-    type: 'matrix',
-    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
-    rows: [
-      'Getting results fast',
-      'Minimizing risk',
-      'Finding a solution that is acceptable to everyone',
-      'Finding new and innovative solutions',
-    ],
-  },
-  {
     id: 'matrix21',
     step: 5,
     text: 'The most important aspect of my job is:',
@@ -482,7 +377,7 @@ export const questionsDataStep5: QuestionDefinition[] = [
     options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
     rows: [
       'Do not have enough information',
-      "Am not sure of other people's opinion",
+      'Am not sure of other people’s opinion',
       'Have too much to do',
       'See multiple solutions to the problem',
     ],
@@ -563,45 +458,6 @@ export const questionsDataStep5: QuestionDefinition[] = [
       'Foresee and plan for future developments',
       'Work with others in a collaborative environment',
       'See that the rules and regulations are followed',
-    ],
-  },
-  {
-    id: 'matrix31',
-    step: 5,
-    text: 'The type of work where I perform well is work which requires:',
-    type: 'matrix',
-    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
-    rows: [
-      'Systematic planning',
-      'Teamwork',
-      'Hard work',
-      'Creativity and risk taking',
-    ],
-  },
-  {
-    id: 'matrix32',
-    step: 5,
-    text: 'Managers in our organization are praised for their ability to:',
-    type: 'matrix',
-    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
-    rows: [
-      'Work hard',
-      'Foresee future trends and opportunities',
-      'Attend to details and minimize mistakes',
-      'Get others to view things from a different perspective',
-    ],
-  },
-  {
-    id: 'matrix33',
-    step: 5,
-    text: 'I want to be thought of as a:',
-    type: 'matrix',
-    options: ['Least Accurate','Somewhat Accurate','Quite Accurate','Most Accurate'],
-    rows: [
-      'Big idea person',
-      'Hard worker',
-      'Team player',
-      'Precise and accurate worker',
     ],
   },
 ];

@@ -84,21 +84,16 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio103: z.string().optional(),
-  radio104: z.string().optional(),
-  radio105: z.string().optional(),
-  radio106: z.string().optional(),
-  radio107: z.string().optional(),
-  radio108: z.string().optional(),
-  radio109: z.string().optional(),
-  radio110: z.string().optional(),
-  radio111: z.string().optional(),
-  radio112: z.string().optional(),
-  radio113: z.string().optional(),
-  radio114: z.string().optional(),
-  radio115: z.string().optional(),
-  radio116: z.string().optional(),
-  radio117: z.string().optional(),
+  radio65: z.string().optional(),
+  radio66: z.string().optional(),
+  radio67: z.string().optional(),
+  radio68: z.string().optional(),
+  radio69: z.string().optional(),
+  radio70: z.string().optional(),
+  radio71: z.string().optional(),
+  radio72: z.string().optional(),
+  radio73: z.string().optional(),
+  radio74: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -114,21 +109,16 @@ const radioOptions = [
 ];
 
 const questionTitles = [
-  { id: 'radio103', title: 'One Task at a Time' },
-  { id: 'radio104', title: 'Full of Energy' },
-  { id: 'radio105', title: 'One Thing at a Time' },
-  { id: 'radio106', title: 'One Task at a Time' },
-  { id: 'radio107', title: 'Complete One Task' },
-  { id: 'radio108', title: 'Group Success' },
-  { id: 'radio109', title: 'Work Best' },
-  { id: 'radio110', title: 'Take Charge' },
-  { id: 'radio111', title: 'Enjoy Being in Charge' },
-  { id: 'radio112', title: 'Decision Making' },
-  { id: 'radio113', title: 'Dislike Decision Making' },
-  { id: 'radio114', title: 'Sales' },
-  { id: 'radio115', title: 'Selling' },
-  { id: 'radio116', title: 'Bargaining' },
-  { id: 'radio117', title: 'Selling Easy' },
+  { id: 'radio65', title: 'Perfectionist' },
+  { id: 'radio66', title: 'Dislike Detailed Work' },
+  { id: 'radio67', title: 'Routines' },
+  { id: 'radio68', title: 'Variety' },
+  { id: 'radio69', title: 'Routine Work' },
+  { id: 'radio70', title: 'Understand Others' },
+  { id: 'radio71', title: 'Sensitive to Others' },
+  { id: 'radio72', title: 'Aware of Others' },
+  { id: 'radio73', title: 'Sensitive to Others' },
+  { id: 'radio74', title: 'Pay Attention' },
 ];
 
 type Question = {
@@ -137,45 +127,29 @@ type Question = {
 };
 
 const questionsData: Question[] = [
+  { id: 'radio65', question: 'I like every detail to be perfect' },
+  { id: 'radio66', question: 'I dislike detailed work' },
   {
-    id: 'radio103',
+    id: 'radio67',
     question:
-      'I believe it is best to complete one task before beginning another',
+      'I feel that routines interfere with my ability to work effectively',
   },
-  { id: 'radio104', question: 'People describe me as being full of energy' },
-  { id: 'radio105', question: 'I prefer to do one thing at a time' },
+  { id: 'radio68', question: 'I prefer variety to routine' },
+  { id: 'radio69', question: 'I rarely enjoy routine work' },
   {
-    id: 'radio106',
-    question: 'When I work by myself I usually work on one task at a time',
+    id: 'radio70',
+    question: "I have the ability to understand others people's feelings.",
   },
+  { id: 'radio71', question: 'I am sensitive to the needs of others' },
+  { id: 'radio72', question: 'I am not usually aware of how people feel' },
   {
-    id: 'radio107',
-    question:
-      'I believe it is best to complete one task before beginning another',
-  },
-  {
-    id: 'radio108',
-    question: "I put the group's success before my own success",
+    id: 'radio73',
+    question: 'I am sensitive to the overall feelings of my co-workers',
   },
   {
-    id: 'radio109',
-    question:
-      'I work best when I can complete one task before beginning another',
+    id: 'radio74',
+    question: "I don't pay much attention to people's emotions",
   },
-  { id: 'radio110', question: 'I take charge in most situations' },
-  { id: 'radio111', question: 'I enjoy being in charge' },
-  {
-    id: 'radio112',
-    question: 'I enjoy taking responsibility for making decisions',
-  },
-  {
-    id: 'radio113',
-    question: 'I dislike having the responsibility for making decisions',
-  },
-  { id: 'radio114', question: 'I enjoy making a sale' },
-  { id: 'radio115', question: 'I like to get involved in selling' },
-  { id: 'radio116', question: 'I have a natural ability for bargaining' },
-  { id: 'radio117', question: 'I find selling easy' },
 ];
 
 export function Step13() {
@@ -183,8 +157,6 @@ export function Step13() {
     useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const form = useForm<FormSchemaType>({
     defaultValues: radioKeys.reduce((acc, key) => {
       acc[key] = formData.radios?.find((r) => r[key])?.[key] || '';
@@ -237,15 +209,13 @@ export function Step13() {
     setCurrentStep(13);
   };
 
-  async function onSubmit(values: FormSchemaType) {
-    if (isSubmitting) return; // Prevent double submission
-    
+  function onSubmit(values: FormSchemaType) {
     let firstErrorId: null | string = null;
     const newTouchedState: Record<string, boolean> = {};
 
     questionsData.forEach((q) => {
       newTouchedState[q.id] = true;
-      const value = values[q.id];
+      const value = values[q.id] || '';
       const validationErrors = runValidation(q.id, value, true);
       if (validationErrors.length > 0 && !firstErrorId) {
         firstErrorId = q.id;
@@ -259,25 +229,11 @@ export function Step13() {
       return;
     }
 
-    setIsSubmitting(true);
-
     updateFormData({
       radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
     });
-
-    try {
-      await fetch('/api/sheet/', {
-        body: JSON.stringify(formData),
-        method: 'POST',
-      });
-      
-      markStepCompleted(13);
-      setCurrentStep(14); // defaults to assessment complete
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    markStepCompleted(13);
+    setCurrentStep(14);
   }
 
   return (
@@ -319,12 +275,7 @@ export function Step13() {
         </Form>
 
         {/* Navigation */}
-        <FormNavigation
-          isLoading={isSubmitting}
-          nextLabel='Submit'
-          onNext={() => form.handleSubmit(onSubmit)()}
-          preventScrollToTop={true}
-        />
+        <FormNavigation onNext={() => form.handleSubmit(onSubmit)()} />
       </div>
     </>
   );

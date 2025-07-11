@@ -1,8 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle } from 'lucide-react';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -10,15 +8,10 @@ import { z } from 'zod';
 import { FormNavigation } from '@/components/form-navigation';
 import { MatrixAssessment } from '@/components/matrix-assessment';
 import { QuestionSidebar } from '@/components/question-sidebar';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '@/components/ui/form';
+import { Form, FormField, FormItem, FormControl, FormLabel } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FormData, useFormContext } from '@/contexts/form-context';
+import { AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Radio Button Question Component
@@ -108,21 +101,16 @@ const matrixSchema = z
   );
 
 const formSchema = z.object({
+  matrix31: z.record(z.string()),
+  matrix32: z.record(z.string()),
+  matrix33: z.record(z.string()),
   matrix34: z.record(z.string()),
   matrix35: z.record(z.string()),
   matrix36: z.record(z.string()),
   radio1: z.string().optional(),
-  radio10: z.string().optional(),
-  radio11: z.string().optional(),
-  radio12: z.string().optional(),
   radio2: z.string().optional(),
   radio3: z.string().optional(),
   radio4: z.string().optional(),
-  radio5: z.string().optional(),
-  radio6: z.string().optional(),
-  radio7: z.string().optional(),
-  radio8: z.string().optional(),
-  radio9: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -132,17 +120,9 @@ const radioKeys = [
   'radio2',
   'radio3',
   'radio4',
-  'radio5',
-  'radio6',
-  'radio7',
-  'radio8',
-  'radio9',
-  'radio10',
-  'radio11',
-  'radio12',
 ];
 
-const matrixKeys = ['matrix34', 'matrix35', 'matrix36'];
+const matrixKeys = ['matrix31', 'matrix32', 'matrix33', 'matrix34', 'matrix35', 'matrix36'];
 
 const radioOptions = [
   'Strongly Agree',
@@ -159,21 +139,16 @@ const columns = [
 ];
 
 const questionTitles = [
+  { id: 'matrix31', title: 'Work Performance' },
+  { id: 'matrix32', title: 'Manager' },
+  { id: 'matrix33', title: 'Thought of as' },
   { id: 'matrix34', title: 'Meetings' },
   { id: 'matrix35', title: 'Colleagues Expectations' },
   { id: 'matrix36', title: 'Change' },
-  { id: 'radio1', title: 'Introverted' },
-  { id: 'radio2', title: 'Planning' },
-  { id: 'radio3', title: 'Awkward' },
-  { id: 'radio4', title: 'Inventive' },
-  { id: 'radio5', title: 'Group Activities' },
-  { id: 'radio6', title: 'Long Term Planning' }, 
-  { id: 'radio7', title: 'Detailed Planning' },
-  { id: 'radio8', title: 'Around New People' },
-  { id: 'radio9', title: 'Spend Time By Myself' },
-  { id: 'radio10', title: 'Inventive' },
-  { id: 'radio11', title: 'Planned Activities' },
-  { id: 'radio12', title: 'Planning for the Future' },
+  { id: 'radio1', title: 'Long Term Plans' },
+  { id: 'radio2', title: 'Planning Future' },
+  { id: 'radio3', title: 'Planned Activities' },
+  { id: 'radio4', title: 'Detailed Plans' },
 ];
 
 type Question = {
@@ -184,6 +159,39 @@ type Question = {
 };
 
 const questionsData: Question[] = [
+  {
+    id: 'matrix31',
+    question: 'The type of work where I perform well is work which requires:',
+    rows: [
+      'Systematic planning',
+      'Teamwork',
+      'Hard work',
+      'Creativity and risk taking',
+    ],
+    type: 'matrix',
+  },
+  {
+    id: 'matrix32',
+    question: 'Managers in our organization are praised for their ability to:',
+    rows: [
+      'Work hard',
+      'Foresee future trends and opportunities',
+      'Attend to details and minimize mistakes',
+      'Get others to view things from a different perspective',
+    ],
+    type: 'matrix',
+  },
+  {
+    id: 'matrix33',
+    question: 'I want to be thought of as a:',
+    rows: [
+      'Big idea person',
+      'Hard worker',
+      'Team player',
+      'Precise and accurate worker',
+    ],
+    type: 'matrix',
+  },
   {
     id: 'matrix34',
     question: 'For me, meetings are:',
@@ -219,45 +227,20 @@ const questionsData: Question[] = [
   },
   {
     id: 'radio1',
-    question: 'I am usually an introverted person',
+    question: 'I like to make long term plans',
     type: 'radio',
   },
   {
     id: 'radio2',
-    question: 'I enjoy planning my work carefully',
+    question: 'I like planning for the future',
     type: 'radio',
   },
   {
     id: 'radio3',
-    question: 'I feel awkward when meeting new people',
-    type: 'radio',
-  },
-  { id: 'radio4', question: 'People describe me as inventive', type: 'radio' },
-  { id: 'radio5', question: 'I really enjoy group activities', type: 'radio' },
-  { id: 'radio6', question: 'I like to make long term plans', type: 'radio' },
-  {
-    id: 'radio7',
-    question: 'I like to develop detailed plans for the task at hand',
-    type: 'radio',
-  },
-  {
-    id: 'radio8',
-    question: 'I feel comfortable around new people',
-    type: 'radio',
-  },
-
-  { id: 'radio9', question: 'I like to spend time by myself', type: 'radio' },
-  {
-    id: 'radio10',
-    question: 'I find it difficult to be inventive',
-    type: 'radio',
-  },
-  {
-    id: 'radio11',
     question: 'I like to have all my activities planned well in advance',
     type: 'radio',
   },
-  { id: 'radio12', question: 'I like planning for the future', type: 'radio' },
+  { id: 'radio4', question: 'I like to develop detailed plans for the task at hand', type: 'radio' },
 ];
 
 export const questionsDataStep6 = questionsData.map(q => ({
@@ -268,12 +251,6 @@ export const questionsDataStep6 = questionsData.map(q => ({
   options: q.rows ? columns : radioOptions,
   rows:    q.rows,
 }))
-
-type ErrorsMap = {
-  [key: string]: {
-    message?: string;
-  };
-};
 
 export function Step6() {
   const { formData, markStepCompleted, setCurrentStep, updateFormData } =
@@ -337,11 +314,11 @@ export function Step6() {
   };
 
   const handleMatrixChange = (
-    fieldName: keyof FormSchemaType,
-    formOnChange: (value: Record<string, string>) => void,
+    fieldName: string,
+    onChange: (value: Record<string, string>) => void,
     newValue: Record<string, string>
   ) => {
-    formOnChange(newValue);
+    onChange(newValue);
     if (!touched[fieldName]) {
       setTouched((prev) => ({ ...prev, [fieldName]: true }));
     }
@@ -349,11 +326,11 @@ export function Step6() {
   };
 
   const handleRadioChange = (
-    fieldName: keyof FormSchemaType,
-    formOnChange: (value: string) => void,
+    fieldName: string,
+    onChange: (value: string) => void,
     newValue: string
   ) => {
-    formOnChange(newValue);
+    onChange(newValue);
     if (!touched[fieldName]) {
       setTouched((prev) => ({ ...prev, [fieldName]: true }));
     }

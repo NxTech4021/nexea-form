@@ -85,21 +85,16 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio100: z.string().optional(),
-  radio101: z.string().optional(),
-  radio102: z.string().optional(),
-  radio88: z.string().optional(),
-  radio89: z.string().optional(),
-  radio90: z.string().optional(),
-  radio91: z.string().optional(),
-  radio92: z.string().optional(),
-  radio93: z.string().optional(),
-  radio94: z.string().optional(),
-  radio95: z.string().optional(),
-  radio96: z.string().optional(),
-  radio97: z.string().optional(),
-  radio98: z.string().optional(),
-  radio99: z.string().optional(),
+  radio55: z.string().optional(),
+  radio56: z.string().optional(),
+  radio57: z.string().optional(),
+  radio58: z.string().optional(),
+  radio59: z.string().optional(),
+  radio60: z.string().optional(),
+  radio61: z.string().optional(),
+  radio62: z.string().optional(),
+  radio63: z.string().optional(),
+  radio64: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -115,21 +110,16 @@ const radioOptions = [
 ];
 
 const questionTitles = [
-  { id: 'radio88', title: 'Team' },
-  { id: 'radio89', title: 'Working with Others' },
-  { id: 'radio90', title: 'Team Effectiveness' },
-  { id: 'radio91', title: 'Deadlines' },
-  { id: 'radio92', title: 'Punctuality' },
-  { id: 'radio93', title: 'Task Completion' },
-  { id: 'radio94', title: 'Things Unfinished' },
-  { id: 'radio95', title: 'Promises' },
-  { id: 'radio96', title: 'Work Unfinished' },
-  { id: 'radio97', title: 'Energy' },
-  { id: 'radio98', title: 'Energy Drain' },
-  { id: 'radio99', title: 'Lots of Energy' },
-  { id: 'radio100', title: 'Full of Energy' },
-  { id: 'radio101', title: 'One Thing at a Time' },
-  { id: 'radio102', title: 'One Task at a Time' },
+  { id: 'radio55', title: 'Timid With Others' },
+  { id: 'radio56', title: 'Demanding Goals' },
+  { id: 'radio57', title: 'Tough Goals' },
+  { id: 'radio58', title: 'Complete Tasks' },
+  { id: 'radio59', title: 'Ambitious Goals' },
+  { id: 'radio60', title: 'Work Hard' },
+  { id: 'radio61', title: 'Surpass Others' },
+  { id: 'radio62', title: 'Check Work Thoroughly' },
+  { id: 'radio63', title: 'Attention to Detail' },
+  { id: 'radio64', title: 'Highly Detailed Work' },
 ];
 
 type Question = {
@@ -138,27 +128,16 @@ type Question = {
 };
 
 const questionsData: Question[] = [
-  { id: 'radio88', question: 'Working on a team slows me down' },
-  { id: 'radio89', question: 'I enjoy working with others' },
-  { id: 'radio90', question: 'Working on a team increases my effectiveness' },
-  { id: 'radio91', question: 'I sometimes miss a deadline' },
-  { id: 'radio92', question: 'I have never been late for work' },
-  { id: 'radio93', question: 'I have never failed to complete a task at work' },
-  { id: 'radio94', question: 'I sometimes leave things unfinished' },
-  { id: 'radio95', question: 'I sometimes cannot keep my promises' },
-  { id: 'radio96', question: 'I sometimes leave work unfinished' },
-  {
-    id: 'radio97',
-    question: 'I enjoy work that requires a high level of energy',
-  },
-  { id: 'radio98', question: 'Demanding tasks quickly drain my energy' },
-  { id: 'radio99', question: 'I have lots of energy' },
-  { id: 'radio100', question: 'People describe me as being full of energy' },
-  { id: 'radio101', question: 'I prefer to do one thing at a time' },
-  {
-    id: 'radio102',
-    question: 'When I work by myself I usually work on one task at a time',
-  },
+  { id: 'radio55', question: 'I am generally timid with other people' },
+  { id: 'radio56', question: 'I set demanding goals for myself' },
+  { id: 'radio57', question: 'I establish tough goals for myself' },
+  { id: 'radio58', question: 'I always complete a task once I start it' },
+  { id: 'radio59', question: 'I enjoy setting ambitious personal goals' },
+  { id: 'radio60', question: 'I work hard to get ahead' },
+  { id: 'radio61', question: "I try to surpass others' accomplishments" },
+  { id: 'radio62', question: 'I take the time to check my work thoroughly' },
+  { id: 'radio63', question: 'I pay careful attention to detail' },
+  { id: 'radio64', question: 'I enjoy highly detailed work' },
 ];
 
 export function Step12() {
@@ -225,7 +204,7 @@ export function Step12() {
 
     questionsData.forEach((q) => {
       newTouchedState[q.id] = true;
-      const value = values[q.id];
+      const value = values[q.id] || '';
       const validationErrors = runValidation(q.id, value, true);
       if (validationErrors.length > 0 && !firstErrorId) {
         firstErrorId = q.id;

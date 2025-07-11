@@ -1,3 +1,4 @@
+// src/components/steps/step-16.tsx
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -84,16 +85,16 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio5: z.string().optional(),
-  radio6: z.string().optional(),
-  radio7: z.string().optional(),
-  radio8: z.string().optional(),
-  radio9: z.string().optional(),
-  radio10: z.string().optional(),
-  radio11: z.string().optional(),
-  radio12: z.string().optional(),
-  radio13: z.string().optional(),
-  radio14: z.string().optional(),
+  radio95: z.string().optional(),
+  radio96: z.string().optional(),
+  radio97: z.string().optional(),
+  radio98: z.string().optional(),
+  radio99: z.string().optional(),
+  radio100: z.string().optional(),
+  radio101: z.string().optional(),
+  radio102: z.string().optional(),
+  radio103: z.string().optional(),
+  radio104: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -109,16 +110,16 @@ const radioOptions = [
 ];
 
 const questionTitles = [
-  { id: 'radio5', title: 'Planning Work' },
-  { id: 'radio6', title: 'Comfortable New People' },
-  { id: 'radio7', title: 'Introverted' },
-  { id: 'radio8', title: 'Spend Time Alone' },
-  { id: 'radio9', title: 'Awkward Meeting People' },
-  { id: 'radio10', title: 'Group Activities' },
-  { id: 'radio11', title: 'Difficult Inventive' },
-  { id: 'radio12', title: 'Inventive' },
-  { id: 'radio13', title: 'Proactive' },
-  { id: 'radio14', title: 'New Responsibilities' },
+  { id: 'radio95', title: 'Promises' },
+  { id: 'radio96', title: 'Work Unfinished' },
+  { id: 'radio97', title: 'Energy' },
+  { id: 'radio98', title: 'Energy Drain' },
+  { id: 'radio99', title: 'Lots of Energy' },
+  { id: 'radio100', title: 'Full of Energy' },
+  { id: 'radio101', title: 'One Thing at a Time' },
+  { id: 'radio102', title: 'One Task at a Time' },
+  { id: 'radio103', title: 'Complete One Task' },
+  { id: 'radio104', title: 'Lots of Energy' },
 ];
 
 type Question = {
@@ -127,42 +128,37 @@ type Question = {
 };
 
 const questionsData: Question[] = [
-  { id: 'radio5', question: 'I enjoy planning my work carefully' },
-  { id: 'radio6', question: 'I feel comfortable around new people' },
+  { id: 'radio95', question: 'I sometimes cannot keep my promises' },
+  { id: 'radio96', question: 'I sometimes leave work unfinished' },
   {
-    id: 'radio7',
-    question: 'I am usually an introverted person',
+    id: 'radio97',
+    question: 'I enjoy work that requires a high level of energy',
+  },
+  { id: 'radio98', question: 'Demanding tasks quickly drain my energy' },
+  { id: 'radio99', question: 'I have lots of energy' },
+  { id: 'radio100', question: 'People describe me as being full of energy' },
+  { id: 'radio101', question: 'I prefer to do one thing at a time' },
+  {
+    id: 'radio102',
+    question: 'When I work by myself I usually work on one task at a time',
   },
   {
-    id: 'radio8',
-    question: 'I like to spend time by myself',
+    id: 'radio103',
+    question:
+      'I believe it is best to complete one task before beginning another',
   },
-  { id: 'radio9', question: 'I feel awkward when meeting new people' },
-  {
-    id: 'radio10',
-    question: 'I really enjoy group activities',
-  },
-  {
-    id: 'radio11',
-    question: 'I find it difficult to be inventive',
-  },
-  { id: 'radio12', question: 'People describe me as inventive' },
-  { id: 'radio13', question: 'I am proactive' },
-  {
-    id: 'radio14',
-    question: 'I dislike having new responsibilities added to my workload',
-  },
+  { id: 'radio104', question: 'People describe me as being full of energy' },
 ];
 
-export const questionsDataStep7 = questionsData.map(q => ({
+export const questionsDataStep16 = questionsData.map(q => ({
   id: q.id,
-  step: 7,
+  step: 16,
   text: q.question,
   type: 'radio' as const,
   options: radioOptions,
 }));
 
-export function Step7() {
+export function Step16() {
   const { formData, markStepCompleted, setCurrentStep, updateFormData } =
     useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -216,7 +212,7 @@ export function Step7() {
         top: targetPosition,
       });
     }
-    setCurrentStep(7);
+    setCurrentStep(16);
   };
 
   function onSubmit(values: FormSchemaType) {
@@ -242,8 +238,8 @@ export function Step7() {
     updateFormData({
       radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
     });
-    markStepCompleted(7);
-    setCurrentStep(8);
+    markStepCompleted(16);
+    setCurrentStep(17);
   }
 
   return (
@@ -289,4 +285,4 @@ export function Step7() {
       </div>
     </>
   );
-}
+} 
