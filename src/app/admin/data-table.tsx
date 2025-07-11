@@ -69,7 +69,19 @@ export function DataTable<TData, TValue>({
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    style={{
+                      background: 'white',
+                      boxShadow:
+                        header.index === 0
+                          ? '-4px 0 4px -4px gray inset'
+                          : 'none',
+                      left: header.index === 0 ? 0 : undefined,
+                      position: header.index === 0 ? 'sticky' : 'static',
+                      zIndex: header.index === 0 ? 2 : 1, // ensure it's above other columns
+                    }}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -89,8 +101,18 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && 'selected'}
                 key={row.id}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                {row.getVisibleCells().map((cell, i) => (
+                  <TableCell
+                    key={cell.id}
+                    style={{
+                      background: 'white',
+                      boxShadow:
+                        i === 0 ? '-4px 0 4px -4px gray inset' : 'none',
+                      left: i === 0 ? 0 : undefined,
+                      position: i === 0 ? 'sticky' : 'static',
+                      zIndex: i === 0 ? 1 : 0,
+                    }}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
