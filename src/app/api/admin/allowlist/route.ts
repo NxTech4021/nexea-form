@@ -6,6 +6,33 @@ import { decrypt } from '@/lib/session';
 
 const prisma = new PrismaClient();
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const data = await req.json();
+    const { id } = data;
+
+    if (!id)
+      return NextResponse.json(
+        { error: 'Id is not specified' },
+        { status: 404 }
+      );
+
+    await prisma.allowlist.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    return NextResponse.json(
+      { message: 'Successfully deleted' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ error: 'Error' }, { status: 400 });
+  }
+}
+
 // Get all allowlist entries
 export async function GET() {
   try {

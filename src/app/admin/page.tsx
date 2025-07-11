@@ -13,6 +13,7 @@ type QuestionType = 'matrix' | 'radio' | 'text';
 import { Allowlist } from '@prisma/client';
 import { Loader2Icon, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 import { PreviewSteps } from '@/components/admin/PreviewSteps';
 import { Spinner } from '@/components/ui';
@@ -102,9 +103,26 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteRow = async ({ id }: { id: number }) => {
+    try {
+      const res = await fetch('/api/admin/allowlist', {
+        body: JSON.stringify({ id }),
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      setEmails((prev) => prev.filter((a) => a.id != id));
+
+      toast.success(data.message);
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (state?.success) {
-      console.log(state);
       router.push('/auth/login');
     }
   }, [state, router]);
@@ -269,7 +287,7 @@ export default function AdminPage() {
                       )}
                     </Button>
                   </form>
-                  <EmailListView emails={emails} />
+                  <EmailListView emails={emails} onDelete={handleDeleteRow} />
                 </CardContent>
               </Card>
             </TabsContent>

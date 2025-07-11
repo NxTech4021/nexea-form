@@ -21,11 +21,13 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onDelete: any;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onDelete,
 }: DataTableProps<TData, TValue>) {
   const onChange = async (credit: number, id: number) => {
     try {
@@ -54,8 +56,8 @@ export function DataTable<TData, TValue>({
     data,
     getCoreRowModel: getCoreRowModel(),
     meta: {
-      // asdL: 'sdasd',
       onChange: debouncedUpdate,
+      onDelete: onDelete,
     },
   });
 
