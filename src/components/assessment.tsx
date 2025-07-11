@@ -95,14 +95,14 @@ export function Assessment() {
         return (
           <>
             <Confetti numberOfPieces={500} recycle={false} />
-            <div className='min-h-screen flex items-center justify-center'>
-              <div className='text-center space-y-4'>
-                <h2 className='text-2xl font-semibold'>Assessment Complete</h2>
-                <p className='text-muted-foreground'>
+            <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
+              <div className='text-center space-y-4 sm:space-y-6 py-8 sm:py-12'>
+                <h2 className='text-xl sm:text-2xl lg:text-3xl font-semibold'>Assessment Complete</h2>
+                <p className='text-sm sm:text-base text-muted-foreground'>
                   Thank you for completing the assessment!
                 </p>
-                <Button className='cursor-pointer' onClick={() => router.push('/')}>
-                  Back to Home
+                <Button className='cursor-pointer w-full sm:w-auto px-6 py-2 text-sm sm:text-base' onClick={() => router.push('/')}>
+                  Done
                 </Button>
               </div>
             </div>
@@ -123,7 +123,7 @@ export function Assessment() {
                 src='/nexealogo.png'
                 width={40}
               />
-              <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
+              <h1 className='text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight'>
                 Entrepreneurs Behaviour Assessment
               </h1>
             </div>
