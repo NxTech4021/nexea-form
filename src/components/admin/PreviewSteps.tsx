@@ -30,11 +30,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui"
 
 const ITEMS_PER_PAGE = 5
 
 export function PreviewSteps() {
-  const { questions } = useFormContext()
+  const { questions, isLoading } = useFormContext()
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedStep, setSelectedStep] = useState<number | 'all'>('all')
 
@@ -50,6 +51,20 @@ export function PreviewSteps() {
 
   const handlePrevPage = () => setCurrentPage(p => Math.max(1, p - 1))
   const handleNextPage = () => setCurrentPage(p => Math.min(totalPages, p + 1))
+  
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Preview Form</CardTitle>
+          <CardDescription>Loading questions...</CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center py-8">
+          <Spinner />
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (!questions || questions.length === 0) {
     return (
@@ -58,6 +73,11 @@ export function PreviewSteps() {
           <CardTitle>Preview Form</CardTitle>
           <CardDescription>No questions defined yet.</CardDescription>
         </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-center py-8">
+            Please add questions in the Form Editor tab or sync with step files.
+          </p>
+        </CardContent>
       </Card>
     )
   }
@@ -92,18 +112,22 @@ export function PreviewSteps() {
               </SelectContent>
             </Select>
           </div>
+          
+          <div className="text-sm text-muted-foreground mb-4">
+            Showing {filteredQuestions.length} questions {selectedStep !== 'all' ? `in Step ${selectedStep}` : 'across all steps'}
+          </div>
         </CardContent>
       </Card>
 
       <ScrollArea className="h-[600px] rounded-md border p-4">
         <div className="space-y-8 pb-6">
-          {paginatedQuestions.map((q) => (
+          {paginatedQuestions.length > 0 ? paginatedQuestions.map((q) => (
             <Card key={q.id} className="relative">
               <CardHeader>
                 <div className="absolute top-4 right-4 text-sm text-muted-foreground">
                   Step {q.step}
                 </div>
-                <CardTitle className="text-lg font-medium">
+                <CardTitle className="text-lg font-medium pr-16">
                   {q.text}
                 </CardTitle>
               </CardHeader>
@@ -136,7 +160,7 @@ export function PreviewSteps() {
                           <th className="p-2 border"></th>
                           {Array(5).fill(0).map((_, i) => (
                             <th key={i} className="p-2 border text-center w-24">
-                              Option {i + 1}
+                              {q.options && q.options[i] ? q.options[i] : `Option ${i + 1}`}
                             </th>
                           ))}
                         </tr>
@@ -170,7 +194,11 @@ export function PreviewSteps() {
                 )}
               </CardContent>
             </Card>
-          ))}
+          )) : (
+            <div className="text-center text-muted-foreground py-8">
+              No questions found for the selected step.
+            </div>
+          )}
         </div>
       </ScrollArea>
 

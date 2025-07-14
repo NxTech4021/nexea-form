@@ -31,6 +31,7 @@ export default function RootLayout({
     <html lang='en' suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50`}
+        suppressHydrationWarning
       >
         {children}
         <Toaster />

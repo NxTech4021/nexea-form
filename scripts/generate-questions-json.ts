@@ -41,9 +41,11 @@ const { questionsDataStep10 } = require('../src/components/steps/step-10');
 const { questionsDataStep11 } = require('../src/components/steps/step-11');
 const { questionsDataStep12 } = require('../src/components/steps/step-12');
 const { questionsDataStep13 } = require('../src/components/steps/step-13');
-// …and if you have 11–13:
-// const { questionsDataStep11 } = require('../src/components/steps/step-11.tsx')
-// …etc
+const { questionsDataStep14 } = require('../src/components/steps/step-14');
+const { questionsDataStep15 } = require('../src/components/steps/step-15');
+const { questionsDataStep16 } = require('../src/components/steps/step-16');
+const { questionsDataStep17 } = require('../src/components/steps/step-17');
+const { questionsDataStep18 } = require('../src/components/steps/step-18');
 
 // 4) flatten into one big array
 const allQuestions = [
@@ -60,8 +62,15 @@ const allQuestions = [
   ...questionsDataStep11,
   ...questionsDataStep12,
   ...questionsDataStep13,
-  // …questionsDataStep11, etc.
-];
+  ...questionsDataStep14,
+  ...questionsDataStep15,
+  ...questionsDataStep16,
+  ...questionsDataStep17,
+  ...questionsDataStep18,
+].map(q => ({
+  ...q,
+  type: q.type.toUpperCase() // Convert type to uppercase
+}));
 
 // 5) write it out to prisma/questions.json
 const outPath = path.resolve(__dirname, '../prisma/questions.json');

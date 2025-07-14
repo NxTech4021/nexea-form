@@ -44,12 +44,15 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
     const { id, step, text, type, options = [], rows = [] } = data;
 
+    // Ensure type is uppercase for database consistency
+    const normalizedType = type.toUpperCase();
+
     const question = await prisma.question.create({
       data: {
         id,
         step,
         text,
-        type,
+        type: normalizedType,
         options: {
           create: options.map((opt: string, idx: number) => ({
             value: opt,
@@ -85,6 +88,9 @@ export async function PUT(req: NextRequest) {
     const data = await req.json();
     const { id, step, text, type, options = [], rows = [] } = data;
 
+    // Ensure type is uppercase for database consistency
+    const normalizedType = type.toUpperCase();
+
     // Delete existing options and rows
     await prisma.$transaction([
       prisma.option.deleteMany({ where: { questionId: id } }),
@@ -97,7 +103,7 @@ export async function PUT(req: NextRequest) {
       data: {
         step,
         text,
-        type,
+        type: normalizedType,
         options: {
           create: options.map((opt: string, idx: number) => ({
             value: opt,
@@ -144,7 +150,25 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // Delete the question (cascade will handle options and rows)
+    // Check if there are any answers for this question
+    const answerCount = await prisma.answer.count({
+      where: { questionId: id }
+    });
+
+    if (answerCount > 0) {
+      // If there are answers, we need to delete them first
+      await prisma.answer.deleteMany({
+        where: { questionId: id }
+      });
+    }
+
+    // Delete related options and matrix rows
+    await prisma.$transaction([
+      prisma.option.deleteMany({ where: { questionId: id } }),
+      prisma.matrixRow.deleteMany({ where: { questionId: id } })
+    ]);
+
+    // Now delete the question itself
     await prisma.question.delete({
       where: { id }
     });
@@ -153,7 +177,7 @@ export async function DELETE(req: NextRequest) {
   } catch (error) {
     console.error('Error deleting question:', error);
     return NextResponse.json(
-      { error: 'Failed to delete question' },
+      { error: `Failed to delete question: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }

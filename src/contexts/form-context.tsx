@@ -113,39 +113,61 @@ export function FormProvider({ children }: FormProviderProps) {
 
   // Create a new question
   const createQuestion = async (question: Omit<QuestionDefinition, 'id'>) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
+      // Use a more stable ID format that won't cause hydration issues
+      // Create a deterministic ID based on the step and text to avoid duplicates
+      const sanitizedText = question.text
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '')
+        .substring(0, 20);
+      const newId = `q_${question.step}_${sanitizedText}`;
+      
+      console.log(`Creating question with ID: ${newId}`);
+      
       const res = await fetch('/api/admin/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...question,
-          id: Date.now().toString(),
+          id: newId,
           type: question.type.toUpperCase()
         })
-      })
+      });
       
-      if (!res.ok) throw new Error('Failed to create question')
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Server error creating question:', errorData);
+        throw new Error(errorData.error || 'Failed to create question');
+      }
       
-      const data = await res.json()
+      const data = await res.json();
+      console.log(`Successfully created question with ID: ${data.id}`);
+      
+      // Add the new question to the state
       setQuestions(prev => [...prev, {
         ...question,
         id: data.id
-      }])
+      }]);
+      
+      return data;
     } catch (err: any) {
-      setError(err.message)
-      throw err
+      setError(err.message);
+      console.error('Create question error:', err);
+      throw err;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   // Update a question
   const updateQuestion = async (question: QuestionDefinition) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
+      console.log(`Updating question with ID: ${question.id}`);
+      
       const res = await fetch('/api/admin/questions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -153,38 +175,59 @@ export function FormProvider({ children }: FormProviderProps) {
           ...question,
           type: question.type.toUpperCase()
         })
-      })
+      });
       
-      if (!res.ok) throw new Error('Failed to update question')
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error(`Server error updating question ${question.id}:`, errorData);
+        throw new Error(errorData.error || 'Failed to update question');
+      }
       
+      // Update the question in the state
       setQuestions(prev => 
         prev.map(q => q.id === question.id ? question : q)
-      )
+      );
+      
+      console.log(`Successfully updated question with ID: ${question.id}`);
+      
+      return await res.json();
     } catch (err: any) {
-      setError(err.message)
-      throw err
+      setError(err.message);
+      console.error('Update question error:', err);
+      throw err;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   // Delete a question
   const deleteQuestion = async (id: string) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/admin/questions?id=${id}`, {
+      console.log(`Attempting to delete question with ID: ${id}`);
+      
+      const res = await fetch(`/api/admin/questions?id=${encodeURIComponent(id)}`, {
         method: 'DELETE'
-      })
+      });
       
-      if (!res.ok) throw new Error('Failed to delete question')
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error(`Server error deleting question ${id}:`, errorData);
+        throw new Error(errorData.error || 'Failed to delete question');
+      }
       
-      setQuestions(prev => prev.filter(q => q.id !== id))
+      // Remove the question from the state
+      setQuestions(prev => prev.filter(q => q.id !== id));
+      console.log(`Successfully deleted question ${id}`);
+      
+      return await res.json();
     } catch (err: any) {
-      setError(err.message)
-      throw err
+      setError(err.message);
+      console.error('Delete question error:', err);
+      throw err;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -248,22 +291,22 @@ export function FormProvider({ children }: FormProviderProps) {
   return (
     <FormContext.Provider
       value={{
-        formData,
-        updateFormData,
-        currentStep,
-        setCurrentStep,
         completedSteps,
+        createQuestion,
+        currentStep,
+        deleteQuestion,
+        error,
+        formData,
+        isLoading,
         isStepCompleted,
         markStepCompleted,
-        resetForm,
-        totalSteps,
         questions,
+        resetForm,
+        setCurrentStep,
         setQuestions,
-        createQuestion,
+        totalSteps,
+        updateFormData,
         updateQuestion,
-        deleteQuestion,
-        isLoading,
-        error
       }}
     >
       {children}

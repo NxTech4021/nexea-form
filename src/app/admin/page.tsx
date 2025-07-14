@@ -1,20 +1,14 @@
 // src/app/admin/page.tsx
 'use client';
 
-import Image from 'next/image';
-import { useActionState, useEffect, useState } from 'react';
-
-import { QuestionDefinition, useFormContext } from '@/contexts/form-context';
-import { FormProvider } from '@/contexts/form-context';
-
-type AdminTab = 'emails' | 'form' | 'preview';
-type QuestionType = 'matrix' | 'radio' | 'text';
-
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Allowlist } from '@prisma/client';
 import { Loader2Icon, LogOut } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
+import { QuestionDefinition, useFormContext, FormProvider } from '@/contexts/form-context';
 import { PreviewSteps } from '@/components/admin/PreviewSteps';
 import { Spinner } from '@/components/ui';
 import {
@@ -50,6 +44,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { signOut } from '../actions/auth';
 import EmailListView from './components/email-list-view';
 
+// Import question data from steps
+import * as StepQuestions from '@/components/steps';
+
+// Type definitions
+type AdminTab = 'emails' | 'form' | 'preview';
+type QuestionType = 'matrix' | 'radio' | 'text';
+
 export default function AdminPage() {
   const [tab, setTab] = useState<AdminTab>('emails');
   const [emailInput, setEmailInput] = useState('');
@@ -59,10 +60,20 @@ export default function AdminPage() {
   const router = useRouter();
 
   const [emails, setEmails] = useState<Allowlist[]>([]);
-
-  const [state, formAction, isPending] = useActionState(signOut, {
-    success: false,
-  });
+  
+  // Handle sign out state
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutSuccess, setSignOutSuccess] = useState(false);
+  
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      const result = await signOut({});
+      setSignOutSuccess(result.success);
+    } catch (err) {
+      console.error("Error signing out:", err);
+    }
+  };
 
   // Email allowlist functions
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -122,10 +133,10 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (state?.success) {
+    if (signOutSuccess) {
       router.push('/auth/login');
     }
-  }, [state, router]);
+  }, [signOutSuccess, router]);
 
   useEffect(() => {
     fetch('/api/admin/allowlist', {
@@ -176,14 +187,14 @@ export default function AdminPage() {
           </div>
 
           <div className='flex items-center gap-4'>
-            <form action={formAction}>
+            <form action={handleSignOut}>
               <Button
-                disabled={isPending}
+                disabled={isSigningOut}
                 size={'sm'}
                 type='submit'
                 variant='outline'
               >
-                {isPending ? (
+                {isSigningOut ? (
                   <Loader2Icon className='animate-spin' />
                 ) : (
                   <LogOut rotate={90} />
@@ -208,10 +219,9 @@ export default function AdminPage() {
             <TabsList className='grid w-full h-fit sm:grid-cols-3 grid-cols-1  gap-1 overflow-auto'>
               <TabsTrigger
                 className='cursor-pointer hover:bg-background hover:shadow transition-all duration-75'
-                disabled
                 value='form'
               >
-                Form Editor ( In development )
+                Form Editor
               </TabsTrigger>
               <TabsTrigger
                 className='cursor-pointer hover:bg-background hover:shadow transition-all duration-75'
@@ -221,10 +231,9 @@ export default function AdminPage() {
               </TabsTrigger>
               <TabsTrigger
                 className='cursor-pointer hover:bg-background hover:shadow transition-all duration-75'
-                disabled
                 value='preview'
               >
-                Preview Form ( In development )
+                Preview Form
               </TabsTrigger>
             </TabsList>
 
@@ -313,9 +322,34 @@ function FormEditor() {
     updateQuestion,
   } = useFormContext();
   const [adminStep, setAdminStep] = useState<number>(1);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [syncSuccess, setSyncSuccess] = useState<boolean>(false);
+  
+  // Add state for editing text fields with proper type definitions
+  const [editingText, setEditingText] = useState<Record<string, string>>({});
+  const [editingRows, setEditingRows] = useState<Record<string, string[]>>({});
+  const [editingOptions, setEditingOptions] = useState<Record<string, string[]>>({});
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   // Form editor state and functions
   const stepQs = questions.filter((q) => q.step === adminStep);
+
+  // Initialize editing state when questions change
+  useEffect(() => {
+    const newEditingText: Record<string, string> = {};
+    const newEditingRows: Record<string, string[]> = {};
+    const newEditingOptions: Record<string, string[]> = {};
+    
+    questions.forEach(q => {
+      newEditingText[q.id] = q.text;
+      if (q.rows) newEditingRows[q.id] = [...q.rows];
+      if (q.options) newEditingOptions[q.id] = [...q.options];
+    });
+    
+    setEditingText(newEditingText);
+    setEditingRows(newEditingRows);
+    setEditingOptions(newEditingOptions);
+  }, [questions]);
 
   const handleUpdateQuestion = async (
     id: string,
@@ -324,13 +358,69 @@ function FormEditor() {
     const question = questions.find((q) => q.id === id);
     if (!question) return;
 
+    setSavingId(id);
+    
     try {
       await updateQuestion({
         ...question,
         ...patch,
       });
+      toast.success('Question updated successfully');
     } catch (err) {
       console.error('Failed to update question:', err);
+      toast.error('Failed to update question');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const handleTextChange = (id: string, value: string) => {
+    setEditingText(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+  
+  const handleTextSave = async (id: string) => {
+    const text = editingText[id];
+    if (text !== undefined) {
+      await handleUpdateQuestion(id, { text });
+    }
+  };
+  
+  const handleOptionChange = (id: string, index: number, value: string) => {
+    setEditingOptions(prev => {
+      const options = [...(prev[id] || [])];
+      options[index] = value;
+      return {
+        ...prev,
+        [id]: options
+      };
+    });
+  };
+  
+  const handleOptionSave = async (id: string) => {
+    const options = editingOptions[id];
+    if (options) {
+      await handleUpdateQuestion(id, { options });
+    }
+  };
+  
+  const handleRowChange = (id: string, index: number, value: string) => {
+    setEditingRows(prev => {
+      const rows = [...(prev[id] || [])];
+      rows[index] = value;
+      return {
+        ...prev,
+        [id]: rows
+      };
+    });
+  };
+  
+  const handleRowSave = async (id: string) => {
+    const rows = editingRows[id];
+    if (rows) {
+      await handleUpdateQuestion(id, { rows });
     }
   };
 
@@ -343,16 +433,142 @@ function FormEditor() {
         text: 'New question',
         type: 'text',
       });
+      toast.success('Question added successfully');
     } catch (err) {
       console.error('Failed to create question:', err);
+      toast.error('Failed to create question');
     }
   };
 
   const handleDeleteQuestion = async (id: string) => {
     try {
       await deleteQuestion(id);
+      toast.success('Question deleted successfully');
     } catch (err) {
       console.error('Failed to delete question:', err);
+      toast.error('Failed to delete question');
+    }
+  };
+
+  // Function to sync with step files data
+  const syncWithStepFiles = async () => {
+    setIsSyncing(true);
+    setSyncSuccess(false);
+    
+    try {
+      // Get all questions from step files
+      const allStepQuestions: QuestionDefinition[] = [];
+      
+      // Extract questions from each step file
+      Object.entries(StepQuestions).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          allStepQuestions.push(...value);
+        }
+      });
+      
+      console.log(`Found ${allStepQuestions.length} questions in step files`);
+      
+      // Instead of deleting all questions, we'll update existing ones and only delete those not in the step files
+      const existingQuestionIds = new Set(questions.map(q => q.id));
+      const stepQuestionIds = new Set(allStepQuestions.map(q => q.id));
+      
+      // Questions to delete (exist in DB but not in step files)
+      const questionsToDelete = [...existingQuestionIds].filter(id => !stepQuestionIds.has(id));
+      console.log(`Deleting ${questionsToDelete.length} questions that are not in step files`);
+      
+      // Track success and failures
+      let deleteSuccessCount = 0;
+      let deleteFailCount = 0;
+      let createUpdateSuccessCount = 0;
+      let createUpdateFailCount = 0;
+      
+      // Delete questions one by one with a small delay
+      for (const id of questionsToDelete) {
+        try {
+          console.log(`Deleting question ${id}...`);
+          await deleteQuestion(id);
+          deleteSuccessCount++;
+          // Add a small delay between deletes
+          await new Promise(resolve => setTimeout(resolve, 300));
+        } catch (err) {
+          console.error(`Failed to delete question ${id}:`, err);
+          deleteFailCount++;
+          // Continue with other questions even if one fails
+        }
+      }
+      
+      // Update or create questions from step files
+      console.log(`Creating/updating ${allStepQuestions.length} questions from step files`);
+      
+      // Process questions in smaller batches with longer delays
+      const batchSize = 3;
+      for (let i = 0; i < allStepQuestions.length; i += batchSize) {
+        const batch = allStepQuestions.slice(i, i + batchSize);
+        
+        const results = await Promise.allSettled(batch.map(async (question) => {
+          try {
+            if (existingQuestionIds.has(question.id)) {
+              // Update existing question
+              console.log(`Updating question ${question.id}...`);
+              await updateQuestion({
+                ...question,
+                options: question.options || [],
+                rows: question.rows || [],
+              });
+            } else {
+              // Create new question
+              console.log(`Creating question ${question.id}...`);
+              await createQuestion({
+                options: question.options || [],
+                rows: question.rows || [],
+                step: question.step,
+                text: question.text,
+                type: question.type,
+              });
+            }
+            return true;
+          } catch (err) {
+            console.error(`Failed to process question ${question.id}:`, err);
+            return false;
+          }
+        }));
+        
+        // Count successes and failures
+        results.forEach(result => {
+          if (result.status === 'fulfilled' && result.value) {
+            createUpdateSuccessCount++;
+          } else {
+            createUpdateFailCount++;
+          }
+        });
+        
+        // Add a longer delay between batches
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+      
+      // Log final results
+      console.log(`Sync complete. Results:
+        - Deleted: ${deleteSuccessCount} success, ${deleteFailCount} failed
+        - Created/Updated: ${createUpdateSuccessCount} success, ${createUpdateFailCount} failed
+      `);
+      
+      // Mark as success if we had more successes than failures
+      const isOverallSuccess = (deleteSuccessCount + createUpdateSuccessCount) > 
+                               (deleteFailCount + createUpdateFailCount);
+      
+      setSyncSuccess(isOverallSuccess);
+      
+      if (isOverallSuccess) {
+        toast.success(`Successfully synced with step files (${createUpdateSuccessCount}/${allStepQuestions.length} questions processed)`);
+      } else {
+        toast.error(`Sync completed with errors (${createUpdateFailCount} failures)`);
+      }
+    } catch (err) {
+      console.error('Failed to sync with step files:', err);
+      toast.error('Failed to sync with step files');
+    } finally {
+      // Ensure we always exit the loading state
+      setIsSyncing(false);
     }
   };
 
@@ -370,12 +586,11 @@ function FormEditor() {
         <CardHeader>
           <CardTitle className='text-2xl'>Form Editor</CardTitle>
           <CardDescription>
-            Edit your form questions and structure. Changes are saved
-            automatically.
+            Edit your form questions and structure. Click Save after making changes.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className='flex items-center gap-4'>
+          <div className='flex items-center gap-4 mb-4'>
             <div className='flex-1'>
               <Select
                 onValueChange={(v) => setAdminStep(Number(v))}
@@ -385,7 +600,7 @@ function FormEditor() {
                   <SelectValue placeholder='Select step to edit' />
                 </SelectTrigger>
                 <SelectContent>
-                  {Array.from({ length: 13 }, (_, i) => (
+                  {Array.from({ length: 18 }, (_, i) => (
                     <SelectItem key={i + 1} value={String(i + 1)}>
                       Step {i + 1}
                     </SelectItem>
@@ -397,6 +612,34 @@ function FormEditor() {
               + Add Question
             </Button>
           </div>
+          
+          <div className='flex justify-end'>
+            <Button 
+              onClick={syncWithStepFiles}
+              disabled={isSyncing}
+              variant="outline"
+            >
+              {isSyncing ? (
+                <span className='flex items-center gap-2'>
+                  <Spinner size='sm' />
+                  Syncing...
+                </span>
+              ) : (
+                'Sync with Step Files'
+              )}
+            </Button>
+          </div>
+          
+          {syncSuccess && (
+            <Alert 
+              className='bg-green-50 border-green-200 mt-4'
+              variant='default'
+            >
+              <AlertDescription className='text-green-800'>
+                Successfully synced questions with step files
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
@@ -427,16 +670,29 @@ function FormEditor() {
                     <CardContent className='pt-6 space-y-6'>
                       {/* Question Text */}
                       <div className='space-y-2'>
-                        <label className='text-sm font-medium'>
-                          Question Text
-                        </label>
+                        <div className="flex justify-between items-center">
+                          <label className='text-sm font-medium'>
+                            Question Text
+                          </label>
+                          <Button 
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleTextSave(q.id)}
+                            disabled={savingId === q.id}
+                          >
+                            {savingId === q.id ? (
+                              <span className='flex items-center gap-2'>
+                                <Spinner size='sm' />
+                                Saving...
+                              </span>
+                            ) : 'Save Text'}
+                          </Button>
+                        </div>
                         <Textarea
                           className='min-h-[100px]'
-                          onChange={(e) =>
-                            handleUpdateQuestion(q.id, { text: e.target.value })
-                          }
+                          onChange={(e) => handleTextChange(q.id, e.target.value)}
                           placeholder='Enter your question'
-                          value={q.text}
+                          value={editingText[q.id] || ''}
                         />
                       </div>
 
@@ -477,40 +733,52 @@ function FormEditor() {
                             <label className='text-sm font-medium'>
                               Answer Options
                             </label>
-                            <Button
-                              onClick={() =>
-                                handleUpdateQuestion(q.id, {
-                                  options: [...q.options, ''],
-                                })
-                              }
-                              size='sm'
-                              variant='outline'
-                            >
-                              Add Option
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={() => {
+                                  const options = [...(editingOptions[q.id] || []), ''];
+                                  setEditingOptions(prev => ({
+                                    ...prev,
+                                    [q.id]: options
+                                  }));
+                                }}
+                                size='sm'
+                                variant='outline'
+                              >
+                                Add Option
+                              </Button>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleOptionSave(q.id)}
+                                disabled={savingId === q.id}
+                              >
+                                {savingId === q.id ? (
+                                  <span className='flex items-center gap-2'>
+                                    <Spinner size='sm' />
+                                    Saving...
+                                  </span>
+                                ) : 'Save Options'}
+                              </Button>
+                            </div>
                           </div>
                           <div className='space-y-2'>
-                            {q.options.map((opt, i) => (
+                            {(editingOptions[q.id] || []).map((opt, i) => (
                               <div className='flex items-center gap-2' key={i}>
                                 <Input
-                                  onChange={(e) => {
-                                    const opts = [...q.options];
-                                    opts[i] = e.target.value;
-                                    handleUpdateQuestion(q.id, {
-                                      options: opts,
-                                    });
-                                  }}
+                                  onChange={(e) => handleOptionChange(q.id, i, e.target.value)}
                                   placeholder={`Option ${i + 1}`}
                                   value={opt}
                                 />
                                 <Button
                                   onClick={() => {
-                                    const opts = q.options.filter(
+                                    const options = (editingOptions[q.id] || []).filter(
                                       (_, j) => j !== i
                                     );
-                                    handleUpdateQuestion(q.id, {
-                                      options: opts,
-                                    });
+                                    setEditingOptions(prev => ({
+                                      ...prev,
+                                      [q.id]: options
+                                    }));
                                   }}
                                   size='icon'
                                   variant='ghost'
@@ -530,36 +798,52 @@ function FormEditor() {
                             <label className='text-sm font-medium'>
                               Matrix Rows
                             </label>
-                            <Button
-                              onClick={() =>
-                                handleUpdateQuestion(q.id, {
-                                  rows: [...(q.rows ?? []), ''],
-                                })
-                              }
-                              size='sm'
-                              variant='outline'
-                            >
-                              Add Row
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={() => {
+                                  const rows = [...(editingRows[q.id] || []), ''];
+                                  setEditingRows(prev => ({
+                                    ...prev,
+                                    [q.id]: rows
+                                  }));
+                                }}
+                                size='sm'
+                                variant='outline'
+                              >
+                                Add Row
+                              </Button>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRowSave(q.id)}
+                                disabled={savingId === q.id}
+                              >
+                                {savingId === q.id ? (
+                                  <span className='flex items-center gap-2'>
+                                    <Spinner size='sm' />
+                                    Saving...
+                                  </span>
+                                ) : 'Save Rows'}
+                              </Button>
+                            </div>
                           </div>
                           <div className='space-y-2'>
-                            {(q.rows ?? []).map((row, i) => (
+                            {(editingRows[q.id] || []).map((row, i) => (
                               <div className='flex items-center gap-2' key={i}>
                                 <Input
-                                  onChange={(e) => {
-                                    const rows = [...(q.rows ?? [])];
-                                    rows[i] = e.target.value;
-                                    handleUpdateQuestion(q.id, { rows });
-                                  }}
+                                  onChange={(e) => handleRowChange(q.id, i, e.target.value)}
                                   placeholder={`Row ${i + 1}`}
                                   value={row}
                                 />
                                 <Button
                                   onClick={() => {
-                                    const rows = (q.rows ?? []).filter(
+                                    const rows = (editingRows[q.id] || []).filter(
                                       (_, j) => j !== i
                                     );
-                                    handleUpdateQuestion(q.id, { rows });
+                                    setEditingRows(prev => ({
+                                      ...prev,
+                                      [q.id]: rows
+                                    }));
                                   }}
                                   size='icon'
                                   variant='ghost'
@@ -574,7 +858,7 @@ function FormEditor() {
                     </CardContent>
                     <CardFooter className='flex justify-end pt-6'>
                       <Button
-                        disabled={isLoading}
+                        disabled={isLoading || savingId === q.id}
                         onClick={() => handleDeleteQuestion(q.id)}
                         variant='destructive'
                       >
