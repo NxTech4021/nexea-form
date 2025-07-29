@@ -23,12 +23,12 @@ export async function verifyToken(token: string) {
     // Create a new response record
     const response = await prisma.response.create({
       data: {
-        userId: null, // Since we're not requiring user authentication
         submittedAt: new Date(),
+        userId: null, // Since we're not requiring user authentication
       },
     });
 
-    return { success: true, responseId: response.id };
+    return { responseId: response.id, success: true };
   } catch (error) {
     console.error('Token verification error:', error);
     return { error: 'Invalid or expired token' };

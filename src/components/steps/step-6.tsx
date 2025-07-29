@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -8,10 +9,9 @@ import { z } from 'zod';
 import { FormNavigation } from '@/components/form-navigation';
 import { MatrixAssessment } from '@/components/matrix-assessment';
 import { QuestionSidebar } from '@/components/question-sidebar';
-import { Form, FormField, FormItem, FormControl, FormLabel } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FormData, useFormContext } from '@/contexts/form-context';
-import { AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Radio Button Question Component
@@ -245,11 +245,11 @@ const questionsData: Question[] = [
 
 export const questionsDataStep6 = questionsData.map(q => ({
   id:      q.id,
+  options: q.rows ? columns : radioOptions,
+  rows:    q.rows,
   step:    6,
   text:    q.question,
   type:    q.type,
-  options: q.rows ? columns : radioOptions,
-  rows:    q.rows,
 }))
 
 export function Step6() {

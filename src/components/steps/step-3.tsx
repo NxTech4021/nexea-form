@@ -15,11 +15,11 @@ import { useFormContext } from '@/contexts/form-context';
 // Types
 interface QuestionDefinition {
   id: string;
+  options: string[];
+  rows: string[];
   step: number;
   text: string;
   type: 'matrix';
-  options: string[];
-  rows: string[];
 }
 
 // Static definitions
@@ -151,16 +151,17 @@ const matrixTitles = [
 // Context registration for admin UI
 export const questionsDataStep3: QuestionDefinition[] = matrixTitles.map((m) => ({
   id: m.id,
+  options: columns,
+  rows: m.rows,
   step: 3,
   text: m.question,
   type: 'matrix',
-  options: columns,
-  rows: m.rows,
 }));
 
 // Zod schema
 const formSchema = z.object({
   matrix1: z.record(z.string()),
+  matrix10: z.record(z.string()),
   matrix2: z.record(z.string()),
   matrix3: z.record(z.string()),
   matrix4: z.record(z.string()),
@@ -169,7 +170,6 @@ const formSchema = z.object({
   matrix7: z.record(z.string()),
   matrix8: z.record(z.string()),
   matrix9: z.record(z.string()),
-  matrix10: z.record(z.string()),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -186,6 +186,7 @@ export function Step3() {
   const form = useForm<FormValues>({
     defaultValues: {
       matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix10: formData.matrixes?.find((m) => m.matrix10)?.matrix10 || {},
       matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
       matrix3: formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
       matrix4: formData.matrixes?.find((m) => m.matrix4)?.matrix4 || {},
@@ -194,7 +195,6 @@ export function Step3() {
       matrix7: formData.matrixes?.find((m) => m.matrix7)?.matrix7 || {},
       matrix8: formData.matrixes?.find((m) => m.matrix8)?.matrix8 || {},
       matrix9: formData.matrixes?.find((m) => m.matrix9)?.matrix9 || {},
-      matrix10: formData.matrixes?.find((m) => m.matrix10)?.matrix10 || {},
     },
     resolver: zodResolver(formSchema),
   });
@@ -203,6 +203,7 @@ export function Step3() {
   useEffect(() => {
     form.reset({
       matrix1: formData.matrixes?.find((m) => m.matrix1)?.matrix1 || {},
+      matrix10: formData.matrixes?.find((m) => m.matrix10)?.matrix10 || {},
       matrix2: formData.matrixes?.find((m) => m.matrix2)?.matrix2 || {},
       matrix3: formData.matrixes?.find((m) => m.matrix3)?.matrix3 || {},
       matrix4: formData.matrixes?.find((m) => m.matrix4)?.matrix4 || {},
@@ -211,7 +212,6 @@ export function Step3() {
       matrix7: formData.matrixes?.find((m) => m.matrix7)?.matrix7 || {},
       matrix8: formData.matrixes?.find((m) => m.matrix8)?.matrix8 || {},
       matrix9: formData.matrixes?.find((m) => m.matrix9)?.matrix9 || {},
-      matrix10: formData.matrixes?.find((m) => m.matrix10)?.matrix10 || {},
     });
   }, [formData, form]);
 

@@ -6,10 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 const {
   Decimal,
-  objectEnumValues,
-  makeStrictEnum,
-  Public,
   getRuntime,
+  makeStrictEnum,
+  objectEnumValues,
+  Public,
   skip
 } = require('./runtime/index-browser.js')
 
@@ -102,9 +102,9 @@ Prisma.JsonNull = objectEnumValues.instances.JsonNull
 Prisma.AnyNull = objectEnumValues.instances.AnyNull
 
 Prisma.NullTypes = {
+  AnyNull: objectEnumValues.classes.AnyNull,
   DbNull: objectEnumValues.classes.DbNull,
-  JsonNull: objectEnumValues.classes.JsonNull,
-  AnyNull: objectEnumValues.classes.AnyNull
+  JsonNull: objectEnumValues.classes.JsonNull
 }
 
 
@@ -114,53 +114,53 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
+  ReadUncommitted: 'ReadUncommitted',
   RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
 exports.Prisma.UserScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  passwordHash: 'passwordHash',
   createdAt: 'createdAt',
+  email: 'email',
+  id: 'id',
+  passwordHash: 'passwordHash',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.QuestionScalarFieldEnum = {
+  createdAt: 'createdAt',
   id: 'id',
   step: 'step',
   text: 'text',
   type: 'type',
-  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.OptionScalarFieldEnum = {
   id: 'id',
+  order: 'order',
   questionId: 'questionId',
-  value: 'value',
-  order: 'order'
+  value: 'value'
 };
 
 exports.Prisma.MatrixRowScalarFieldEnum = {
   id: 'id',
-  questionId: 'questionId',
   label: 'label',
-  order: 'order'
+  order: 'order',
+  questionId: 'questionId'
 };
 
 exports.Prisma.ResponseScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  submittedAt: 'submittedAt'
+  submittedAt: 'submittedAt',
+  userId: 'userId'
 };
 
 exports.Prisma.AnswerScalarFieldEnum = {
   id: 'id',
-  responseId: 'responseId',
   questionId: 'questionId',
+  responseId: 'responseId',
   value: 'value'
 };
 
@@ -184,23 +184,23 @@ exports.Prisma.NullsOrder = {
 };
 
 exports.Prisma.JsonNullValueFilter = {
+  AnyNull: Prisma.AnyNull,
   DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull,
-  AnyNull: Prisma.AnyNull
+  JsonNull: Prisma.JsonNull
 };
 exports.QuestionType = exports.$Enums.QuestionType = {
-  TEXT: 'TEXT',
+  MATRIX: 'MATRIX',
   RADIO: 'RADIO',
-  MATRIX: 'MATRIX'
+  TEXT: 'TEXT'
 };
 
 exports.Prisma.ModelName = {
-  User: 'User',
-  Question: 'Question',
-  Option: 'Option',
+  Answer: 'Answer',
   MatrixRow: 'MatrixRow',
+  Option: 'Option',
+  Question: 'Question',
   Response: 'Response',
-  Answer: 'Answer'
+  User: 'User'
 };
 
 /**

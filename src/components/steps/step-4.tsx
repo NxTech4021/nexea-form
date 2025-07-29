@@ -85,64 +85,64 @@ const matrixTitles = [
   {
     id: 'matrix11' as const,
     question: 'My closest colleagues think I am:',
-    title: 'Colleague Values',
     rows: matrix11Rows,
+    title: 'Colleague Values',
   },
   {
     id: 'matrix12' as const,
     question: 'In a perfect world, my job would permit me to:',
-    title: 'Perfect World',
     rows: matrix12Rows,
+    title: 'Perfect World',
   },
   {
     id: 'matrix13' as const,
     question:
       'To complement the style of others in the team, the person holding my position should be:',
-    title: 'Complement',
     rows: matrix13Rows,
+    title: 'Complement',
   },
   {
     id: 'matrix14' as const,
     question: 'My boss expects me to know the:',
-    title: 'Boss Expectations',
     rows: matrix14Rows,
+    title: 'Boss Expectations',
   },
   {
     id: 'matrix15' as const,
     question: 'A good day for me is when:',
-    title: 'Good Day',
     rows: matrix15Rows,
+    title: 'Good Day',
   },
   {
     id: 'matrix16' as const,
     question: 'I need to feel that I am:',
-    title: 'Feeling',
     rows: matrix16Rows,
+    title: 'Feeling',
   },
   {
     id: 'matrix17' as const,
     question: 'What I want others to notice about me is my ability to:',
-    title: 'Abilities',
     rows: matrix17Rows,
+    title: 'Abilities',
   },
   {
     id: 'matrix18' as const,
     question:
       'The kind of new job I would like to apply for is characterized by:',
-    title: 'Job Characteristics II',
     rows: matrix18Rows,
+    title: 'Job Characteristics II',
   },
   {
     id: 'matrix19' as const,
     question: 'The most important areas of responsibility in my job are:',
-    title: 'Job Responsibility',
     rows: matrix19Rows,
+    title: 'Job Responsibility',
   },
   {
     id: 'matrix20' as const,
     question: 'What I consider most important when making a decision is:',
-    title: 'Decision Making',
     rows: matrix20Rows,
+    title: 'Decision Making',
   },
 ] as const;
 
@@ -152,11 +152,11 @@ const matrixTitles = [
 export const questionsDataStep4: QuestionDefinition[] = matrixTitles.map(
   (m) => ({
     id: m.id,
+    options: columns,
+    rows: m.rows,
     step: 4,
     text: m.question,
     type: 'matrix',
-    options: columns,
-    rows: m.rows,
   })
 );
 
@@ -175,7 +175,7 @@ type MatrixName = keyof z.infer<typeof formSchema>;
 // ——— 4) Step4 component ———
 //
 export function Step4() {
-  const { formData, updateFormData, markStepCompleted, setCurrentStep } =
+  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
     useFormContext();
 
   const [matrixErrors, setMatrixErrors] = useState<
@@ -240,7 +240,7 @@ export function Step4() {
     const el = document.getElementById(`${id}-section`);
     if (el) {
       const top = el.getBoundingClientRect().top + window.pageYOffset - 120;
-      window.scrollTo({ top, behavior: 'smooth' });
+      window.scrollTo({ behavior: 'smooth', top });
     }
     setCurrentStep(4);
   }

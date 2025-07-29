@@ -2,15 +2,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useFormContext, QuestionDefinition } from '@/contexts/form-context'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
+
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -20,6 +13,14 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -29,14 +30,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
+import { QuestionDefinition, useFormContext } from '@/contexts/form-context'
 
 const ITEMS_PER_PAGE = 5
 
 export function PreviewSteps() {
   const { questions } = useFormContext()
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedStep, setSelectedStep] = useState<number | 'all'>('all')
+  const [selectedStep, setSelectedStep] = useState<'all' | number>('all')
 
   // Filter questions by step if selected
   const filteredQuestions = selectedStep === 'all' 
@@ -73,11 +74,11 @@ export function PreviewSteps() {
           <div className="mb-6">
             <Label htmlFor="step-filter">Filter by Step</Label>
             <Select
-              value={String(selectedStep)}
               onValueChange={(value) => {
                 setSelectedStep(value === 'all' ? 'all' : Number(value))
                 setCurrentPage(1)
               }}
+              value={String(selectedStep)}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select step" />
@@ -98,7 +99,7 @@ export function PreviewSteps() {
       <ScrollArea className="h-[600px] rounded-md border p-4">
         <div className="space-y-8 pb-6">
           {paginatedQuestions.map((q) => (
-            <Card key={q.id} className="relative">
+            <Card className="relative" key={q.id}>
               <CardHeader>
                 <div className="absolute top-4 right-4 text-sm text-muted-foreground">
                   Step {q.step}
@@ -110,18 +111,18 @@ export function PreviewSteps() {
               <CardContent>
                 {q.type === 'text' && (
                   <Input
-                    type="text"
+                    className="max-w-md"
                     disabled
                     placeholder="User's answer will appear here"
-                    className="max-w-md"
+                    type="text"
                   />
                 )}
 
                 {q.type === 'radio' && (
-                  <RadioGroup disabled defaultValue={q.options[0]} className="space-y-2">
+                  <RadioGroup className="space-y-2" defaultValue={q.options[0]} disabled>
                     {q.options.map((opt, idx) => (
-                      <div key={idx} className="flex items-center space-x-2">
-                        <RadioGroupItem value={opt} id={`${q.id}-${idx}`} />
+                      <div className="flex items-center space-x-2" key={idx}>
+                        <RadioGroupItem id={`${q.id}-${idx}`} value={opt} />
                         <Label htmlFor={`${q.id}-${idx}`}>{opt}</Label>
                       </div>
                     ))}
@@ -135,7 +136,7 @@ export function PreviewSteps() {
                         <tr>
                           <th className="p-2 border"></th>
                           {Array(5).fill(0).map((_, i) => (
-                            <th key={i} className="p-2 border text-center w-24">
+                            <th className="p-2 border text-center w-24" key={i}>
                               Option {i + 1}
                             </th>
                           ))}
@@ -145,19 +146,19 @@ export function PreviewSteps() {
                         {q.rows?.map((row, i) => (
                           <tr key={i}>
                             <td className="p-2 border">{row}</td>
-                            <td colSpan={5} className="p-2 border">
+                            <td className="p-2 border" colSpan={5}>
                               <RadioGroup
-                                disabled
-                                defaultValue="0"
                                 className="flex justify-around"
+                                defaultValue="0"
+                                disabled
                                 orientation="horizontal"
                               >
                                 {Array(5).fill(0).map((_, j) => (
                                   <RadioGroupItem
+                                    className="data-[state=checked]:bg-primary"
+                                    id={`${q.id}-${i}-${j}`}
                                     key={j}
                                     value={String(j)}
-                                    id={`${q.id}-${i}-${j}`}
-                                    className="data-[state=checked]:bg-primary"
                                   />
                                 ))}
                               </RadioGroup>
@@ -177,9 +178,9 @@ export function PreviewSteps() {
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
           <Button
-            variant="outline"
-            onClick={handlePrevPage}
             disabled={currentPage === 1}
+            onClick={handlePrevPage}
+            variant="outline"
           >
             Previous
           </Button>
@@ -194,8 +195,8 @@ export function PreviewSteps() {
               pages.push(
                 <Button
                   key={1}
-                  variant={currentPage === 1 ? "default" : "outline"}
                   onClick={() => setCurrentPage(1)}
+                  variant={currentPage === 1 ? "default" : "outline"}
                 >
                   1
                 </Button>
@@ -215,7 +216,7 @@ export function PreviewSteps() {
               // Add ellipsis after first page if needed
               if (startPage > 2) {
                 pages.push(
-                  <Button key="start-ellipsis" variant="outline" disabled>
+                  <Button disabled key="start-ellipsis" variant="outline">
                     ...
                   </Button>
                 )
@@ -226,8 +227,8 @@ export function PreviewSteps() {
                 pages.push(
                   <Button
                     key={i}
-                    variant={currentPage === i ? "default" : "outline"}
                     onClick={() => setCurrentPage(i)}
+                    variant={currentPage === i ? "default" : "outline"}
                   >
                     {i}
                   </Button>
@@ -237,7 +238,7 @@ export function PreviewSteps() {
               // Add ellipsis before last page if needed
               if (endPage < totalPages - 1) {
                 pages.push(
-                  <Button key="end-ellipsis" variant="outline" disabled>
+                  <Button disabled key="end-ellipsis" variant="outline">
                     ...
                   </Button>
                 )
@@ -248,8 +249,8 @@ export function PreviewSteps() {
                 pages.push(
                   <Button
                     key={totalPages}
-                    variant={currentPage === totalPages ? "default" : "outline"}
                     onClick={() => setCurrentPage(totalPages)}
+                    variant={currentPage === totalPages ? "default" : "outline"}
                   >
                     {totalPages}
                   </Button>
@@ -261,9 +262,9 @@ export function PreviewSteps() {
           </div>
           
           <Button
-            variant="outline"
-            onClick={handleNextPage}
             disabled={currentPage === totalPages}
+            onClick={handleNextPage}
+            variant="outline"
           >
             Next
           </Button>

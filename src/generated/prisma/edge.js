@@ -5,27 +5,27 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 
 const {
-  PrismaClientKnownRequestError,
-  PrismaClientUnknownRequestError,
-  PrismaClientRustPanicError,
-  PrismaClientInitializationError,
-  PrismaClientValidationError,
-  getPrismaClient,
-  sqltag,
+  createParam,
+  Debug,
+  Decimal,
+  defineDmmfProperty,
   empty,
+  Extensions,
+  getPrismaClient,
+  getRuntime,
   join,
+  makeStrictEnum,
+  objectEnumValues,
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+  PrismaClientRustPanicError,
+  PrismaClientUnknownRequestError,
+  PrismaClientValidationError,
+  Public,
   raw,
   skip,
-  Decimal,
-  Debug,
-  objectEnumValues,
-  makeStrictEnum,
-  Extensions,
+  sqltag,
   warnOnce,
-  defineDmmfProperty,
-  Public,
-  getRuntime,
-  createParam,
 } = require('./runtime/edge.js')
 
 
@@ -73,9 +73,9 @@ Prisma.JsonNull = objectEnumValues.instances.JsonNull
 Prisma.AnyNull = objectEnumValues.instances.AnyNull
 
 Prisma.NullTypes = {
+  AnyNull: objectEnumValues.classes.AnyNull,
   DbNull: objectEnumValues.classes.DbNull,
-  JsonNull: objectEnumValues.classes.JsonNull,
-  AnyNull: objectEnumValues.classes.AnyNull
+  JsonNull: objectEnumValues.classes.JsonNull
 }
 
 
@@ -86,53 +86,53 @@ Prisma.NullTypes = {
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
+  ReadUncommitted: 'ReadUncommitted',
   RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
 exports.Prisma.UserScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  passwordHash: 'passwordHash',
   createdAt: 'createdAt',
+  email: 'email',
+  id: 'id',
+  passwordHash: 'passwordHash',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.QuestionScalarFieldEnum = {
+  createdAt: 'createdAt',
   id: 'id',
   step: 'step',
   text: 'text',
   type: 'type',
-  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.OptionScalarFieldEnum = {
   id: 'id',
+  order: 'order',
   questionId: 'questionId',
-  value: 'value',
-  order: 'order'
+  value: 'value'
 };
 
 exports.Prisma.MatrixRowScalarFieldEnum = {
   id: 'id',
-  questionId: 'questionId',
   label: 'label',
-  order: 'order'
+  order: 'order',
+  questionId: 'questionId'
 };
 
 exports.Prisma.ResponseScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  submittedAt: 'submittedAt'
+  submittedAt: 'submittedAt',
+  userId: 'userId'
 };
 
 exports.Prisma.AnswerScalarFieldEnum = {
   id: 'id',
-  responseId: 'responseId',
   questionId: 'questionId',
+  responseId: 'responseId',
   value: 'value'
 };
 
@@ -156,64 +156,59 @@ exports.Prisma.NullsOrder = {
 };
 
 exports.Prisma.JsonNullValueFilter = {
+  AnyNull: Prisma.AnyNull,
   DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull,
-  AnyNull: Prisma.AnyNull
+  JsonNull: Prisma.JsonNull
 };
 exports.QuestionType = exports.$Enums.QuestionType = {
-  TEXT: 'TEXT',
+  MATRIX: 'MATRIX',
   RADIO: 'RADIO',
-  MATRIX: 'MATRIX'
+  TEXT: 'TEXT'
 };
 
 exports.Prisma.ModelName = {
-  User: 'User',
-  Question: 'Question',
-  Option: 'Option',
+  Answer: 'Answer',
   MatrixRow: 'MatrixRow',
+  Option: 'Option',
+  Question: 'Question',
   Response: 'Response',
-  Answer: 'Answer'
+  User: 'User'
 };
 /**
  * Create the Client
  */
 const config = {
+  "activeProvider": "postgresql",
+  "clientVersion": "6.10.1",
+  "copyEngine": true,
+  "datasourceNames": [
+    "db"
+  ],
+  "engineVersion": "9b628578b3b7cae625e8c927178f15a170e74a9c",
   "generator": {
+    "binaryTargets": [
+      {
+        "fromEnvVar": null,
+        "native": true,
+        "value": "windows"
+      }
+    ],
+    "config": {
+      "engineType": "library"
+    },
+    "isCustomOutput": true,
     "name": "client",
+    "output": {
+      "fromEnvVar": null,
+      "value": "D:\\Intern Degree\\nexea-form\\src\\generated\\prisma"
+    },
+    "previewFeatures": [],
     "provider": {
       "fromEnvVar": null,
       "value": "prisma-client-js"
     },
-    "output": {
-      "value": "D:\\Intern Degree\\nexea-form\\src\\generated\\prisma",
-      "fromEnvVar": null
-    },
-    "config": {
-      "engineType": "library"
-    },
-    "binaryTargets": [
-      {
-        "fromEnvVar": null,
-        "value": "windows",
-        "native": true
-      }
-    ],
-    "previewFeatures": [],
-    "sourceFilePath": "D:\\Intern Degree\\nexea-form\\prisma\\schema.prisma",
-    "isCustomOutput": true
+    "sourceFilePath": "D:\\Intern Degree\\nexea-form\\prisma\\schema.prisma"
   },
-  "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
-  },
-  "relativePath": "../../../prisma",
-  "clientVersion": "6.10.1",
-  "engineVersion": "9b628578b3b7cae625e8c927178f15a170e74a9c",
-  "datasourceNames": [
-    "db"
-  ],
-  "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -224,7 +219,12 @@ const config = {
   },
   "inlineSchema": "// schema.prisma\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum QuestionType {\n  TEXT\n  RADIO\n  MATRIX\n}\n\nmodel User {\n  id           Int      @id @default(autoincrement())\n  email        String   @unique\n  passwordHash String\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  responses Response[]\n\n  @@map(\"users\")\n}\n\nmodel Question {\n  id        String       @id\n  step      Int\n  text      String\n  type      QuestionType\n  createdAt DateTime     @default(now())\n  updatedAt DateTime     @updatedAt\n\n  options    Option[]\n  matrixRows MatrixRow[]\n\n  /// all answers given against this question\n  answers Answer[]\n}\n\nmodel Option {\n  id         Int      @id @default(autoincrement())\n  question   Question @relation(fields: [questionId], references: [id])\n  questionId String\n  value      String\n  order      Int\n\n  @@index([questionId])\n}\n\nmodel MatrixRow {\n  id         Int      @id @default(autoincrement())\n  question   Question @relation(fields: [questionId], references: [id])\n  questionId String\n  label      String\n  order      Int\n\n  @@index([questionId])\n}\n\nmodel Response {\n  id          Int      @id @default(autoincrement())\n  user        User?    @relation(fields: [userId], references: [id])\n  userId      Int?\n  submittedAt DateTime @default(now())\n\n  answers Answer[]\n\n  @@index([userId])\n}\n\nmodel Answer {\n  id         Int      @id @default(autoincrement())\n  response   Response @relation(fields: [responseId], references: [id])\n  responseId Int\n  question   Question @relation(fields: [questionId], references: [id])\n  questionId String\n  value      Json\n\n  @@index([responseId])\n  @@index([questionId])\n}\n",
   "inlineSchemaHash": "8fc387cd85598979d44e67b789b20f13639c411a65e28957e8ef2772a6824a5f",
-  "copyEngine": true
+  "postinstall": false,
+  "relativeEnvPaths": {
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../../.env"
+  },
+  "relativePath": "../../../prisma"
 }
 config.dirname = '/'
 

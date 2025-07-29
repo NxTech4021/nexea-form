@@ -158,10 +158,10 @@ const questionsData: Question[] = [
 
 export const questionsDataStep14 = questionsData.map(q => ({
   id: q.id,
+  options: radioOptions,
   step: 14,
   text: q.question,
   type: 'radio' as const,
-  options: radioOptions,
 }));
 
 export function Step14() {

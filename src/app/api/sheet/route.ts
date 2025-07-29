@@ -82,9 +82,9 @@ export async function POST(request: Request) {
     const flattenedRadios = radios.flatMap((obj: any) => Object.values(obj));
 
     await sheets.spreadsheets.values.append({
+      insertDataOption: 'INSERT_ROWS',
       // range: `${sheetTitle}!C2`,
       range: `${sheetTitle}!B:B`,
-      insertDataOption: 'INSERT_ROWS',
       requestBody: {
         values: [
           [

@@ -3,13 +3,36 @@
 
 import React, {
   createContext,
+  Dispatch,
   ReactNode,
+  SetStateAction,
   useContext,
   useEffect,
   useState,
-  Dispatch,
-  SetStateAction,
 } from 'react'
+
+// ——— 2) Context type ———
+export interface FormContextType {
+  completedSteps: Set<number>
+  createQuestion: (question: Omit<QuestionDefinition, 'id'>) => Promise<void>
+  currentStep: number
+  deleteQuestion: (id: string) => Promise<void>
+  error: null | string
+  // survey flow
+  formData: FormData
+  isLoading: boolean
+  isStepCompleted: (step: number) => boolean
+  markStepCompleted: (step: number) => void
+
+  // admin UI
+  questions: QuestionDefinition[]
+  resetForm: () => void
+  setCurrentStep: (step: number) => void
+  setQuestions: Dispatch<SetStateAction<QuestionDefinition[]>>
+  totalSteps: number
+  updateFormData: (data: Partial<FormData>) => void
+  updateQuestion: (question: QuestionDefinition) => Promise<void>
+}
 
 // ——— 1) Your data shapes ———
 export interface FormData {
@@ -24,34 +47,11 @@ export interface FormData {
 
 export interface QuestionDefinition {
   id: string
-  step: number
-  text: string
-  type: 'text' | 'radio' | 'matrix'
   options: string[]
   rows?: string[]
-}
-
-// ——— 2) Context type ———
-export interface FormContextType {
-  // survey flow
-  formData: FormData
-  updateFormData: (data: Partial<FormData>) => void
-  currentStep: number
-  setCurrentStep: (step: number) => void
-  completedSteps: Set<number>
-  isStepCompleted: (step: number) => boolean
-  markStepCompleted: (step: number) => void
-  resetForm: () => void
-  totalSteps: number
-
-  // admin UI
-  questions: QuestionDefinition[]
-  setQuestions: Dispatch<SetStateAction<QuestionDefinition[]>>
-  createQuestion: (question: Omit<QuestionDefinition, 'id'>) => Promise<void>
-  updateQuestion: (question: QuestionDefinition) => Promise<void>
-  deleteQuestion: (id: string) => Promise<void>
-  isLoading: boolean
-  error: string | null
+  step: number
+  text: string
+  type: 'matrix' | 'radio' | 'text'
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined)
@@ -77,7 +77,7 @@ export function FormProvider({ children }: FormProviderProps) {
   // admin UI state
   const [questions, setQuestions] = useState<QuestionDefinition[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<null | string>(null)
 
   // Fetch questions on mount
   useEffect(() => {
@@ -92,11 +92,11 @@ export function FormProvider({ children }: FormProviderProps) {
         // Transform database format to QuestionDefinition format
         const transformedQuestions = data.map((q: any) => ({
           id: q.id,
+          options: q.options.map((o: any) => o.value),
+          rows: q.matrixRows.map((r: any) => r.label),
           step: q.step,
           text: q.text,
-          type: q.type.toLowerCase(),
-          options: q.options.map((o: any) => o.value),
-          rows: q.matrixRows.map((r: any) => r.label)
+          type: q.type.toLowerCase()
         }))
         
         setQuestions(transformedQuestions)
@@ -117,13 +117,13 @@ export function FormProvider({ children }: FormProviderProps) {
     setError(null)
     try {
       const res = await fetch('/api/admin/questions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...question,
           id: Date.now().toString(),
           type: question.type.toUpperCase()
-        })
+        }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST'
       })
       
       if (!res.ok) throw new Error('Failed to create question')
@@ -147,12 +147,12 @@ export function FormProvider({ children }: FormProviderProps) {
     setError(null)
     try {
       const res = await fetch('/api/admin/questions', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...question,
           type: question.type.toUpperCase()
-        })
+        }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'PUT'
       })
       
       if (!res.ok) throw new Error('Failed to update question')
@@ -248,22 +248,22 @@ export function FormProvider({ children }: FormProviderProps) {
   return (
     <FormContext.Provider
       value={{
-        formData,
-        updateFormData,
-        currentStep,
-        setCurrentStep,
         completedSteps,
+        createQuestion,
+        currentStep,
+        deleteQuestion,
+        error,
+        formData,
+        isLoading,
         isStepCompleted,
         markStepCompleted,
-        resetForm,
-        totalSteps,
         questions,
+        resetForm,
+        setCurrentStep,
         setQuestions,
-        createQuestion,
-        updateQuestion,
-        deleteQuestion,
-        isLoading,
-        error
+        totalSteps,
+        updateFormData,
+        updateQuestion
       }}
     >
       {children}

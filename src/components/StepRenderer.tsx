@@ -1,27 +1,27 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z, ZodRawShape, ZodTypeAny } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 
-import { useFormContext } from '@/contexts/form-context'
-import { Form, FormField, FormItem } from '@/components/ui/form'
 import { FormNavigation } from '@/components/form-navigation'
-import { Input } from '@/components/ui/input'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { MatrixAssessment } from '@/components/matrix-assessment'
 import { QuestionSidebar } from '@/components/question-sidebar'
+import { Form, FormField, FormItem } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { useFormContext } from '@/contexts/form-context'
 import { QuestionDefinition } from '@/contexts/form-context'
 
 export function StepRenderer() {
   const {
-    questions,
-    formData,
-    updateFormData,
-    markStepCompleted,
-    setCurrentStep,
     currentStep,
+    formData,
+    markStepCompleted,
+    questions,
+    setCurrentStep,
     totalSteps,
+    updateFormData,
   } = useFormContext()
 
   // 1️⃣ only this step’s questions
@@ -48,12 +48,12 @@ export function StepRenderer() {
 
   // 3️⃣ hook up react-hook-form
   const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
     defaultValues: stepQs.reduce<Record<string, any>>((acc, q) => {
       acc[String(q.id)] =
         (formData as any)[q.id] ?? (q.type === 'matrix' ? {} : '')
       return acc
     }, {}),
+    resolver: zodResolver(schema),
   })
 
   const onSubmit = (values: z.infer<typeof schema>) => {
@@ -67,23 +67,23 @@ export function StepRenderer() {
   return (
     <div className="min-h-screen">
       <QuestionSidebar
-        titles={stepQs.map(q => ({
-          id: String(q.id),
-          title: q.text,
-          shortTitle:
-            q.type === 'matrix' ? q.text.slice(0, 12) + '…' : q.text,
-        }))}
         onTitleClick={id => {
           const el = document.getElementById(`${id}-section`)
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }}
+        titles={stepQs.map(q => ({
+          id: String(q.id),
+          shortTitle:
+            q.type === 'matrix' ? q.text.slice(0, 12) + '…' : q.text,
+          title: q.text,
+        }))}
       />
 
       <div className="max-w-2xl mx-auto p-4 space-y-6">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6"
+            onSubmit={form.handleSubmit(onSubmit)}
           >
             {stepQs.map(q => {
               const key = String(q.id)
@@ -115,18 +115,18 @@ export function StepRenderer() {
                               {q.text}
                             </label>
                             <RadioGroup
+                              className="space-y-2"
                               onValueChange={field.onChange}
                               value={field.value}
-                              className="space-y-2"
                             >
                               {q.options.map(opt => (
                                 <div
-                                  key={opt}
                                   className="flex items-center space-x-2"
+                                  key={opt}
                                 >
                                   <RadioGroupItem
-                                    value={opt}
                                     id={`${key}-${opt}`}
+                                    value={opt}
                                   />
                                   <label htmlFor={`${key}-${opt}`}>
                                     {opt}
@@ -146,17 +146,17 @@ export function StepRenderer() {
                       return (
                         <FormItem>
                           <MatrixAssessment
-                            matrixId={key}
-                            question={q.text}
-                            rows={q.rows!}
                             columns={q.options}
-                            value={field.value}
-                            onChange={field.onChange}
                             errors={
                               fieldState.error
                                 ? [fieldState.error.message!]
                                 : []
                             }
+                            matrixId={key}
+                            onChange={field.onChange}
+                            question={q.text}
+                            rows={q.rows!}
+                            value={field.value}
                           />
                         </FormItem>
                       )

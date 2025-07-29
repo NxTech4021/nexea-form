@@ -1,7 +1,3 @@
-declare class AnyNull extends NullTypesEnumValue {
-    #private;
-}
-
 declare type Args<T, F extends Operation> = T extends {
     [K: symbol]: {
         types: {
@@ -14,294 +10,314 @@ declare type Args<T, F extends Operation> = T extends {
     };
 } ? T[symbol]['types']['operations'][F]['args'] : any;
 
-declare class DbNull extends NullTypesEnumValue {
+/**
+ * Base class for unique values of object-valued enums.
+ */
+declare abstract class ObjectEnumValue {
+    constructor(arg?: symbol);
+    _getName(): string;
+    abstract _getNamespace(): string;
+    toString(): string;
+}
+
+declare class NullTypesEnumValue extends ObjectEnumValue {
+    _getNamespace(): string;
+}
+
+declare class AnyNull extends NullTypesEnumValue {
     #private;
 }
 
-export declare function Decimal(n: Decimal.Value): Decimal;
-
 export declare namespace Decimal {
-    export type Constructor = typeof Decimal;
-    export type Instance = Decimal;
-    export type Rounding = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-    export type Modulo = Rounding | 9;
-    export type Value = string | number | Decimal;
-
     // http://mikemcl.github.io/decimal.js/#constructor-properties
     export interface Config {
+        crypto?: boolean;
+        defaults?: boolean;
+        maxE?: number;
+        minE?: number;
+        modulo?: Modulo;
         precision?: number;
         rounding?: Rounding;
         toExpNeg?: number;
         toExpPos?: number;
-        minE?: number;
-        maxE?: number;
-        crypto?: boolean;
-        modulo?: Modulo;
-        defaults?: boolean;
     }
+    export type Constructor = typeof Decimal;
+    export type Instance = Decimal;
+    export type Modulo = 9 | Rounding;
+    export type Rounding = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+    export type Value = Decimal | number | string;
+}
+
+declare type Exact<A, W> = (A extends Narrowable ? A : never) | (A extends unknown ? (W extends A ? {
+    [K in keyof A]: Exact<A[K], W[K]>;
+} : W) : never);
+
+declare type GetRuntimeOutput = {
+    id: RuntimeName;
+    isEdge: boolean;
+    prettyName: string;
+};
+
+declare type Narrowable = [] | bigint | boolean | number | string;
+
+declare class DbNull extends NullTypesEnumValue {
+    #private;
 }
 
 export declare class Decimal {
+    static readonly crypto: boolean;
+    static readonly Decimal?: Decimal.Constructor;
+    static readonly default?: Decimal.Constructor;
+
+    static readonly EUCLID: 9;
+
+    static readonly maxE: number;
+    static readonly minE: number;
+
+    static readonly modulo: Decimal.Modulo;
+
+    static readonly precision: number;
+    static readonly ROUND_CEIL: 2;
+
+    static readonly ROUND_DOWN: 1;
+    static readonly ROUND_FLOOR: 3;
+
+    static readonly ROUND_HALF_CEIL: 7;
+    static readonly ROUND_HALF_DOWN: 5;
+
+    static readonly ROUND_HALF_EVEN: 6;
+    static readonly ROUND_HALF_FLOOR: 8;
+
+    static readonly ROUND_HALF_UP: 4;
+    static readonly ROUND_UP: 0;
+
+    static readonly rounding: Decimal.Rounding;
+    static readonly toExpNeg: number;
+
+    static readonly toExpPos: number;
     readonly d: number[];
+
     readonly e: number;
     readonly s: number;
 
     constructor(n: Decimal.Value);
 
-    absoluteValue(): Decimal;
-    abs(): Decimal;
+    static abs(n: Decimal.Value): Decimal;
+    static acos(n: Decimal.Value): Decimal;
 
+    static acosh(n: Decimal.Value): Decimal;
+    static add(x: Decimal.Value, y: Decimal.Value): Decimal;
+
+    static asin(n: Decimal.Value): Decimal;
+    static asinh(n: Decimal.Value): Decimal;
+
+    static atan(n: Decimal.Value): Decimal;
+    static atan2(y: Decimal.Value, x: Decimal.Value): Decimal;
+
+    static atanh(n: Decimal.Value): Decimal;
+    static cbrt(n: Decimal.Value): Decimal;
+
+    static ceil(n: Decimal.Value): Decimal;
+    static clamp(n: Decimal.Value, min: Decimal.Value, max: Decimal.Value): Decimal;
+
+    static clone(object?: Decimal.Config): Decimal.Constructor;
+    static config(object: Decimal.Config): Decimal.Constructor;
+
+    static cos(n: Decimal.Value): Decimal;
+    static cosh(n: Decimal.Value): Decimal;
+
+    static div(x: Decimal.Value, y: Decimal.Value): Decimal;
+    static exp(n: Decimal.Value): Decimal;
+
+    static floor(n: Decimal.Value): Decimal;
+    static hypot(...n: Decimal.Value[]): Decimal;
+
+    static isDecimal(object: any): object is Decimal;
+    static ln(n: Decimal.Value): Decimal;
+
+    static log(n: Decimal.Value, base?: Decimal.Value): Decimal;
+
+    static log10(n: Decimal.Value): Decimal;
+    static log2(n: Decimal.Value): Decimal;
+
+    static max(...n: Decimal.Value[]): Decimal;
+
+    static min(...n: Decimal.Value[]): Decimal;
+    static mod(x: Decimal.Value, y: Decimal.Value): Decimal;
+
+    static mul(x: Decimal.Value, y: Decimal.Value): Decimal;
+    static noConflict(): Decimal.Constructor;   // Browser only
+
+    static pow(base: Decimal.Value, exponent: Decimal.Value): Decimal;
+
+    static random(significantDigits?: number): Decimal;
+    static round(n: Decimal.Value): Decimal;
+
+    static set(object: Decimal.Config): Decimal.Constructor;
+    static sign(n: Decimal.Value): number;
+
+    static sin(n: Decimal.Value): Decimal;
+    static sinh(n: Decimal.Value): Decimal;
+
+    static sqrt(n: Decimal.Value): Decimal;
+    static sub(x: Decimal.Value, y: Decimal.Value): Decimal;
+
+    static sum(...n: Decimal.Value[]): Decimal;
+    static tan(n: Decimal.Value): Decimal;
+
+    static tanh(n: Decimal.Value): Decimal;
+    static trunc(n: Decimal.Value): Decimal;
+
+    abs(): Decimal;
+    absoluteValue(): Decimal;
+
+    acos(): Decimal;
+    acosh(): Decimal;
+
+    add(n: Decimal.Value): Decimal;
+    asin(): Decimal;
+
+    asinh(): Decimal;
+    atan(): Decimal;
+
+    atanh(): Decimal;
+
+    cbrt(): Decimal;
     ceil(): Decimal;
 
-    clampedTo(min: Decimal.Value, max: Decimal.Value): Decimal;
     clamp(min: Decimal.Value, max: Decimal.Value): Decimal;
+    clampedTo(min: Decimal.Value, max: Decimal.Value): Decimal;
 
-    comparedTo(n: Decimal.Value): number;
     cmp(n: Decimal.Value): number;
+    comparedTo(n: Decimal.Value): number;
+
+    cos(): Decimal;
+    cosh(): Decimal;
 
     cosine(): Decimal;
-    cos(): Decimal;
-
     cubeRoot(): Decimal;
-    cbrt(): Decimal;
 
     decimalPlaces(): number;
+    div(n: Decimal.Value): Decimal;
+    dividedBy(n: Decimal.Value): Decimal;
+    dividedToIntegerBy(n: Decimal.Value): Decimal;
+
+    divToInt(n: Decimal.Value): Decimal;
     dp(): number;
 
-    dividedBy(n: Decimal.Value): Decimal;
-    div(n: Decimal.Value): Decimal;
-
-    dividedToIntegerBy(n: Decimal.Value): Decimal;
-    divToInt(n: Decimal.Value): Decimal;
-
-    equals(n: Decimal.Value): boolean;
     eq(n: Decimal.Value): boolean;
+    equals(n: Decimal.Value): boolean;
+
+    exp(): Decimal;
 
     floor(): Decimal;
-
     greaterThan(n: Decimal.Value): boolean;
+    greaterThanOrEqualTo(n: Decimal.Value): boolean;
     gt(n: Decimal.Value): boolean;
 
-    greaterThanOrEqualTo(n: Decimal.Value): boolean;
     gte(n: Decimal.Value): boolean;
 
     hyperbolicCosine(): Decimal;
-    cosh(): Decimal;
 
     hyperbolicSine(): Decimal;
-    sinh(): Decimal;
 
     hyperbolicTangent(): Decimal;
-    tanh(): Decimal;
-
     inverseCosine(): Decimal;
-    acos(): Decimal;
 
     inverseHyperbolicCosine(): Decimal;
-    acosh(): Decimal;
-
     inverseHyperbolicSine(): Decimal;
-    asinh(): Decimal;
 
     inverseHyperbolicTangent(): Decimal;
-    atanh(): Decimal;
-
     inverseSine(): Decimal;
-    asin(): Decimal;
 
     inverseTangent(): Decimal;
-    atan(): Decimal;
-
     isFinite(): boolean;
-
-    isInteger(): boolean;
     isInt(): boolean;
+    isInteger(): boolean;
 
     isNaN(): boolean;
 
-    isNegative(): boolean;
     isNeg(): boolean;
+    isNegative(): boolean;
 
-    isPositive(): boolean;
     isPos(): boolean;
 
+    isPositive(): boolean;
     isZero(): boolean;
-
     lessThan(n: Decimal.Value): boolean;
-    lt(n: Decimal.Value): boolean;
-
     lessThanOrEqualTo(n: Decimal.Value): boolean;
-    lte(n: Decimal.Value): boolean;
-
-    logarithm(n?: Decimal.Value): Decimal;
-    log(n?: Decimal.Value): Decimal;
-
-    minus(n: Decimal.Value): Decimal;
-    sub(n: Decimal.Value): Decimal;
-
-    modulo(n: Decimal.Value): Decimal;
-    mod(n: Decimal.Value): Decimal;
-
-    naturalExponential(): Decimal;
-    exp(): Decimal;
-
-    naturalLogarithm(): Decimal;
     ln(): Decimal;
-
-    negated(): Decimal;
-    neg(): Decimal;
-
-    plus(n: Decimal.Value): Decimal;
-    add(n: Decimal.Value): Decimal;
-
-    precision(includeZeros?: boolean): number;
-    sd(includeZeros?: boolean): number;
-
-    round(): Decimal;
-
-    sine() : Decimal;
-    sin() : Decimal;
-
-    squareRoot(): Decimal;
-    sqrt(): Decimal;
-
-    tangent() : Decimal;
-    tan() : Decimal;
-
-    times(n: Decimal.Value): Decimal;
+    log(n?: Decimal.Value): Decimal;
+    logarithm(n?: Decimal.Value): Decimal;
+    lt(n: Decimal.Value): boolean;
+    lte(n: Decimal.Value): boolean;
+    minus(n: Decimal.Value): Decimal;
+    mod(n: Decimal.Value): Decimal;
+    modulo(n: Decimal.Value): Decimal;
     mul(n: Decimal.Value) : Decimal;
-
+    naturalExponential(): Decimal;
+    naturalLogarithm(): Decimal;
+    neg(): Decimal;
+    negated(): Decimal;
+    plus(n: Decimal.Value): Decimal;
+    pow(n: Decimal.Value): Decimal;
+    precision(includeZeros?: boolean): number;
+    round(): Decimal;
+    sd(includeZeros?: boolean): number;
+    sin() : Decimal;
+    sine() : Decimal;
+    sinh(): Decimal;
+    sqrt(): Decimal;
+    squareRoot(): Decimal;
+    sub(n: Decimal.Value): Decimal;
+    tan() : Decimal;
+    tangent() : Decimal;
+    tanh(): Decimal;
+    times(n: Decimal.Value): Decimal;
     toBinary(significantDigits?: number): string;
     toBinary(significantDigits: number, rounding: Decimal.Rounding): string;
-
     toDecimalPlaces(decimalPlaces?: number): Decimal;
     toDecimalPlaces(decimalPlaces: number, rounding: Decimal.Rounding): Decimal;
     toDP(decimalPlaces?: number): Decimal;
     toDP(decimalPlaces: number, rounding: Decimal.Rounding): Decimal;
-
     toExponential(decimalPlaces?: number): string;
     toExponential(decimalPlaces: number, rounding: Decimal.Rounding): string;
-
     toFixed(decimalPlaces?: number): string;
     toFixed(decimalPlaces: number, rounding: Decimal.Rounding): string;
-
     toFraction(max_denominator?: Decimal.Value): Decimal[];
 
-    toHexadecimal(significantDigits?: number): string;
-    toHexadecimal(significantDigits: number, rounding: Decimal.Rounding): string;
     toHex(significantDigits?: number): string;
     toHex(significantDigits: number, rounding?: Decimal.Rounding): string;
 
+    toHexadecimal(significantDigits?: number): string;
+    toHexadecimal(significantDigits: number, rounding: Decimal.Rounding): string;
     toJSON(): string;
-
     toNearest(n: Decimal.Value, rounding?: Decimal.Rounding): Decimal;
-
     toNumber(): number;
-
     toOctal(significantDigits?: number): string;
     toOctal(significantDigits: number, rounding: Decimal.Rounding): string;
-
     toPower(n: Decimal.Value): Decimal;
-    pow(n: Decimal.Value): Decimal;
 
     toPrecision(significantDigits?: number): string;
     toPrecision(significantDigits: number, rounding: Decimal.Rounding): string;
-
-    toSignificantDigits(significantDigits?: number): Decimal;
-    toSignificantDigits(significantDigits: number, rounding: Decimal.Rounding): Decimal;
     toSD(significantDigits?: number): Decimal;
     toSD(significantDigits: number, rounding: Decimal.Rounding): Decimal;
-
+    toSignificantDigits(significantDigits?: number): Decimal;
+    toSignificantDigits(significantDigits: number, rounding: Decimal.Rounding): Decimal;
     toString(): string;
-
-    truncated(): Decimal;
     trunc(): Decimal;
-
+    truncated(): Decimal;
     valueOf(): string;
-
-    static abs(n: Decimal.Value): Decimal;
-    static acos(n: Decimal.Value): Decimal;
-    static acosh(n: Decimal.Value): Decimal;
-    static add(x: Decimal.Value, y: Decimal.Value): Decimal;
-    static asin(n: Decimal.Value): Decimal;
-    static asinh(n: Decimal.Value): Decimal;
-    static atan(n: Decimal.Value): Decimal;
-    static atanh(n: Decimal.Value): Decimal;
-    static atan2(y: Decimal.Value, x: Decimal.Value): Decimal;
-    static cbrt(n: Decimal.Value): Decimal;
-    static ceil(n: Decimal.Value): Decimal;
-    static clamp(n: Decimal.Value, min: Decimal.Value, max: Decimal.Value): Decimal;
-    static clone(object?: Decimal.Config): Decimal.Constructor;
-    static config(object: Decimal.Config): Decimal.Constructor;
-    static cos(n: Decimal.Value): Decimal;
-    static cosh(n: Decimal.Value): Decimal;
-    static div(x: Decimal.Value, y: Decimal.Value): Decimal;
-    static exp(n: Decimal.Value): Decimal;
-    static floor(n: Decimal.Value): Decimal;
-    static hypot(...n: Decimal.Value[]): Decimal;
-    static isDecimal(object: any): object is Decimal;
-    static ln(n: Decimal.Value): Decimal;
-    static log(n: Decimal.Value, base?: Decimal.Value): Decimal;
-    static log2(n: Decimal.Value): Decimal;
-    static log10(n: Decimal.Value): Decimal;
-    static max(...n: Decimal.Value[]): Decimal;
-    static min(...n: Decimal.Value[]): Decimal;
-    static mod(x: Decimal.Value, y: Decimal.Value): Decimal;
-    static mul(x: Decimal.Value, y: Decimal.Value): Decimal;
-    static noConflict(): Decimal.Constructor;   // Browser only
-    static pow(base: Decimal.Value, exponent: Decimal.Value): Decimal;
-    static random(significantDigits?: number): Decimal;
-    static round(n: Decimal.Value): Decimal;
-    static set(object: Decimal.Config): Decimal.Constructor;
-    static sign(n: Decimal.Value): number;
-    static sin(n: Decimal.Value): Decimal;
-    static sinh(n: Decimal.Value): Decimal;
-    static sqrt(n: Decimal.Value): Decimal;
-    static sub(x: Decimal.Value, y: Decimal.Value): Decimal;
-    static sum(...n: Decimal.Value[]): Decimal;
-    static tan(n: Decimal.Value): Decimal;
-    static tanh(n: Decimal.Value): Decimal;
-    static trunc(n: Decimal.Value): Decimal;
-
-    static readonly default?: Decimal.Constructor;
-    static readonly Decimal?: Decimal.Constructor;
-
-    static readonly precision: number;
-    static readonly rounding: Decimal.Rounding;
-    static readonly toExpNeg: number;
-    static readonly toExpPos: number;
-    static readonly minE: number;
-    static readonly maxE: number;
-    static readonly crypto: boolean;
-    static readonly modulo: Decimal.Modulo;
-
-    static readonly ROUND_UP: 0;
-    static readonly ROUND_DOWN: 1;
-    static readonly ROUND_CEIL: 2;
-    static readonly ROUND_FLOOR: 3;
-    static readonly ROUND_HALF_UP: 4;
-    static readonly ROUND_HALF_DOWN: 5;
-    static readonly ROUND_HALF_EVEN: 6;
-    static readonly ROUND_HALF_CEIL: 7;
-    static readonly ROUND_HALF_FLOOR: 8;
-    static readonly EUCLID: 9;
 }
-
-declare type Exact<A, W> = (A extends unknown ? (W extends A ? {
-    [K in keyof A]: Exact<A[K], W[K]>;
-} : W) : never) | (A extends Narrowable ? A : never);
-
-export declare function getRuntime(): GetRuntimeOutput;
-
-declare type GetRuntimeOutput = {
-    id: RuntimeName;
-    prettyName: string;
-    isEdge: boolean;
-};
 
 declare class JsonNull extends NullTypesEnumValue {
     #private;
 }
+
+export declare function Decimal(n: Decimal.Value): Decimal;
+
+export declare function getRuntime(): GetRuntimeOutput;
 
 /**
  * Generates more strict variant of an enum which, unlike regular enum,
@@ -319,38 +335,22 @@ declare class JsonNull extends NullTypesEnumValue {
  * @param definition
  * @returns
  */
-export declare function makeStrictEnum<T extends Record<PropertyKey, string | number>>(definition: T): T;
-
-declare type Narrowable = string | number | bigint | boolean | [];
-
-declare class NullTypesEnumValue extends ObjectEnumValue {
-    _getNamespace(): string;
-}
-
-/**
- * Base class for unique values of object-valued enums.
- */
-declare abstract class ObjectEnumValue {
-    constructor(arg?: symbol);
-    abstract _getNamespace(): string;
-    _getName(): string;
-    toString(): string;
-}
+export declare function makeStrictEnum<T extends Record<PropertyKey, number | string>>(definition: T): T;
 
 export declare const objectEnumValues: {
     classes: {
+        AnyNull: typeof AnyNull;
         DbNull: typeof DbNull;
         JsonNull: typeof JsonNull;
-        AnyNull: typeof AnyNull;
     };
     instances: {
+        AnyNull: AnyNull;
         DbNull: DbNull;
         JsonNull: JsonNull;
-        AnyNull: AnyNull;
     };
 };
 
-declare type Operation = 'findFirst' | 'findFirstOrThrow' | 'findUnique' | 'findUniqueOrThrow' | 'findMany' | 'create' | 'createMany' | 'createManyAndReturn' | 'update' | 'updateMany' | 'updateManyAndReturn' | 'upsert' | 'delete' | 'deleteMany' | 'aggregate' | 'count' | 'groupBy' | '$queryRaw' | '$executeRaw' | '$queryRawUnsafe' | '$executeRawUnsafe' | 'findRaw' | 'aggregateRaw' | '$runCommandRaw';
+declare type Operation = '$executeRaw' | '$executeRawUnsafe' | '$queryRaw' | '$queryRawUnsafe' | '$runCommandRaw' | 'aggregate' | 'aggregateRaw' | 'count' | 'create' | 'createMany' | 'createManyAndReturn' | 'delete' | 'deleteMany' | 'findFirst' | 'findFirstOrThrow' | 'findMany' | 'findRaw' | 'findUnique' | 'findUniqueOrThrow' | 'groupBy' | 'update' | 'updateMany' | 'updateManyAndReturn' | 'upsert';
 
 declare namespace Public {
     export {
@@ -359,7 +359,7 @@ declare namespace Public {
 }
 export { Public }
 
-declare type RuntimeName = 'workerd' | 'deno' | 'netlify' | 'node' | 'bun' | 'edge-light' | '';
+declare type RuntimeName = '' | 'bun' | 'deno' | 'edge-light' | 'netlify' | 'node' | 'workerd';
 
 declare function validator<V>(): <S>(select: Exact<S, V>) => S;
 

@@ -85,16 +85,16 @@ function RadioQuestion({
 }
 
 const formSchema = z.object({
-  radio95: z.string().optional(),
-  radio96: z.string().optional(),
-  radio97: z.string().optional(),
-  radio98: z.string().optional(),
-  radio99: z.string().optional(),
   radio100: z.string().optional(),
   radio101: z.string().optional(),
   radio102: z.string().optional(),
   radio103: z.string().optional(),
   radio104: z.string().optional(),
+  radio95: z.string().optional(),
+  radio96: z.string().optional(),
+  radio97: z.string().optional(),
+  radio98: z.string().optional(),
+  radio99: z.string().optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -152,10 +152,10 @@ const questionsData: Question[] = [
 
 export const questionsDataStep16 = questionsData.map(q => ({
   id: q.id,
+  options: radioOptions,
   step: 16,
   text: q.question,
   type: 'radio' as const,
-  options: radioOptions,
 }));
 
 export function Step16() {

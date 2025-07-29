@@ -286,8 +286,8 @@ export function Step11() {
 // ── Mirror Step11’s own questions for Admin/FormContext ──
 export const questionsDataStep11 = questionsData.map(q => ({
     id:      q.id,
-    step:    11,
-   text:    q.question,
-    type:    'radio' as const,
     options: radioOptions,
+   step:    11,
+    text:    q.question,
+    type:    'radio' as const,
   }))

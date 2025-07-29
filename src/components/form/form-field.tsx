@@ -1,19 +1,19 @@
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 export interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  name: string;
-  type?: string;
-  placeholder?: string;
   className?: string;
   disabled?: boolean;
+  name: string;
+  placeholder?: string;
+  type?: string;
 }
 
 const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
-  ({ name, type = 'text', className, disabled, ...props }, ref) => {
+  ({ className, disabled, name, type = 'text', ...props }, ref) => {
     const { control, formState: { errors } } = useFormContext();
     const error = errors[name];
 
@@ -26,7 +26,7 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
             <Input
               {...field}
               {...props}
-              type={type}
+              aria-invalid={error ? 'true' : 'false'}
               className={cn(
                 'w-full',
                 error && 'border-red-500 focus-visible:ring-red-500',
@@ -35,7 +35,7 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
               )}
               disabled={disabled}
               ref={ref}
-              aria-invalid={error ? 'true' : 'false'}
+              type={type}
             />
             {error && (
               <p className="text-sm text-red-500">
