@@ -155,11 +155,11 @@ export function Assessment() {
           </div>
         </div>
 
-        <div className='fixed bottom-4 right-4 z-50'>
+        {/* <div className='fixed bottom-4 right-4 z-50'>
           <Button onClick={handleAutofill} size='sm' variant='outline'>
             Auto-fill Form
           </Button>
-        </div>
+        </div> */}
 
         <div
           className={`transition-opacity duration-300 ease-in-out ${
