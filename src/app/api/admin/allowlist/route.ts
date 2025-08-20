@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const numericId = data?.userId ? parseInt(data?.userId, 10) : undefined;
+    const numericId = data?.userId;
 
     const user = await prisma.user.findFirst({
       where: {
