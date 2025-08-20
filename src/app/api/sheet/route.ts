@@ -104,13 +104,23 @@ export async function POST(request: Request) {
       valueInputOption: 'RAW',
     });
 
-    return NextResponse.json({ message: 'Success' });
+    console.log([
+      null,
+      email,
+      new Date(),
+      fullName,
+      company,
+      phoneNumber,
+      email,
+      ...flattenedMatrixes,
+      ...flattenedRadios,
+    ]);
+
+    return NextResponse.json({
+      message: 'Success',
+    });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: 'Failed' });
   }
 }
-
-
-// =ArrayFormula(C2:C&" "&text(D2:D,"DD.MM.YYYY"))
-// 

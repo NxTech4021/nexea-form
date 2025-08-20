@@ -76,78 +76,80 @@ const AuthForm = () => {
   }
 
   return (
-    <div className='flex min-h-svh w-full items-center justify-center p-6 md:p-10 relative'>
-      <div className='flex items-center gap-4 absolute top-36 w-full p-6 justify-center'>
-        <Image alt='NEXEA Logo' height={40} src='/nexealogo.png' width={40} />
-        <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
-          Entrepreneurs Behaviour Assessment
-        </h1>
-      </div>
+    <div className='flex min-h-svh w-full justify-center p-6 md:p-10 relative'>
+      <div className='flex flex-col items-center gap-10 mt-15'>
+        <div className='flex items-center gap-4 w-full p-6 justify-center'>
+          <Image alt='NEXEA Logo' height={40} src='/nexealogo.png' width={40} />
+          <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
+            Entrepreneurs Behaviour Assessment
+          </h1>
+        </div>
 
-      <Card className='w-full sm:w-md'>
-        <CardHeader>
-          <CardTitle>Welcome! Let&apos;s Get Started</CardTitle>
-          <CardDescription>
-            Enter your email to begin answering the questions. We&apos;ll use
-            this to save your progress and send you a secure access link.
-          </CardDescription>
-        </CardHeader>
-        <FormProvider {...methods}>
-          <form onSubmit={onSubmit}>
-            <CardContent>
-              <div className='flex flex-col gap-6'>
-                {success ? (
-                  <div className='text-green-600 text-center py-2'>
-                    <p>✓ Verification email sent!</p>
-                    <p className='text-sm mt-2'>
-                      Please check your email for the assessment link.
-                    </p>
-                    <p className='text-sm text-gray-500 mt-1'>
-                      The link will expire in 15 minutes.
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div className='grid gap-3'>
-                      <Label htmlFor='email'>Email</Label>
-                      <FormField
-                        className={
-                          isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                        }
-                        disabled={isSubmitting}
-                        name='email'
-                        placeholder='m@example.com'
-                        type='email'
-                      />
+        <Card className='w-full sm:w-md'>
+          <CardHeader>
+            <CardTitle>Welcome! Let&apos;s Get Started</CardTitle>
+            <CardDescription>
+              Enter your email to begin answering the questions. We&apos;ll use
+              this to save your progress and send you a secure access link.
+            </CardDescription>
+          </CardHeader>
+          <FormProvider {...methods}>
+            <form onSubmit={onSubmit}>
+              <CardContent>
+                <div className='flex flex-col gap-6'>
+                  {success ? (
+                    <div className='text-green-600 text-center py-2'>
+                      <p>✓ Verification email sent!</p>
+                      <p className='text-sm mt-2'>
+                        Please check your email for the assessment link.
+                      </p>
+                      <p className='text-sm text-gray-500 mt-1'>
+                        The link will expire in 15 minutes.
+                      </p>
                     </div>
-                    <div className='flex flex-col gap-3'>
-                      <Button
-                        className='w-full'
-                        disabled={isSubmitting}
-                        type='submit'
-                      >
-                        {isSubmitting ? (
-                          <span className='flex items-center gap-2'>
-                            <span className='h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
-                            Sending...
-                          </span>
-                        ) : (
-                          'Begin'
-                        )}
-                      </Button>
-                    </div>
-                    {/* {error && (
+                  ) : (
+                    <>
+                      <div className='grid gap-3'>
+                        <Label htmlFor='email'>Email</Label>
+                        <FormField
+                          className={
+                            isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                          }
+                          disabled={isSubmitting}
+                          name='email'
+                          placeholder='m@example.com'
+                          type='email'
+                        />
+                      </div>
+                      <div className='flex flex-col gap-3'>
+                        <Button
+                          className='w-full'
+                          disabled={isSubmitting}
+                          type='submit'
+                        >
+                          {isSubmitting ? (
+                            <span className='flex items-center gap-2'>
+                              <span className='h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                              Sending...
+                            </span>
+                          ) : (
+                            'Begin'
+                          )}
+                        </Button>
+                      </div>
+                      {/* {error && (
                       <div className='text-red-600 text-center text-sm'>
                         {error}
                       </div>
                     )} */}
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </form>
-        </FormProvider>
-      </Card>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </form>
+          </FormProvider>
+        </Card>
+      </div>
     </div>
   );
 };
