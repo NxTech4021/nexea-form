@@ -31,13 +31,13 @@ const ForgotPasswordSchema = z.object({
     .string()
     .email('Invalid email format')
     // COMMENTED: Original nexea.co validation
-    // .regex(/^[\w.-]+@nexea\.co$/, {
-    //   message: 'Email must be a nexea.co address',
-    // }),
-    // TEMPORARY: Allow m.nexea.co for now
-    .regex(/^[\w.-]+@m\.nexea\.co$/, {
-      message: 'Email must be a m.nexea.co address',
+    .regex(/^[\w.-]+@nexea\.co$/, {
+      message: 'Email must be a nexea.co address',
     }),
+    // TEMPORARY: Allow m.nexea.co for now
+    // .regex(/^[\w.-]+@m\.nexea\.co$/, {
+    //   message: 'Email must be a m.nexea.co address',
+    // }),
 });
 
 // ADDED: Schema for reset password validation  
