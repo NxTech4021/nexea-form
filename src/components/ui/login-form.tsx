@@ -95,9 +95,10 @@ export function LoginForm({
               <div className='grid gap-3'>
                 <div className='flex items-center'>
                   <Label htmlFor='password'>Password</Label>
+                  {/* UPDATED: Changed from href='#' to functional forgot password link */}
                   <a
-                    className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
-                    href='#'
+                    className='ml-auto inline-block text-sm underline-offset-4 hover:underline cursor-pointer text-primary'
+                    href='/auth/forgot-password'
                   >
                     Forgot your password?
                   </a>

@@ -8,6 +8,8 @@ import { z } from 'zod';
 import { FormState, SigninFormSchema } from '@/lib/definitions';
 import { prisma } from '@/lib/prisma';
 import { sendEmailVerification } from '@/lib/sendMail';
+// ADDED: Import jwtVerify for password reset token validation
+import { jwtVerify } from 'jose';
 import { createSession, deleteSession } from '@/lib/session';
 
 // Password validation regex
@@ -22,6 +24,54 @@ const passwordRegex = {
 const secret = new TextEncoder().encode(
   process.env.JWT_SECRET || 'super-secret-key'
 );
+
+// ADDED: Schema for forgot password validation
+const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .email('Invalid email format')
+    // COMMENTED: Original nexea.co validation
+    // .regex(/^[\w.-]+@nexea\.co$/, {
+    //   message: 'Email must be a nexea.co address',
+    // }),
+    // TEMPORARY: Allow m.nexea.co for now
+    .regex(/^[\w.-]+@m\.nexea\.co$/, {
+      message: 'Email must be a m.nexea.co address',
+    }),
+});
+
+// ADDED: Schema for reset password validation  
+const ResetPasswordSchema = z
+  .object({
+    token: z.string().min(1, 'Reset token is required'),
+    password: z
+      .string()
+      .min(
+        passwordRegex.minLength,
+        `Password must be at least ${passwordRegex.minLength} characters`
+      )
+      .refine(
+        (password) => passwordRegex.hasUpperCase.test(password),
+        'Password must contain at least one uppercase letter'
+      )
+      .refine(
+        (password) => passwordRegex.hasLowerCase.test(password),
+        'Password must contain at least one lowercase letter'
+      )
+      .refine(
+        (password) => passwordRegex.hasNumber.test(password),
+        'Password must contain at least one number'
+      )
+      .refine(
+        (password) => passwordRegex.hasSpecialChar.test(password),
+        'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 // Registration schema
 const RegisterFormSchema = z
@@ -66,6 +116,25 @@ export type RegisterFormState = {
     confirmPassword?: string[];
     email?: string[];
     password?: string[];
+  };
+  message?: string;
+  success?: boolean;
+};
+
+// ADDED: Type definitions for forgot password feature
+export type ForgotPasswordState = {
+  errors?: {
+    email?: string[];
+  };
+  message?: string;
+  success?: boolean;
+};
+
+export type ResetPasswordState = {
+  errors?: {
+    password?: string[];
+    confirmPassword?: string[];
+    token?: string[];
   };
   message?: string;
   success?: boolean;
@@ -223,4 +292,325 @@ export async function signOut(prevState: any): Promise<{ success: boolean }> {
   await deleteSession();
   await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
   return { success: true };
+}
+
+// ADDED: Forgot password functionality
+export async function forgotPassword(
+  prevState: ForgotPasswordState | undefined,
+  formData: FormData
+): Promise<ForgotPasswordState> {
+  try {
+    const validatedFields = ForgotPasswordSchema.safeParse({
+      email: formData.get('email'),
+    });
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Please check the form for errors.',
+      };
+    }
+
+    const { email } = validatedFields.data;
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    // For security, always return success even if user doesn't exist
+    // This prevents email enumeration attacks
+    if (!user) {
+      return {
+        success: true,
+        message: 'If an account with that email exists, we sent a reset link.',
+      };
+    }
+
+    // Generate reset token (valid for 1 hour)
+    const resetToken = await new SignJWT({ 
+      email: user.email,
+      userId: user.id,
+      type: 'password-reset'
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1h')
+      .sign(secret);
+
+    // Store token in database
+    await prisma.user.update({
+      where: { email },
+      data: { token: resetToken },
+    });
+
+    // Send reset email
+    await sendPasswordResetEmail({ email, token: resetToken });
+
+    return {
+      success: true,
+      message: 'Password reset email sent!',
+    };
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    return {
+      message: 'An error occurred. Please try again.',
+    };
+  }
+}
+
+// ADDED: Reset password functionality
+export async function resetPassword(
+  prevState: ResetPasswordState | undefined,
+  formData: FormData
+): Promise<ResetPasswordState> {
+  try {
+    const validatedFields = ResetPasswordSchema.safeParse({
+      token: formData.get('token'),
+      password: formData.get('password'),
+      confirmPassword: formData.get('confirmPassword'),
+    });
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Please check the form for errors.',
+      };
+    }
+
+    const { token, password } = validatedFields.data;
+
+    // Verify the token
+    let payload;
+    try {
+      const { payload: tokenPayload } = await jwtVerify(token, secret);
+      payload = tokenPayload;
+    } catch (error) {
+      return {
+        errors: { token: ['Invalid or expired reset token'] },
+        message: 'The reset link has expired or is invalid.',
+      };
+    }
+
+    // Verify token type
+    if (payload.type !== 'password-reset') {
+      return {
+        errors: { token: ['Invalid token type'] },
+        message: 'Invalid reset token.',
+      };
+    }
+
+    // Find user and verify token matches stored token
+    const user = await prisma.user.findUnique({
+      where: { 
+        email: payload.email as string,
+        token: token, // Ensure the token matches what's stored
+      },
+    });
+
+    if (!user) {
+      return {
+        errors: { token: ['Invalid or expired reset token'] },
+        message: 'The reset link has expired or is invalid.',
+      };
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update password and clear the token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: hashedPassword,
+        token: null, // Clear the reset token
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Password reset successful!',
+    };
+  } catch (error) {
+    console.error('Error in resetPassword:', error);
+    return {
+      message: 'An error occurred. Please try again.',
+    };
+  }
+}
+
+// ADDED: Email sending function for password reset
+async function sendPasswordResetEmail({ email, token }: { email: string; token: string }) {
+  // FIXED: Use proper nodemailer import and method name (matching existing sendMail.ts)
+  const nodemailer = require('nodemailer');
+  
+  const EMAIL_FROM = process.env.EMAIL_FROM!;
+  const EMAIL_USER = process.env.EMAIL_USER!;
+  const EMAIL_PASS = process.env.EMAIL_PASS!;
+  const BASE_URL = process.env.BASE_URL!;
+
+  const transporter = nodemailer.createTransport({
+    auth: {
+      pass: EMAIL_PASS,
+      user: EMAIL_USER,
+    },
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  // FIXED: Remove extra http:// prefix since BASE_URL already contains protocol
+  const resetLink = `${BASE_URL}/auth/reset-password?token=${token}`;
+
+  const mailOptions = {
+    from: '"Nexea" <no-reply@nexea.co>',
+    to: email,
+    subject: 'Reset Your Password - Nexea EBA',
+    html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Reset Your Password</title>
+  <style type="text/css" rel="stylesheet" media="all">
+    /* Base styles (same as verification email) */
+    *:not(br):not(tr):not(html) {
+      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+    body {
+      width: 100% !important;
+      height: 100%;
+      margin: 0;
+      line-height: 1.4;
+      background-color: #F5F7F9;
+      color: #839197;
+      -webkit-text-size-adjust: none;
+    }
+    a { color: #414EF9; }
+    .email-wrapper {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #F5F7F9;
+    }
+    .email-body {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #E7EAEC;
+      border-bottom: 1px solid #E7EAEC;
+      background-color: #FFFFFF;
+    }
+    .email-body_inner {
+      width: 570px;
+      margin: 0 auto;
+      padding: 0;
+    }
+    .content-cell { padding: 35px; }
+    .body-action {
+      width: 100%;
+      margin: 30px auto;
+      padding: 0;
+      text-align: center;
+    }
+    .body-sub {
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid #E7EAEC;
+    }
+    h1 {
+      margin-top: 0;
+      color: #292E31;
+      font-size: 19px;
+      font-weight: bold;
+      text-align: left;
+    }
+    p {
+      margin-top: 0;
+      color: #839197;
+      font-size: 16px;
+      line-height: 1.5em;
+      text-align: left;
+    }
+    p.sub { font-size: 12px; }
+    .button {
+      display: inline-block;
+      width: 200px;
+      background-color: #414EF9;
+      border-radius: 3px;
+      color: #ffffff;
+      font-size: 15px;
+      line-height: 45px;
+      text-align: center;
+      text-decoration: none;
+      -webkit-text-size-adjust: none;
+      mso-hide: all;
+    }
+    @media only screen and (max-width: 600px) {
+      .email-body_inner { width: 100% !important; }
+    }
+    @media only screen and (max-width: 500px) {
+      .button { width: 100% !important; }
+    }
+  </style>
+</head>
+<body>
+  <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+        <table class="email-content" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="email-body" width="100%">
+              <table class="email-body_inner" align="center" width="570" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-cell">
+                    <h1>Reset Your Password</h1>
+                    <p>You requested to reset your password for your Nexea EBA account. Click the button below to choose a new password:</p>
+                    
+                    <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center">
+                          <div>
+                            <a href="${resetLink}" class="button">Reset Password</a>
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <p><strong>This link will expire in 1 hour.</strong></p>
+                    <p>If you didn't request a password reset, please ignore this email or contact support if you have concerns.</p>
+                    <p>Thanks,<br>The Nexea Team</p>
+                    
+                    <table class="body-sub">
+                      <tr>
+                        <td>
+                          <p class="sub">If you're having trouble clicking the button, copy and paste the URL below into your web browser:</p>
+                          <p class="sub"><a href="${resetLink}">${resetLink}</a></p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    throw error;
+  }
 }
