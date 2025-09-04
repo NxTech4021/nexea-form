@@ -34,13 +34,13 @@ const ForgotPasswordSchema = z.object({
     .regex(/^[\w.-]+@nexea\.co$/, {
       message: 'Email must be a nexea.co address',
     }),
-    // TEMPORARY: Allow m.nexea.co for now
-    // .regex(/^[\w.-]+@m\.nexea\.co$/, {
-    //   message: 'Email must be a m.nexea.co address',
-    // }),
+  // TEMPORARY: Allow m.nexea.co for now
+  // .regex(/^[\w.-]+@m\.nexea\.co$/, {
+  //   message: 'Email must be a m.nexea.co address',
+  // }),
 });
 
-// ADDED: Schema for reset password validation  
+// ADDED: Schema for reset password validation
 const ResetPasswordSchema = z
   .object({
     token: z.string().min(1, 'Reset token is required'),
@@ -328,10 +328,10 @@ export async function forgotPassword(
     }
 
     // Generate reset token (valid for 1 hour)
-    const resetToken = await new SignJWT({ 
+    const resetToken = await new SignJWT({
       email: user.email,
       userId: user.id,
-      type: 'password-reset'
+      type: 'password-reset',
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
@@ -402,7 +402,7 @@ export async function resetPassword(
 
     // Find user and verify token matches stored token
     const user = await prisma.user.findUnique({
-      where: { 
+      where: {
         email: payload.email as string,
         token: token, // Ensure the token matches what's stored
       },
@@ -440,10 +440,16 @@ export async function resetPassword(
 }
 
 // ADDED: Email sending function for password reset
-async function sendPasswordResetEmail({ email, token }: { email: string; token: string }) {
+async function sendPasswordResetEmail({
+  email,
+  token,
+}: {
+  email: string;
+  token: string;
+}) {
   // FIXED: Use proper nodemailer import and method name (matching existing sendMail.ts)
   const nodemailer = require('nodemailer');
-  
+
   const EMAIL_FROM = process.env.EMAIL_FROM!;
   const EMAIL_USER = process.env.EMAIL_USER!;
   const EMAIL_PASS = process.env.EMAIL_PASS!;
@@ -467,8 +473,6 @@ async function sendPasswordResetEmail({ email, token }: { email: string; token: 
 
   const mailOptions = {
     from: '"Nexea" <no-reply@nexea.co>',
-    to: email,
-    subject: 'Reset Your Password - Nexea EBA',
     html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -576,7 +580,7 @@ async function sendPasswordResetEmail({ email, token }: { email: string; token: 
                       <tr>
                         <td align="center">
                           <div>
-                            <a href="${resetLink}" class="button">Reset Password</a>
+                            <a href="${resetLink}" class="button" style="color:white;">Reset Password</a>
                           </div>
                         </td>
                       </tr>
@@ -605,6 +609,8 @@ async function sendPasswordResetEmail({ email, token }: { email: string; token: 
   </table>
 </body>
 </html>`,
+    subject: 'Reset Your Password - Nexea EBA',
+    to: email,
   };
 
   try {
