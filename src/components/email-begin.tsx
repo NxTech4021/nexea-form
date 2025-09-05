@@ -66,7 +66,7 @@ const AuthForm = () => {
 
       setSuccess(true);
     } catch (error) {
-      setError('An unexpected error occurred. Please try again.', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
