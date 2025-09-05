@@ -1,9 +1,9 @@
-import { resend } from '@/config/resend';
-import EbaEmailTemplate from '@/email-templates/emails';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+
+import { resend } from '@/config/resend';
+import EbaEmailTemplate from '@/email-templates/emails';
 
 const prisma = new PrismaClient();
 
@@ -51,32 +51,32 @@ export async function POST(req: NextRequest) {
     });
 
     // Setup email transport
-    const transporter = nodemailer.createTransport({
-      auth: {
-        pass: EMAIL_PASS, // This should be an app-specific password
-        user: EMAIL_USER,
-      },
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // Use TLS
-      tls: {
-        rejectUnauthorized: false, // Only for development
-      },
-    });
+    // const transporter = nodemailer.createTransport({
+    //   auth: {
+    //     pass: EMAIL_PASS, // This should be an app-specific password
+    //     user: EMAIL_USER,
+    //   },
+    //   host: 'smtp.gmail.com',
+    //   port: 587,
+    //   secure: false, // Use TLS
+    //   tls: {
+    //     rejectUnauthorized: false, // Only for development
+    //   },
+    // });
 
     const link = `${BASE_URL}/begin-quiz?token=${token}`;
 
     // Verify transporter configuration
-    try {
-      await transporter.verify();
-      console.log('SMTP connection verified successfully');
-    } catch (verifyError) {
-      console.error('SMTP Verification Error:', verifyError);
-      return NextResponse.json(
-        { error: 'Email service configuration error' },
-        { status: 500 },
-      );
-    }
+    // try {
+    //   await transporter.verify();
+    //   console.log('SMTP connection verified successfully');
+    // } catch (verifyError) {
+    //   console.error('SMTP Verification Error:', verifyError);
+    //   return NextResponse.json(
+    //     { error: 'Email service configuration error' },
+    //     { status: 500 },
+    //   );
+    // }
 
     // Send email
     try {
