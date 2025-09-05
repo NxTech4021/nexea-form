@@ -227,11 +227,9 @@ export default function AdminPage() {
                 Preview Form ( In development )
               </TabsTrigger>
             </TabsList>
-
             <TabsContent className='space-y-4' value='form'>
               <FormEditor />
             </TabsContent>
-
             <TabsContent value='emails'>
               <Card>
                 <CardHeader>
@@ -287,6 +285,17 @@ export default function AdminPage() {
                       )}
                     </Button>
                   </form>
+
+                  {/* <Button
+                    onClick={async () => {
+                      await fetch('/api/email', {
+                        method: 'POST',
+                      });
+                    }}
+                  >
+                    Send Test Email {process.env.RESEND_API_KEY}
+                  </Button> */}
+
                   <EmailListView emails={emails} onDelete={handleDeleteRow} />
                 </CardContent>
               </Card>
@@ -319,7 +328,7 @@ function FormEditor() {
 
   const handleUpdateQuestion = async (
     id: string,
-    patch: Partial<QuestionDefinition>
+    patch: Partial<QuestionDefinition>,
   ) => {
     const question = questions.find((q) => q.id === id);
     if (!question) return;
@@ -506,7 +515,7 @@ function FormEditor() {
                                 <Button
                                   onClick={() => {
                                     const opts = q.options.filter(
-                                      (_, j) => j !== i
+                                      (_, j) => j !== i,
                                     );
                                     handleUpdateQuestion(q.id, {
                                       options: opts,
@@ -557,7 +566,7 @@ function FormEditor() {
                                 <Button
                                   onClick={() => {
                                     const rows = (q.rows ?? []).filter(
-                                      (_, j) => j !== i
+                                      (_, j) => j !== i,
                                     );
                                     handleUpdateQuestion(q.id, { rows });
                                   }}

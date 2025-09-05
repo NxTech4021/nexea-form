@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   description: 'Entrepreneurs Behaviour Assessment',
   robots: 'noindex, nofollow',
-  title: 'NEXEA Assessment',
+  title: 'Nexea Assessment',
 };
 
 export default function RootLayout({

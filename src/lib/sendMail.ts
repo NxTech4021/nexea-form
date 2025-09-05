@@ -28,7 +28,7 @@ export const sendEmailVerification = async ({
   token: string;
 }) => {
   try {
-    const verificationLink = `${BASE_URL}/api/verify?token=${token}`;
+    const verificationLink = `http://${BASE_URL}/api/verify?token=${token}`;
 
     const mailOptions = {
       from: '"Nexea" <no-reply@nexea.co>',

@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Check, Mail } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -65,7 +66,7 @@ const AuthForm = () => {
 
       setSuccess(true);
     } catch (error) {
-      setError('An unexpected error occurred. Please try again.');
+      setError('An unexpected error occurred. Please try again.', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -85,70 +86,70 @@ const AuthForm = () => {
           </h1>
         </div>
 
-        <Card className='w-full sm:w-md'>
-          <CardHeader>
-            <CardTitle>Welcome! Let&apos;s Get Started</CardTitle>
-            <CardDescription>
-              Enter your email to begin answering the questions. We&apos;ll use
-              this to save your progress and send you a secure access link.
-            </CardDescription>
-          </CardHeader>
-          <FormProvider {...methods}>
-            <form onSubmit={onSubmit}>
-              <CardContent>
-                <div className='flex flex-col gap-6'>
-                  {success ? (
-                    <div className='text-green-600 text-center py-2'>
-                      <p>✓ Verification email sent!</p>
-                      <p className='text-sm mt-2'>
-                        Please check your email for the assessment link.
-                      </p>
-                      <p className='text-sm text-gray-500 mt-1'>
-                        The link will expire in 15 minutes.
-                      </p>
+        {success ? (
+          <Card className='max-w-sm px-10'>
+            <div className='flex flex-col justify-center items-center gap-2.5'>
+              <Mail className='text-green-700' size={25} />
+              <p className='text-xl font-semibold'>Check your email</p>
+              <p className='text-muted-foreground text-sm text-center leading-snug'>
+                Your assessment link has been sent! Please check your email to
+                get started.
+              </p>
+            </div>
+          </Card>
+        ) : (
+          <Card className='w-full sm:w-md'>
+            <CardHeader>
+              <CardTitle>Welcome! Let&apos;s Get Started</CardTitle>
+              <CardDescription>
+                Enter your email to begin answering the questions. We&apos;ll
+                use this to save your progress and send you a secure access
+                link.
+              </CardDescription>
+            </CardHeader>
+            <FormProvider {...methods}>
+              <form onSubmit={onSubmit}>
+                <CardContent>
+                  <div className='flex flex-col gap-6'>
+                    <div className='grid gap-3'>
+                      <Label htmlFor='email'>Email</Label>
+                      <FormField
+                        className={
+                          isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                        }
+                        disabled={isSubmitting}
+                        name='email'
+                        placeholder='m@example.com'
+                        type='email'
+                      />
                     </div>
-                  ) : (
-                    <>
-                      <div className='grid gap-3'>
-                        <Label htmlFor='email'>Email</Label>
-                        <FormField
-                          className={
-                            isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                          }
-                          disabled={isSubmitting}
-                          name='email'
-                          placeholder='m@example.com'
-                          type='email'
-                        />
-                      </div>
-                      <div className='flex flex-col gap-3'>
-                        <Button
-                          className='w-full'
-                          disabled={isSubmitting}
-                          type='submit'
-                        >
-                          {isSubmitting ? (
-                            <span className='flex items-center gap-2'>
-                              <span className='h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
-                              Sending...
-                            </span>
-                          ) : (
-                            'Begin'
-                          )}
-                        </Button>
-                      </div>
-                      {/* {error && (
+                    <div className='flex flex-col gap-3'>
+                      <Button
+                        className='w-full'
+                        disabled={isSubmitting}
+                        type='submit'
+                      >
+                        {isSubmitting ? (
+                          <span className='flex items-center gap-2'>
+                            <span className='h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                            Sending...
+                          </span>
+                        ) : (
+                          'Begin'
+                        )}
+                      </Button>
+                    </div>
+                    {/* {error && (
                       <div className='text-red-600 text-center text-sm'>
                         {error}
                       </div>
                     )} */}
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </form>
-          </FormProvider>
-        </Card>
+                  </div>
+                </CardContent>
+              </form>
+            </FormProvider>
+          </Card>
+        )}
       </div>
     </div>
   );

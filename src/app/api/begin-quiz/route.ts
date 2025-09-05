@@ -1,3 +1,5 @@
+import { resend } from '@/config/resend';
+import EbaEmailTemplate from '@/email-templates/emails';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
@@ -32,14 +34,14 @@ export async function POST(req: NextRequest) {
     if (!allow) {
       return NextResponse.json(
         { error: 'Email not found in allowlist' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (allow.credits <= 0) {
       return NextResponse.json(
         { error: 'No remaining assessment credits' },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -72,25 +74,37 @@ export async function POST(req: NextRequest) {
       console.error('SMTP Verification Error:', verifyError);
       return NextResponse.json(
         { error: 'Email service configuration error' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     // Send email
     try {
-      const info = await transporter.sendMail({
-        from: `"NEXEA Assessment" <${EMAIL_FROM}>`,
-        html: `
-          <p>Hello,</p>
-          <p>Click the link below to begin your Entrepreneurs Behaviour Assessment. This link will expire in 15 minutes.</p>
-          <p><a href="${link}">${link}</a></p>
-          <p>If you did not request this assessment, please ignore this email.</p>
-        `,
-        subject: 'Your Entrepreneurs Behaviour Assessment Link',
-        to: email,
+      const { data } = await resend.emails.send({
+        from: 'no-reply <no-reply@eba.nexea.co>',
+        react: EbaEmailTemplate({
+          name: 'Afiq',
+          verificationLink: link,
+        }),
+        subject: 'Your Assessment Link is Here',
+        to: allow.email,
       });
 
-      console.log('Email sent successfully:', info.messageId);
+      console.log(data);
+
+      // const info = await transporter.sendMail({
+      //   from: `"NEXEA Assessment" <${EMAIL_FROM}>`,
+      //   html: `
+      //     <p>Hello,</p>
+      //     <p>Click the link below to begin your Entrepreneurs Behaviour Assessment. This link will expire in 15 minutes.</p>
+      //     <p><a href="${link}">${link}</a></p>
+      //     <p>If you did not request this assessment, please ignore this email.</p>
+      //   `,
+      //   subject: 'Your Entrepreneurs Behaviour Assessment Link',
+      //   to: email,
+      // });
+
+      // console.log('Email sent successfully:', info.messageId);
 
       // Deduct one credit after successful email send
       await prisma.allowlist.update({
@@ -116,14 +130,14 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json(
         { error: `Failed to send email: ${emailError.message}` },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
     console.error('Error processing request:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

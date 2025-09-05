@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     // Skip ESLint errors during production builds
     ignoreDuringBuilds: true,
   },
+  images: {
+    domains: ['eba.nexea.co'],
+  },
   output: 'standalone',
 };
 
