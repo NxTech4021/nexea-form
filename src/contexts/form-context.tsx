@@ -1,5 +1,5 @@
 // src/contexts/form-context.tsx
-'use client'
+'use client';
 
 import React, {
   createContext,
@@ -9,55 +9,56 @@ import React, {
   useContext,
   useEffect,
   useState,
-} from 'react'
+} from 'react';
 
 // ——— 2) Context type ———
 export interface FormContextType {
-  completedSteps: Set<number>
-  createQuestion: (question: Omit<QuestionDefinition, 'id'>) => Promise<void>
-  currentStep: number
-  deleteQuestion: (id: string) => Promise<void>
-  error: null | string
+  completedSteps: Set<number>;
+  createQuestion: (question: Omit<QuestionDefinition, 'id'>) => Promise<void>;
+  currentStep: number;
+  deleteQuestion: (id: string) => Promise<void>;
+  error: null | string;
   // survey flow
-  formData: FormData
-  isLoading: boolean
-  isStepCompleted: (step: number) => boolean
-  markStepCompleted: (step: number) => void
+  formData: FormData;
+  isLoading: boolean;
+  isStepCompleted: (step: number) => boolean;
+  markStepCompleted: (step: number) => void;
 
   // admin UI
-  questions: QuestionDefinition[]
-  resetForm: () => void
-  setCurrentStep: (step: number) => void
-  setQuestions: Dispatch<SetStateAction<QuestionDefinition[]>>
-  totalSteps: number
-  updateFormData: (data: Partial<FormData>) => void
-  updateQuestion: (question: QuestionDefinition) => Promise<void>
+  questions: QuestionDefinition[];
+  resetForm: () => void;
+  setCurrentStep: (step: number) => void;
+  setQuestions: Dispatch<SetStateAction<QuestionDefinition[]>>;
+  totalSteps: number;
+  updateEmail: (email: string) => void;
+  updateFormData: (data: Partial<FormData>) => void;
+  updateQuestion: (question: QuestionDefinition) => Promise<void>;
 }
 
 // ——— 1) Your data shapes ———
 export interface FormData {
-  [key: string]: any
-  company: string
-  email: string
-  fullName: string
-  matrixes: { [key: string]: { [key: string]: string } }[]
-  phoneNumber: string
-  radios: { [key: string]: string }[]
+  [key: string]: any;
+  company: string;
+  email: string;
+  fullName: string;
+  matrixes: { [key: string]: { [key: string]: string } }[];
+  phoneNumber: string;
+  radios: { [key: string]: string }[];
 }
 
 export interface QuestionDefinition {
-  id: string
-  options: string[]
-  rows?: string[]
-  step: number
-  text: string
-  type: 'matrix' | 'radio' | 'text'
+  id: string;
+  options: string[];
+  rows?: string[];
+  step: number;
+  text: string;
+  type: 'matrix' | 'radio' | 'text';
 }
 
-const FormContext = createContext<FormContextType | undefined>(undefined)
+const FormContext = createContext<FormContextType | undefined>(undefined);
 
 interface FormProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function FormProvider({ children }: FormProviderProps) {
@@ -69,26 +70,26 @@ export function FormProvider({ children }: FormProviderProps) {
     matrixes: [],
     phoneNumber: '',
     radios: [],
-  })
-  const [currentStep, setCurrentStep] = useState(1)
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
-  const totalSteps = 18
+  });
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const totalSteps = 18;
 
   // admin UI state
-  const [questions, setQuestions] = useState<QuestionDefinition[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<null | string>(null)
+  const [questions, setQuestions] = useState<QuestionDefinition[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<null | string>(null);
 
   // Fetch questions on mount
   useEffect(() => {
     const fetchQuestions = async () => {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
       try {
-        const res = await fetch('/api/admin/questions')
-        if (!res.ok) throw new Error('Failed to fetch questions')
-        const data = await res.json()
-        
+        const res = await fetch('/api/admin/questions');
+        if (!res.ok) throw new Error('Failed to fetch questions');
+        const data = await res.json();
+
         // Transform database format to QuestionDefinition format
         const transformedQuestions = data.map((q: any) => ({
           id: q.id,
@@ -96,141 +97,139 @@ export function FormProvider({ children }: FormProviderProps) {
           rows: q.matrixRows.map((r: any) => r.label),
           step: q.step,
           text: q.text,
-          type: q.type.toLowerCase()
-        }))
-        
-        setQuestions(transformedQuestions)
-      } catch (err: any) {
-        setError(err.message)
-        console.error('Error fetching questions:', err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+          type: q.type.toLowerCase(),
+        }));
 
-    fetchQuestions()
-  }, [])
+        setQuestions(transformedQuestions);
+      } catch (err: any) {
+        setError(err.message);
+        console.error('Error fetching questions:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
 
   // Create a new question
   const createQuestion = async (question: Omit<QuestionDefinition, 'id'>) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/admin/questions', {
         body: JSON.stringify({
           ...question,
           id: Date.now().toString(),
-          type: question.type.toUpperCase()
+          type: question.type.toUpperCase(),
         }),
         headers: { 'Content-Type': 'application/json' },
-        method: 'POST'
-      })
-      
-      if (!res.ok) throw new Error('Failed to create question')
-      
-      const data = await res.json()
-      setQuestions(prev => [...prev, {
-        ...question,
-        id: data.id
-      }])
+        method: 'POST',
+      });
+
+      if (!res.ok) throw new Error('Failed to create question');
+
+      const data = await res.json();
+      setQuestions((prev) => [
+        ...prev,
+        {
+          ...question,
+          id: data.id,
+        },
+      ]);
     } catch (err: any) {
-      setError(err.message)
-      throw err
+      setError(err.message);
+      throw err;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Update a question
   const updateQuestion = async (question: QuestionDefinition) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/admin/questions', {
         body: JSON.stringify({
           ...question,
-          type: question.type.toUpperCase()
+          type: question.type.toUpperCase(),
         }),
         headers: { 'Content-Type': 'application/json' },
-        method: 'PUT'
-      })
-      
-      if (!res.ok) throw new Error('Failed to update question')
-      
-      setQuestions(prev => 
-        prev.map(q => q.id === question.id ? question : q)
-      )
+        method: 'PUT',
+      });
+
+      if (!res.ok) throw new Error('Failed to update question');
+
+      setQuestions((prev) =>
+        prev.map((q) => (q.id === question.id ? question : q)),
+      );
     } catch (err: any) {
-      setError(err.message)
-      throw err
+      setError(err.message);
+      throw err;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Delete a question
   const deleteQuestion = async (id: string) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/admin/questions?id=${id}`, {
-        method: 'DELETE'
-      })
-      
-      if (!res.ok) throw new Error('Failed to delete question')
-      
-      setQuestions(prev => prev.filter(q => q.id !== id))
-    } catch (err: any) {
-      setError(err.message)
-      throw err
-    } finally {
-      setIsLoading(false)
-    }
-  }
+        method: 'DELETE',
+      });
 
-  // debug log
-  useEffect(() => {
-    console.log('Form Data:', formData)
-  }, [formData])
+      if (!res.ok) throw new Error('Failed to delete question');
+
+      setQuestions((prev) => prev.filter((q) => q.id !== id));
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // merge in radio or matrix updates by key
   const updateFormData = (stepData: Partial<FormData>) => {
     setFormData((prev) => {
-      const next = { ...prev }
+      const next = { ...prev };
 
       if (stepData.radios) {
         stepData.radios.forEach((r) => {
-          const key = Object.keys(r)[0]
-          const idx = next.radios.findIndex((x) =>
-            Object.keys(x)[0] === key
-          )
-          if (idx >= 0) next.radios[idx] = r
-          else next.radios.push(r)
-        })
-        delete (stepData as any).radios
+          const key = Object.keys(r)[0];
+          const idx = next.radios.findIndex((x) => Object.keys(x)[0] === key);
+          if (idx >= 0) next.radios[idx] = r;
+          else next.radios.push(r);
+        });
+        delete (stepData as any).radios;
       }
 
       if (stepData.matrixes) {
         stepData.matrixes.forEach((m) => {
-          const key = Object.keys(m)[0]
-          const idx = next.matrixes.findIndex((x) =>
-            Object.keys(x)[0] === key
-          )
-          if (idx >= 0) next.matrixes[idx] = m
-          else next.matrixes.push(m)
-        })
-        delete (stepData as any).matrixes
+          const key = Object.keys(m)[0];
+          const idx = next.matrixes.findIndex((x) => Object.keys(x)[0] === key);
+          if (idx >= 0) next.matrixes[idx] = m;
+          else next.matrixes.push(m);
+        });
+        delete (stepData as any).matrixes;
       }
 
-      return { ...next, ...stepData }
-    })
-  }
+      return { ...next, ...stepData };
+    });
+  };
 
-  const isStepCompleted = (step: number) => completedSteps.has(step)
+  const isStepCompleted = (step: number) => completedSteps.has(step);
 
   const markStepCompleted = (step: number) => {
-    setCompletedSteps((prev) => new Set(prev).add(step))
-  }
+    setCompletedSteps((prev) => new Set(prev).add(step));
+  };
+
+  const updateEmail = (email: string) => {
+    setFormData((prev) => ({ ...prev, email: email }));
+  };
 
   const resetForm = () => {
     setFormData({
@@ -240,10 +239,10 @@ export function FormProvider({ children }: FormProviderProps) {
       matrixes: [],
       phoneNumber: '',
       radios: [],
-    })
-    setCurrentStep(1)
-    setCompletedSteps(new Set())
-  }
+    });
+    setCurrentStep(1);
+    setCompletedSteps(new Set());
+  };
 
   return (
     <FormContext.Provider
@@ -262,19 +261,20 @@ export function FormProvider({ children }: FormProviderProps) {
         setCurrentStep,
         setQuestions,
         totalSteps,
+        updateEmail,
         updateFormData,
-        updateQuestion
+        updateQuestion,
       }}
     >
       {children}
     </FormContext.Provider>
-  )
+  );
 }
 
 export function useFormContext() {
-  const context = useContext(FormContext)
+  const context = useContext(FormContext);
   if (context === undefined) {
-    throw new Error('useFormContext must be used within a FormProvider')
+    throw new Error('useFormContext must be used within a FormProvider');
   }
-  return context
+  return context;
 }

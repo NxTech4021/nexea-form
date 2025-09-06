@@ -1,19 +1,25 @@
 'use client';
 
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Assessment } from '@/components/assessment';
 import { FormProvider } from '@/contexts/form-context';
 
-export default function AssessmentPage() {
-  const searchParams = useSearchParams();
-  const responseId = searchParams.get('responseId');
+export default function AssessmentPage({
+  responseValue,
+}: {
+  responseValue: string;
+}) {
+  // const searchParams = useSearchParams();
+  // const responseId = searchParams.get('responseId');
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [error, setError] = useState<null | string>(null);
+  const [email, setEmail] = useState<string>();
 
   useEffect(() => {
-    if (!responseId) {
+    if (!responseValue) {
       setIsValid(false);
       setError('No response ID provided');
       return;
@@ -22,7 +28,7 @@ export default function AssessmentPage() {
     // Verify the response ID exists
     const verifyResponse = async () => {
       try {
-        const res = await fetch(`/api/verify-response?id=${responseId}`);
+        const res = await fetch(`/api/verify-response?id=${responseValue}`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -30,6 +36,8 @@ export default function AssessmentPage() {
           setError(data.error || 'Failed to verify response');
           return;
         }
+
+        setEmail(data.response.allowlist.email);
 
         setIsValid(true);
         setError(null);
@@ -41,7 +49,7 @@ export default function AssessmentPage() {
     };
 
     verifyResponse();
-  }, [responseId]);
+  }, [responseValue]);
 
   if (isValid === null) {
     return (
@@ -62,9 +70,9 @@ export default function AssessmentPage() {
           <p className='text-gray-600 mb-4'>
             {error || 'This assessment link is invalid or has expired.'}
           </p>
-          <a className='text-primary hover:underline' href='/'>
+          <Link className='text-primary hover:underline' href='/'>
             Return to Homepage
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -72,7 +80,7 @@ export default function AssessmentPage() {
 
   return (
     <FormProvider>
-      <Assessment />
+      <Assessment email={email!} />
     </FormProvider>
   );
 }

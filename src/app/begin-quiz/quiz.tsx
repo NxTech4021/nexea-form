@@ -1,16 +1,19 @@
 'use client';
 
+import { CircleX } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { verifyToken } from '@/app/actions/verify-token';
+import { Button } from '@/components/ui';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function BeginQuiz() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'error' | 'loading' | 'success'>(
-    'loading'
+    'loading',
   );
   const [error, setError] = useState<string>('');
 
@@ -35,8 +38,9 @@ export default function BeginQuiz() {
 
         setStatus('success');
         // Redirect to assessment with response ID
-        router.push(`/assessment?responseId=${result.responseId}`);
+        router.replace(`/assessment?responseId=${result.responseId}`);
       } catch (error) {
+        console.log(error);
         setStatus('error');
         setError('Failed to verify token');
       }
@@ -44,6 +48,23 @@ export default function BeginQuiz() {
 
     validateToken();
   }, [searchParams, router]);
+
+  if (status === 'error') {
+    return (
+      <Card className='min-w-xs flex items-center rounded-sm absolute top-1/3 left-1/2 -translate-1/2 bg-red-100'>
+        <CircleX className='text-red-600' />
+        <div className='text-center'>
+          <p className='font-bold text-md'>Access Error</p>
+          <p className='text-muted-foreground text-sm mt-1'>{error}</p>
+        </div>
+        <Link href={'/'}>
+          <Button className='rounded-sm' size={'sm'}>
+            Return to Homepage
+          </Button>
+        </Link>
+      </Card>
+    );
+  }
 
   return (
     <div className='flex min-h-svh items-center justify-center p-6'>
@@ -58,17 +79,17 @@ export default function BeginQuiz() {
             </div>
           )}
 
-          {status === 'error' && (
+          {/* {status === 'error' && (
             <div className='text-center'>
               <h2 className='text-red-600 font-semibold mb-2'>Access Error</h2>
               <p className='text-gray-600'>{error}</p>
               <p className='mt-4'>
-                <a className='text-blue-600 hover:underline' href='/'>
+                <Link className='text-blue-600 hover:underline' href='/'>
                   Return to Homepage
-                </a>
+                </Link>
               </p>
             </div>
-          )}
+          )} */}
 
           {status === 'success' && (
             <div className='text-center'>

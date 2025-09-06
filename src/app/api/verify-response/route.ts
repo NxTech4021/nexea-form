@@ -9,27 +9,40 @@ export async function GET(req: NextRequest) {
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json({ error: 'Response ID is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Response ID is required' },
+        { status: 400 },
+      );
     }
 
     // Safely parse the ID
     const parsedId = parseInt(id);
     if (isNaN(parsedId)) {
-      return NextResponse.json({ error: 'Invalid response ID format' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid response ID format' },
+        { status: 400 },
+      );
     }
 
     // Check if response exists
     const response = await prisma.response.findUnique({
+      include: { allowlist: { select: { email: true, id: true } } },
       where: { id: parsedId },
     });
 
     if (!response) {
-      return NextResponse.json({ error: 'Response not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Response not found' },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ response, success: true });
   } catch (error) {
     console.error('Error verifying response:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 },
+    );
   }
-} 
+}

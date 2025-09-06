@@ -255,8 +255,32 @@ export function Step1() {
   );
 }
 export const questionsDataStep1 = [
-  { id: 'fullName',    options: [],  step: 1,      text: 'Full Name', type: 'text' as const },
-  { id: 'phoneNumber', options: [], step: 1,   text: 'Phone Number', type: 'text' as const },
-  { id: 'company',     options: [], step: 1,        text: 'Company', type: 'text' as const },
-  { id: 'email',       options: [], step: 1,  text: 'Email Address', type: 'text' as const },
-]
+  {
+    id: 'fullName',
+    options: [],
+    step: 1,
+    text: 'Full Name',
+    type: 'text' as const,
+  },
+  {
+    id: 'phoneNumber',
+    options: [],
+    step: 1,
+    text: 'Phone Number',
+    type: 'text' as const,
+  },
+  {
+    id: 'company',
+    options: [],
+    step: 1,
+    text: 'Company',
+    type: 'text' as const,
+  },
+  {
+    id: 'email',
+    options: [],
+    step: 1,
+    text: 'Email Address',
+    type: 'text' as const,
+  },
+];

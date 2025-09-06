@@ -75,6 +75,9 @@ model Response {
 
   answers Answer[]
 
+  allowlist   Allowlist? @relation(fields: [allowlistId], references: [id])
+  allowlistId Int?
+
   @@index([userId])
 }
 
@@ -96,6 +99,8 @@ model Allowlist {
   credits   Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  response Response[]
 
   addedBy String?
 }
