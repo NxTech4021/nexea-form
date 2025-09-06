@@ -10,6 +10,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui/input';
 
+import EditableCreditCell from './components/editable-credit-cell';
+
 dayjs.extend(LocalizedFormat);
 
 // This type is used to define the shape of our data.
@@ -22,27 +24,13 @@ export const columns: ColumnDef<Allowlist>[] = [
   },
   {
     accessorKey: 'credits',
-    cell: ({ row, table }) => {
-      const value = row.getValue<number>('credits');
-      const data = row.original;
+    cell: ({ getValue, row, table }) => {
+      const value = getValue()
+      const id = row.original.id;
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [credit, setCredit] = useState<number>(value);
-
-      return (
-        <Input
-          className='w-fit'
-          onChange={(e) => {
-            setCredit(parseInt(e.target.value, 10) || 0);
-            (table.options.meta as any).onChange(
-              parseInt(e.target.value, 10),
-              data.id,
-            );
-          }}
-          value={credit}
-        />
-      );
+      return <EditableCreditCell id={id} table={table} value={value} />;
     },
+
     header: 'Credit',
   },
   {

@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 
 import { QuestionDefinition, useFormContext } from '@/contexts/form-context';
 import { FormProvider } from '@/contexts/form-context';
@@ -58,6 +58,8 @@ export default function AdminPage() {
   const [success, setSuccess] = useState<null | string>(null);
   const router = useRouter();
 
+  const ref = useRef(null);
+
   const [emails, setEmails] = useState<Allowlist[]>([]);
 
   const [state, formAction, isPending] = useActionState(signOut, {
@@ -73,11 +75,20 @@ export default function AdminPage() {
 
     try {
       const emails = emailInput
-        .split(/[\n,]/)
+        .split(/[\n, ]/)
         .map((e) => e.trim())
         .filter(Boolean);
 
       for (const email of emails) {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/g;
+
+        const isEmailValid = emailRegex.test(email);
+
+        if (!isEmailValid) {
+          toast.error(`${email} is invalid email`);
+          return false;
+        }
+
         const res = await fetch('/api/admin/allowlist', {
           body: JSON.stringify({ credits: 1, email }),
           headers: { 'Content-Type': 'application/json' },
@@ -250,7 +261,35 @@ export default function AdminPage() {
                         className='font-mono'
                         disabled={isSubmitting}
                         onChange={(e) => setEmailInput(e.target.value)}
+                        // onKeyDown={(e) => {
+                        //   // e.preventDefault();
+                        //   if (e.code === 'Space') {
+                        //     if (ref.current) {
+                        //       const textarea =
+                        //         ref.current as HTMLTextAreaElement;
+                        //       const start = textarea.selectionStart;
+                        //       const end = textarea.selectionEnd;
+
+                        //       // Insert newline instead of space
+                        //       const newValue =
+                        //         textarea.value.substring(0, start) +
+                        //         '\n' +
+                        //         textarea.value.substring(end);
+
+                        //       console.log(newValue);
+
+                        //       setEmailInput(newValue);
+
+                        //       // Move cursor after newline
+                        //       requestAnimationFrame(() => {
+                        //         textarea.selectionStart =
+                        //           textarea.selectionEnd = start + 1;
+                        //       });
+                        //     }
+                        //   }
+                        // }}
                         placeholder='Enter emails (one per line or comma-separated)&#10;example1@domain.com&#10;example2@domain.com'
+                        ref={ref}
                         rows={6}
                         value={emailInput}
                       />
