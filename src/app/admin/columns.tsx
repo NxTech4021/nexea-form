@@ -6,10 +6,8 @@ import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui';
-// import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 
 dayjs.extend(LocalizedFormat);
@@ -31,41 +29,14 @@ export const columns: ColumnDef<Allowlist>[] = [
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [credit, setCredit] = useState<number>(value);
 
-      // const onChange = async (credit: number, id: number) => {
-      //   try {
-      //     fetch('/api/admin/allowlist', {
-      //       body: JSON.stringify({ credit: credit, id: id }),
-      //       method: 'PATCH',
-      //     })
-      //       .then(async (data) => await data.json())
-      //       .then((data) => toast.success(data?.message));
-      //   } catch (error) {
-      //     console.log(error);
-      //   }
-      // };
-
-      // // eslint-disable-next-line react-hooks/rules-of-hooks
-      // const debouncedUpdate = useMemo(
-      //   () => debounce((val: number) => onChange(val, data.id), 500),
-      //   [data.id]
-      // );
-
-      // // eslint-disable-next-line react-hooks/rules-of-hooks
-      // useEffect(() => {
-      //   debouncedUpdate(credit);
-      // }, [credit, debouncedUpdate]);
-
       return (
-        // <div className='text-left'>
-        //   <Badge variant={'secondary'}>{value}</Badge>
-        // </div>
         <Input
           className='w-fit'
           onChange={(e) => {
             setCredit(parseInt(e.target.value, 10) || 0);
             (table.options.meta as any).onChange(
               parseInt(e.target.value, 10),
-              data.id
+              data.id,
             );
           }}
           value={credit}
@@ -93,8 +64,7 @@ export const columns: ColumnDef<Allowlist>[] = [
   {
     cell: ({ row, table }) => (
       <Button
-        className=' cursor-pointer'
-        // onClick={() => handleDeleteRow({ id: row.original.id })}
+        className='cursor-pointer hover:-translate-y-0.5 bg-red-50 hover:bg-red-50'
         onClick={() =>
           (table.options.meta as any).onDelete({ id: row.original.id })
         }
@@ -108,5 +78,3 @@ export const columns: ColumnDef<Allowlist>[] = [
     id: 'actions',
   },
 ];
-
-// sad

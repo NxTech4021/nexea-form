@@ -48,7 +48,7 @@ export function DataTable<TData, TValue>({
         onChange(credit, id);
         // console.log(credit, id);
       }, 300),
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 );
@@ -107,7 +107,7 @@ export function DataTable<TData, TValue>({
                     style={{
                       background: 'white',
                       boxShadow:
-                        i === 0 ? '-4px 0 4px -4px gray inset' : 'none',
+                        i === 0 ? '-2px 0 4px -4px gray inset' : 'none',
                       left: i === 0 ? 0 : undefined,
                       position: i === 0 ? 'sticky' : 'static',
                       zIndex: i === 0 ? 1 : 0,
