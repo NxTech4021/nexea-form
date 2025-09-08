@@ -14,7 +14,7 @@ export async function DELETE(req: NextRequest) {
     if (!id)
       return NextResponse.json(
         { error: 'Id is not specified' },
-        { status: 404 }
+        { status: 404 },
       );
 
     await prisma.allowlist.delete({
@@ -25,7 +25,7 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json(
       { message: 'Successfully deleted' },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.log(error);
@@ -45,7 +45,7 @@ export async function GET() {
     console.error('Error fetching allowlist:', error);
     return NextResponse.json(
       { error: 'Failed to fetch allowlist' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -65,20 +65,20 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json(
       { data, message: 'Updated Successfully' },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
       { error: 'Failed to update credits' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { credits = 1, email } = await req.json();
+    const { credits = 2, email } = await req.json();
     const session = (await cookies()).get('session')?.value;
 
     const data = await decrypt(session);
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     if (existing) {
       return NextResponse.json(
         { error: 'Email already exists in allowlist' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     console.error('Error processing request:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
