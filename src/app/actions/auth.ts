@@ -7,6 +7,7 @@ import { jwtVerify } from 'jose';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { resend } from '@/config/resend';
 import { FormState, SigninFormSchema } from '@/lib/definitions';
 import { prisma } from '@/lib/prisma';
 import { sendEmailVerification } from '@/lib/sendMail';
@@ -448,25 +449,25 @@ async function sendPasswordResetEmail({
   token: string;
 }) {
   // FIXED: Use proper nodemailer import and method name (matching existing sendMail.ts)
-  const nodemailer = require('nodemailer');
+  // const nodemailer = require('nodemailer');
 
-  const EMAIL_FROM = process.env.EMAIL_FROM!;
-  const EMAIL_USER = process.env.EMAIL_USER!;
-  const EMAIL_PASS = process.env.EMAIL_PASS!;
+  // const EMAIL_FROM = process.env.EMAIL_FROM!;
+  // const EMAIL_USER = process.env.EMAIL_USER!;
+  // const EMAIL_PASS = process.env.EMAIL_PASS!;
   const BASE_URL = process.env.BASE_URL!;
 
-  const transporter = nodemailer.createTransport({
-    auth: {
-      pass: EMAIL_PASS,
-      user: EMAIL_USER,
-    },
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
+  // const transporter = nodemailer.createTransport({
+  //   auth: {
+  //     pass: EMAIL_PASS,
+  //     user: EMAIL_USER,
+  //   },
+  //   host: 'smtp.gmail.com',
+  //   port: 587,
+  //   secure: false,
+  //   tls: {
+  //     rejectUnauthorized: false,
+  //   },
+  // });
 
   // FIXED: Remove extra http:// prefix since BASE_URL already contains protocol
   const resetLink = `${BASE_URL}/auth/reset-password?token=${token}`;
@@ -614,7 +615,14 @@ async function sendPasswordResetEmail({
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
+
+    await resend.emails.send({
+      from: 'no-reply <no-reply@eba.nexea.co>',
+      html: mailOptions.html,
+      subject: 'Forgot Password',
+      to: email,
+    });
   } catch (error) {
     console.error('Error sending password reset email:', error);
     throw error;

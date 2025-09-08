@@ -32,11 +32,11 @@ export function ForgotPasswordForm({
 }: React.ComponentProps<'div'>) {
   const router = useRouter();
   const [emailSent, setEmailSent] = useState(false);
-  
+
   const [state, action, pending] = useActionState(
     async (prevState: ForgotPasswordState | undefined, formData: FormData) => {
       const result = await forgotPassword(prevState, formData);
-      
+
       // Convert errors to string[] if needed
       if (result?.errors) {
         return {
@@ -45,14 +45,14 @@ export function ForgotPasswordForm({
             email: Array.isArray(result.errors.email)
               ? result.errors.email
               : result.errors.email
-              ? [result.errors.email]
-              : undefined,
+                ? [result.errors.email]
+                : undefined,
           },
         };
       }
       return result;
     },
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export function ForgotPasswordForm({
           <CardHeader>
             <CardTitle>Check your email</CardTitle>
             <CardDescription>
-              We've sent a password reset link to your email address.
+              We&apos;ve sent a password reset link to your email address.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -81,18 +81,19 @@ export function ForgotPasswordForm({
               <div className='text-center space-y-4'>
                 <div className='p-4 bg-green-50 border border-green-200 rounded-lg'>
                   <p className='text-sm text-green-800'>
-                    If you don't see the email in a few minutes, check your spam folder.
+                    If you don&apos;t see the email in a few minutes, check your
+                    spam folder.
                   </p>
                 </div>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
                   className='w-full'
                   onClick={() => setEmailSent(false)}
+                  variant='outline'
                 >
                   Send another email
                 </Button>
-                
+
                 <div className='text-center text-sm'>
                   Remember your password?{' '}
                   <a
@@ -116,7 +117,8 @@ export function ForgotPasswordForm({
         <CardHeader>
           <CardTitle>Forgot your password?</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset
+            your password.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -125,12 +127,12 @@ export function ForgotPasswordForm({
               <div className='grid gap-3'>
                 <Label htmlFor='email'>Email</Label>
                 <Input
+                  className={state?.errors?.email && 'border-red-500'}
                   id='email'
                   name='email'
                   placeholder='m@example.com'
                   required
                   type='email'
-                  className={state?.errors?.email && 'border-red-500'}
                 />
                 <ul className='ml-5 list-disc text-red-500'>
                   {state?.errors?.email &&
@@ -142,7 +144,7 @@ export function ForgotPasswordForm({
                               {item}
                             </small>
                           </li>
-                        )
+                        ),
                       )
                     : state?.errors?.email}
                 </ul>
@@ -156,7 +158,7 @@ export function ForgotPasswordForm({
                     'Send reset email'
                   )}
                 </Button>
-                
+
                 <div className='text-center text-sm'>
                   Remember your password?{' '}
                   <a
