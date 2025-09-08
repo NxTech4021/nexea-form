@@ -37,6 +37,8 @@ export function LoginForm({
       // Call the original signin action
       const result = await authenticate(prevState, formData);
 
+      // console.log(result);
+
       // Convert errors to string[] if needed
       if (result?.errors) {
         return {
@@ -45,19 +47,19 @@ export function LoginForm({
             email: Array.isArray(result.errors.email)
               ? result.errors.email
               : result.errors.email
-              ? [result.errors.email]
-              : undefined,
+                ? [result.errors.email]
+                : undefined,
             password: Array.isArray(result.errors.password)
               ? result.errors.password
               : result.errors.password
-              ? [result.errors.password]
-              : undefined,
+                ? [result.errors.password]
+                : undefined,
           },
         };
       }
       return result;
     },
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -120,7 +122,7 @@ export function LoginForm({
                               {item}
                             </small>
                           </li>
-                        )
+                        ),
                       )
                     : state?.errors?.password}
                 </ul>

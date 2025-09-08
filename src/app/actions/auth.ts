@@ -2,14 +2,14 @@
 
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
+// ADDED: Import jwtVerify for password reset token validation
+import { jwtVerify } from 'jose';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { FormState, SigninFormSchema } from '@/lib/definitions';
 import { prisma } from '@/lib/prisma';
 import { sendEmailVerification } from '@/lib/sendMail';
-// ADDED: Import jwtVerify for password reset token validation
-import { jwtVerify } from 'jose';
 import { createSession, deleteSession } from '@/lib/session';
 
 // Password validation regex
@@ -22,7 +22,7 @@ const passwordRegex = {
 };
 
 const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'super-secret-key'
+  process.env.JWT_SECRET || 'super-secret-key',
 );
 
 // ADDED: Schema for forgot password validation
@@ -43,30 +43,30 @@ const ForgotPasswordSchema = z.object({
 // ADDED: Schema for reset password validation
 const ResetPasswordSchema = z
   .object({
-    token: z.string().min(1, 'Reset token is required'),
+    confirmPassword: z.string(),
     password: z
       .string()
       .min(
         passwordRegex.minLength,
-        `Password must be at least ${passwordRegex.minLength} characters`
+        `Password must be at least ${passwordRegex.minLength} characters`,
       )
       .refine(
         (password) => passwordRegex.hasUpperCase.test(password),
-        'Password must contain at least one uppercase letter'
+        'Password must contain at least one uppercase letter',
       )
       .refine(
         (password) => passwordRegex.hasLowerCase.test(password),
-        'Password must contain at least one lowercase letter'
+        'Password must contain at least one lowercase letter',
       )
       .refine(
         (password) => passwordRegex.hasNumber.test(password),
-        'Password must contain at least one number'
+        'Password must contain at least one number',
       )
       .refine(
         (password) => passwordRegex.hasSpecialChar.test(password),
-        'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
+        'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)',
       ),
-    confirmPassword: z.string(),
+    token: z.string().min(1, 'Reset token is required'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -87,29 +87,38 @@ const RegisterFormSchema = z
       .string()
       .min(
         passwordRegex.minLength,
-        `Password must be at least ${passwordRegex.minLength} characters`
+        `Password must be at least ${passwordRegex.minLength} characters`,
       )
       .refine(
         (password) => passwordRegex.hasUpperCase.test(password),
-        'Password must contain at least one uppercase letter'
+        'Password must contain at least one uppercase letter',
       )
       .refine(
         (password) => passwordRegex.hasLowerCase.test(password),
-        'Password must contain at least one lowercase letter'
+        'Password must contain at least one lowercase letter',
       )
       .refine(
         (password) => passwordRegex.hasNumber.test(password),
-        'Password must contain at least one number'
+        'Password must contain at least one number',
       )
       .refine(
         (password) => passwordRegex.hasSpecialChar.test(password),
-        'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
+        'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)',
       ),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
   });
+
+// ADDED: Type definitions for forgot password feature
+export type ForgotPasswordState = {
+  errors?: {
+    email?: string[];
+  };
+  message?: string;
+  success?: boolean;
+};
 
 export type RegisterFormState = {
   errors?: {
@@ -121,19 +130,10 @@ export type RegisterFormState = {
   success?: boolean;
 };
 
-// ADDED: Type definitions for forgot password feature
-export type ForgotPasswordState = {
-  errors?: {
-    email?: string[];
-  };
-  message?: string;
-  success?: boolean;
-};
-
 export type ResetPasswordState = {
   errors?: {
-    password?: string[];
     confirmPassword?: string[];
+    password?: string[];
     token?: string[];
   };
   message?: string;
@@ -142,7 +142,7 @@ export type ResetPasswordState = {
 
 export async function authenticate(
   prevState: FormState,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState> {
   try {
     const validatedFields = SigninFormSchema.safeParse({
@@ -201,7 +201,7 @@ export async function beginAuth(email: string) {
       {
         error: 'Error occurred during authentication',
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }
@@ -229,9 +229,74 @@ export async function clearLoginSession() {
 //   }
 // }
 
+// ADDED: Forgot password functionality
+export async function forgotPassword(
+  prevState: ForgotPasswordState | undefined,
+  formData: FormData,
+): Promise<ForgotPasswordState> {
+  try {
+    const validatedFields = ForgotPasswordSchema.safeParse({
+      email: formData.get('email'),
+    });
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Please check the form for errors.',
+      };
+    }
+
+    const { email } = validatedFields.data;
+
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    // For security, always return success even if user doesn't exist
+    // This prevents email enumeration attacks
+    if (!user) {
+      return {
+        message: 'If an account with that email exists, we sent a reset link.',
+        success: true,
+      };
+    }
+
+    // Generate reset token (valid for 1 hour)
+    const resetToken = await new SignJWT({
+      email: user.email,
+      type: 'password-reset',
+      userId: user.id,
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1h')
+      .sign(secret);
+
+    // Store token in database
+    await prisma.user.update({
+      data: { token: resetToken },
+      where: { email },
+    });
+
+    // Send reset email
+    await sendPasswordResetEmail({ email, token: resetToken });
+
+    return {
+      message: 'Password reset email sent!',
+      success: true,
+    };
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    return {
+      message: 'An error occurred. Please try again.',
+    };
+  }
+}
+
 export async function register(
   prevState: RegisterFormState | undefined,
-  formData: FormData
+  formData: FormData,
 ): Promise<RegisterFormState> {
   try {
     const validatedFields = RegisterFormSchema.safeParse({
@@ -288,87 +353,16 @@ export async function register(
   }
 }
 
-export async function signOut(prevState: any): Promise<{ success: boolean }> {
-  await deleteSession();
-  await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
-  return { success: true };
-}
-
-// ADDED: Forgot password functionality
-export async function forgotPassword(
-  prevState: ForgotPasswordState | undefined,
-  formData: FormData
-): Promise<ForgotPasswordState> {
-  try {
-    const validatedFields = ForgotPasswordSchema.safeParse({
-      email: formData.get('email'),
-    });
-
-    if (!validatedFields.success) {
-      return {
-        errors: validatedFields.error.flatten().fieldErrors,
-        message: 'Please check the form for errors.',
-      };
-    }
-
-    const { email } = validatedFields.data;
-
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    // For security, always return success even if user doesn't exist
-    // This prevents email enumeration attacks
-    if (!user) {
-      return {
-        success: true,
-        message: 'If an account with that email exists, we sent a reset link.',
-      };
-    }
-
-    // Generate reset token (valid for 1 hour)
-    const resetToken = await new SignJWT({
-      email: user.email,
-      userId: user.id,
-      type: 'password-reset',
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('1h')
-      .sign(secret);
-
-    // Store token in database
-    await prisma.user.update({
-      where: { email },
-      data: { token: resetToken },
-    });
-
-    // Send reset email
-    await sendPasswordResetEmail({ email, token: resetToken });
-
-    return {
-      success: true,
-      message: 'Password reset email sent!',
-    };
-  } catch (error) {
-    console.error('Error in forgotPassword:', error);
-    return {
-      message: 'An error occurred. Please try again.',
-    };
-  }
-}
-
 // ADDED: Reset password functionality
 export async function resetPassword(
   prevState: ResetPasswordState | undefined,
-  formData: FormData
+  formData: FormData,
 ): Promise<ResetPasswordState> {
   try {
     const validatedFields = ResetPasswordSchema.safeParse({
-      token: formData.get('token'),
-      password: formData.get('password'),
       confirmPassword: formData.get('confirmPassword'),
+      password: formData.get('password'),
+      token: formData.get('token'),
     });
 
     if (!validatedFields.success) {
@@ -378,7 +372,7 @@ export async function resetPassword(
       };
     }
 
-    const { token, password } = validatedFields.data;
+    const { password, token } = validatedFields.data;
 
     // Verify the token
     let payload;
@@ -420,16 +414,16 @@ export async function resetPassword(
 
     // Update password and clear the token
     await prisma.user.update({
-      where: { id: user.id },
       data: {
         passwordHash: hashedPassword,
         token: null, // Clear the reset token
       },
+      where: { id: user.id },
     });
 
     return {
-      success: true,
       message: 'Password reset successful!',
+      success: true,
     };
   } catch (error) {
     console.error('Error in resetPassword:', error);
@@ -437,6 +431,12 @@ export async function resetPassword(
       message: 'An error occurred. Please try again.',
     };
   }
+}
+
+export async function signOut(prevState: any): Promise<{ success: boolean }> {
+  await deleteSession();
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
+  return { success: true };
 }
 
 // ADDED: Email sending function for password reset
