@@ -90,7 +90,7 @@ export default function AdminPage() {
         }
 
         const res = await fetch('/api/admin/allowlist', {
-          body: JSON.stringify({ credits: 1, email }),
+          body: JSON.stringify({ credits: 2, email }),
           headers: { 'Content-Type': 'application/json' },
           method: 'POST',
         });
