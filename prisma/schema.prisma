@@ -93,7 +93,6 @@ model Response {
 
   @@index([userId])
   @@index([respondentId])
-  @@unique([respondentId])
 }
 
 model Answer {
