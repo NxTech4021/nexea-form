@@ -1,14 +1,12 @@
 'use client';
 
 import { Allowlist } from '@prisma/client';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
 
 import { Button } from '@/components/ui';
-import { Input } from '@/components/ui/input';
 
 import EditableCreditCell from './components/editable-credit-cell';
 
@@ -17,15 +15,23 @@ dayjs.extend(LocalizedFormat);
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
+const columnHelper = createColumnHelper<Allowlist>();
+
 export const columns: ColumnDef<Allowlist>[] = [
+  columnHelper.display({
+    cell: ({ row }) => <p className='text-center'>{row.index + 1}</p>,
+    header: '#',
+    id: 'rowNumber',
+  }),
   {
     accessorKey: 'email',
     header: 'Email',
+    id: 'email',
   },
   {
     accessorKey: 'credits',
     cell: ({ getValue, row, table }) => {
-      const value = getValue()
+      const value = getValue();
       const id = row.original.id;
 
       return <EditableCreditCell id={id} table={table} value={value} />;

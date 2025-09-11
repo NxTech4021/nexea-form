@@ -55,6 +55,7 @@ export function DataTable<TData, TValue>({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
+
     meta: {
       onChange: debouncedUpdate,
       onDelete: onDelete,
@@ -74,12 +75,13 @@ export function DataTable<TData, TValue>({
                     style={{
                       background: 'white',
                       boxShadow:
-                        header.index === 0
-                          ? '-4px 0 4px -4px gray inset'
+                        header.id === 'email'
+                          ? '-2px 0 4px -4px gray inset'
                           : 'none',
-                      left: header.index === 0 ? 0 : undefined,
-                      position: header.index === 0 ? 'sticky' : 'static',
-                      zIndex: header.index === 0 ? 2 : 1, // ensure it's above other columns
+                      left: header.id === 'email' ? 0 : undefined,
+                      position: header.id === 'email' ? 'sticky' : 'static',
+                      textAlign: header.id === 'rowNumber' ? 'center' : 'left',
+                      zIndex: header.id === 'email' ? 2 : 1, // ensure it's above other columns
                     }}
                   >
                     {header.isPlaceholder
@@ -107,10 +109,10 @@ export function DataTable<TData, TValue>({
                     style={{
                       background: 'white',
                       boxShadow:
-                        i === 0 ? '-2px 0 4px -4px gray inset' : 'none',
-                      left: i === 0 ? 0 : undefined,
-                      position: i === 0 ? 'sticky' : 'static',
-                      zIndex: i === 0 ? 1 : 0,
+                        i === 1 ? '-2px 0 4px -4px gray inset' : 'none',
+                      left: i === 1 ? 0 : undefined,
+                      position: i === 1 ? 'sticky' : 'static',
+                      zIndex: i === 1 ? 1 : 0,
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

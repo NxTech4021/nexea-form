@@ -22,26 +22,34 @@ export interface FormContextType {
   formData: FormData;
   isLoading: boolean;
   isStepCompleted: (step: number) => boolean;
-  markStepCompleted: (step: number) => void;
+  loadResponseById: (responseId: number) => Promise<void>;
 
+  loadSavedResponses: (respondentId: string) => Promise<void>;
+  markStepCompleted: (step: number) => void;
   // admin UI
   questions: QuestionDefinition[];
   resetForm: () => void;
+  // database saving
+  respondentId: null | string;
+  responseId: null | number;
+  restoreFormState: () => Promise<void>;
+  saveRespondent: (data: {
+    company: string;
+    email: string;
+    fullName: string;
+    phoneNumber: string;
+  }) => Promise<void>;
+
+  saveStepResponse: (
+    step: number,
+    answers: Record<string, any>,
+  ) => Promise<void>;
   setCurrentStep: (step: number) => void;
   setQuestions: Dispatch<SetStateAction<QuestionDefinition[]>>;
   totalSteps: number;
   updateEmail: (email: string) => void;
   updateFormData: (data: Partial<FormData>) => void;
   updateQuestion: (question: QuestionDefinition) => Promise<void>;
-
-  // database saving
-  respondentId: string | null;
-  responseId: number | null;
-  saveRespondent: (data: { fullName: string; email: string; phoneNumber: string; company: string }) => Promise<void>;
-  saveStepResponse: (step: number, answers: Record<string, any>) => Promise<void>;
-  loadSavedResponses: (respondentId: string) => Promise<void>;
-  loadResponseById: (responseId: number) => Promise<void>;
-  restoreFormState: () => Promise<void>;
 }
 
 // ——— 1) Your data shapes ———
@@ -71,7 +79,10 @@ interface FormProviderProps {
   responseId?: string;
 }
 
-export function FormProvider({ children, responseId: initialResponseId }: FormProviderProps) {
+export function FormProvider({
+  children,
+  responseId: initialResponseId,
+}: FormProviderProps) {
   // survey flow state
   const [formData, setFormData] = useState<FormData>({
     company: '',
@@ -91,8 +102,8 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
   const [error, setError] = useState<null | string>(null);
 
   // database saving state
-  const [respondentId, setRespondentId] = useState<string | null>(null);
-  const [responseId, setResponseId] = useState<number | null>(null);
+  const [respondentId, setRespondentId] = useState<null | string>(null);
+  const [responseId, setResponseId] = useState<null | number>(null);
   const [hasRestored, setHasRestored] = useState(false);
 
   // Fetch questions on mount
@@ -128,56 +139,173 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
   }, []);
 
   // Helper function to get step number from question ID
-  const getStepFromQuestionId = (questionId: string): number | null => {
+  const getStepFromQuestionId = (questionId: string): null | number => {
     const questionToStepMap: Record<string, number> = {
       // Step 3: matrix1-matrix10
-      'matrix1': 3, 'matrix2': 3, 'matrix3': 3, 'matrix4': 3, 'matrix5': 3,
-      'matrix6': 3, 'matrix7': 3, 'matrix8': 3, 'matrix9': 3, 'matrix10': 3,
+      matrix1: 3,
+      matrix10: 3,
       // Step 4: matrix11-matrix20
-      'matrix11': 4, 'matrix12': 4, 'matrix13': 4, 'matrix14': 4, 'matrix15': 4,
-      'matrix16': 4, 'matrix17': 4, 'matrix18': 4, 'matrix19': 4, 'matrix20': 4,
+      matrix11: 4,
+      matrix12: 4,
+      matrix13: 4,
+      matrix14: 4,
+      matrix15: 4,
+      matrix16: 4,
+      matrix17: 4,
+      matrix18: 4,
+      matrix19: 4,
+      matrix2: 3,
+      matrix20: 4,
       // Step 5: matrix21-matrix30
-      'matrix21': 5, 'matrix22': 5, 'matrix23': 5, 'matrix24': 5, 'matrix25': 5,
-      'matrix26': 5, 'matrix27': 5, 'matrix28': 5, 'matrix29': 5, 'matrix30': 5,
+      matrix21: 5,
+      matrix22: 5,
+      matrix23: 5,
+      matrix24: 5,
+      matrix25: 5,
+      matrix26: 5,
+      matrix27: 5,
+      matrix28: 5,
+      matrix29: 5,
+      matrix3: 3,
+      matrix30: 5,
+      matrix4: 3,
+      matrix5: 3,
+      matrix6: 3,
+      matrix7: 3,
+      matrix8: 3,
+      matrix9: 3,
       // Step 6: radio1-radio10
-      'radio1': 6, 'radio2': 6, 'radio3': 6, 'radio4': 6, 'radio5': 6,
-      'radio6': 6, 'radio7': 6, 'radio8': 6, 'radio9': 6, 'radio10': 6,
-      // Step 7: radio11-radio20
-      'radio11': 7, 'radio12': 7, 'radio13': 7, 'radio14': 7, 'radio15': 7,
-      'radio16': 7, 'radio17': 7, 'radio18': 7, 'radio19': 7, 'radio20': 7,
-      // Step 8: radio21-radio30
-      'radio21': 8, 'radio22': 8, 'radio23': 8, 'radio24': 8, 'radio25': 8,
-      'radio26': 8, 'radio27': 8, 'radio28': 8, 'radio29': 8, 'radio30': 8,
-      // Step 9: radio31-radio40
-      'radio31': 9, 'radio32': 9, 'radio33': 9, 'radio34': 9, 'radio35': 9,
-      'radio36': 9, 'radio37': 9, 'radio38': 9, 'radio39': 9, 'radio40': 9,
-      // Step 10: radio41-radio50
-      'radio41': 10, 'radio42': 10, 'radio43': 10, 'radio44': 10, 'radio45': 10,
-      'radio46': 10, 'radio47': 10, 'radio48': 10, 'radio49': 10, 'radio50': 10,
-      // Step 11: radio51-radio60
-      'radio51': 11, 'radio52': 11, 'radio53': 11, 'radio54': 11, 'radio55': 11,
-      'radio56': 11, 'radio57': 11, 'radio58': 11, 'radio59': 11, 'radio60': 11,
-      // Step 12: radio61-radio70
-      'radio61': 12, 'radio62': 12, 'radio63': 12, 'radio64': 12, 'radio65': 12,
-      'radio66': 12, 'radio67': 12, 'radio68': 12, 'radio69': 12, 'radio70': 12,
-      // Step 13: radio71-radio80
-      'radio71': 13, 'radio72': 13, 'radio73': 13, 'radio74': 13, 'radio75': 13,
-      'radio76': 13, 'radio77': 13, 'radio78': 13, 'radio79': 13, 'radio80': 13,
-      // Step 14: radio81-radio90
-      'radio81': 14, 'radio82': 14, 'radio83': 14, 'radio84': 14, 'radio85': 14,
-      'radio86': 14, 'radio87': 14, 'radio88': 14, 'radio89': 14, 'radio90': 14,
-      // Step 15: radio91-radio100
-      'radio91': 15, 'radio92': 15, 'radio93': 15, 'radio94': 15, 'radio95': 15,
-      'radio96': 15, 'radio97': 15, 'radio98': 15, 'radio99': 15, 'radio100': 15,
+      radio1: 6,
+      radio10: 6,
+      radio100: 15,
       // Step 16: radio101-radio110
-      'radio101': 16, 'radio102': 16, 'radio103': 16, 'radio104': 16, 'radio105': 16,
-      'radio106': 16, 'radio107': 16, 'radio108': 16, 'radio109': 16, 'radio110': 16,
+      radio101: 16,
+      radio102: 16,
+      radio103: 16,
+      radio104: 16,
+      radio105: 16,
+      radio106: 16,
+      radio107: 16,
+      radio108: 16,
+      radio109: 16,
+      // Step 7: radio11-radio20
+      radio11: 7,
+      radio110: 16,
       // Step 17: radio111-radio114
-      'radio111': 17, 'radio112': 17, 'radio113': 17, 'radio114': 17,
+      radio111: 17,
+      radio112: 17,
+      radio113: 17,
+      radio114: 17,
       // Step 18: radio115-radio117
-      'radio115': 18, 'radio116': 18, 'radio117': 18,
+      radio115: 18,
+      radio116: 18,
+      radio117: 18,
+      radio12: 7,
+      radio13: 7,
+      radio14: 7,
+      radio15: 7,
+      radio16: 7,
+      radio17: 7,
+      radio18: 7,
+      radio19: 7,
+      radio2: 6,
+      radio20: 7,
+      // Step 8: radio21-radio30
+      radio21: 8,
+      radio22: 8,
+      radio23: 8,
+      radio24: 8,
+      radio25: 8,
+      radio26: 8,
+      radio27: 8,
+      radio28: 8,
+      radio29: 8,
+      radio3: 6,
+      radio30: 8,
+      // Step 9: radio31-radio40
+      radio31: 9,
+      radio32: 9,
+      radio33: 9,
+      radio34: 9,
+      radio35: 9,
+      radio36: 9,
+      radio37: 9,
+      radio38: 9,
+      radio39: 9,
+      radio4: 6,
+      radio40: 9,
+      // Step 10: radio41-radio50
+      radio41: 10,
+      radio42: 10,
+      radio43: 10,
+      radio44: 10,
+      radio45: 10,
+      radio46: 10,
+      radio47: 10,
+      radio48: 10,
+      radio49: 10,
+      radio5: 6,
+      radio50: 10,
+      // Step 11: radio51-radio60
+      radio51: 11,
+      radio52: 11,
+      radio53: 11,
+      radio54: 11,
+      radio55: 11,
+      radio56: 11,
+      radio57: 11,
+      radio58: 11,
+      radio59: 11,
+      radio6: 6,
+      radio60: 11,
+      // Step 12: radio61-radio70
+      radio61: 12,
+      radio62: 12,
+      radio63: 12,
+      radio64: 12,
+      radio65: 12,
+      radio66: 12,
+      radio67: 12,
+      radio68: 12,
+      radio69: 12,
+      radio7: 6,
+      radio70: 12,
+      // Step 13: radio71-radio80
+      radio71: 13,
+      radio72: 13,
+      radio73: 13,
+      radio74: 13,
+      radio75: 13,
+      radio76: 13,
+      radio77: 13,
+      radio78: 13,
+      radio79: 13,
+      radio8: 6,
+      radio80: 13,
+      // Step 14: radio81-radio90
+      radio81: 14,
+      radio82: 14,
+      radio83: 14,
+      radio84: 14,
+      radio85: 14,
+      radio86: 14,
+      radio87: 14,
+      radio88: 14,
+      radio89: 14,
+      radio9: 6,
+      radio90: 14,
+      // Step 15: radio91-radio100
+      radio91: 15,
+      radio92: 15,
+      radio93: 15,
+      radio94: 15,
+      radio95: 15,
+      radio96: 15,
+      radio97: 15,
+      radio98: 15,
+      radio99: 15,
     };
-    
+
     return questionToStepMap[questionId] || null;
   };
 
@@ -332,12 +460,17 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
   };
 
   // Save respondent data to database
-  const saveRespondent = async (data: { fullName: string; email: string; phoneNumber: string; company: string }) => {
+  const saveRespondent = async (data: {
+    company: string;
+    email: string;
+    fullName: string;
+    phoneNumber: string;
+  }) => {
     try {
       const response = await fetch('/api/respondent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
       });
 
       if (!response.ok) {
@@ -360,16 +493,18 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
   const updateResponseWithRespondent = async (respondentId: string) => {
     try {
       const response = await fetch('/api/response/update-respondent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           respondentId,
         }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update response with respondent');
+        throw new Error(
+          errorData.error || 'Failed to update response with respondent',
+        );
       }
 
       const result = await response.json();
@@ -381,23 +516,24 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
     }
   };
 
-
   // Save step response to database
-  const saveStepResponse = async (step: number, answers: Record<string, any>) => {
+  const saveStepResponse = async (
+    step: number,
+    answers: Record<string, any>,
+  ) => {
     if (!respondentId) {
       throw new Error('No respondent ID available');
     }
 
-
     try {
       const response = await fetch('/api/response', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          answers,
           respondentId,
           step,
-          answers,
         }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
       });
 
       if (!response.ok) {
@@ -420,7 +556,7 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
   const loadSavedResponses = async (respondentId: string) => {
     try {
       const response = await fetch(`/api/response/${respondentId}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to load saved responses');
       }
@@ -431,7 +567,7 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
       if (responses.length > 0) {
         const responseData = responses[0]; // Get the first response
         setResponseId(responseData.id); // Set the response ID
-        
+
         const loadedFormData: Partial<FormData> = {
           matrixes: [],
           radios: [],
@@ -440,9 +576,13 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
         // Process answers and reconstruct form data
         for (const answer of responseData.answers) {
           const { questionId, value } = answer;
-          
+
           // Handle normalized JSON structure
-          if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          if (
+            typeof value === 'object' &&
+            value !== null &&
+            !Array.isArray(value)
+          ) {
             if (value.type === 'radio') {
               // It's a radio question
               loadedFormData.radios!.push({ [questionId]: value.value });
@@ -452,7 +592,9 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
               loadedFormData.matrixes!.push({ [questionId]: matrixValue });
             } else {
               // Legacy or other format
-              loadedFormData.radios!.push({ [questionId]: value.value || value });
+              loadedFormData.radios!.push({
+                [questionId]: value.value || value,
+              });
             }
           } else if (typeof value === 'string') {
             // Legacy string format
@@ -462,7 +604,7 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
 
         // Update form data with loaded responses
         updateFormData(loadedFormData);
-        
+
         // Mark completed steps based on loaded data
         const completedStepsSet = new Set<number>();
         for (const answer of responseData.answers) {
@@ -481,7 +623,7 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
   const loadResponseById = async (responseId: number) => {
     try {
       const response = await fetch(`/api/response/by-id?id=${responseId}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to load response data');
       }
@@ -498,10 +640,10 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
       if (responseData.respondent) {
         const respondent = responseData.respondent;
         updateFormData({
-          fullName: respondent.fullName,
-          email: respondent.email,
-          phoneNumber: respondent.phoneNumber,
           company: respondent.company,
+          email: respondent.email,
+          fullName: respondent.fullName,
+          phoneNumber: respondent.phoneNumber,
         });
       }
 
@@ -517,9 +659,13 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
 
       for (const answer of responseData.answers) {
         const { questionId, value } = answer;
-        
+
         // Handle normalized JSON structure
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          !Array.isArray(value)
+        ) {
           if (value.type === 'radio') {
             // It's a radio question
             radioAnswers[questionId] = value.value;
@@ -540,7 +686,7 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
       // Convert to the expected format for formData
       // Matrix data should be in format: [{ matrix1: {...}, matrix2: {...} }]
       // Radio data should be in format: [{ radio1: "value", radio2: "value" }]
-      
+
       // Group matrix answers by step (matrix1-10 = step 3, matrix11-20 = step 4, etc.)
       const matrixGroups: Record<number, Record<string, any>> = {};
       Object.entries(matrixAnswers).forEach(([questionId, value]) => {
@@ -552,7 +698,7 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
       });
 
       // Add matrix groups to formData
-      Object.values(matrixGroups).forEach(group => {
+      Object.values(matrixGroups).forEach((group) => {
         if (Object.keys(group).length > 0) {
           loadedFormData.matrixes!.push(group);
         }
@@ -569,7 +715,7 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
       });
 
       // Add radio groups to formData
-      Object.values(radioGroups).forEach(group => {
+      Object.values(radioGroups).forEach((group) => {
         if (Object.keys(group).length > 0) {
           loadedFormData.radios!.push(group);
         }
@@ -577,10 +723,10 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
 
       // Update form data with loaded responses
       updateFormData(loadedFormData);
-      
+
       // Determine the last completed step and set current step
       const completedStepsSet = new Set<number>();
-      let lastCompletedStep = 0; 
+      let lastCompletedStep = 0;
 
       // Determine completed steps based on answered questions
       for (const answer of responseData.answers) {
@@ -594,7 +740,7 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
       }
 
       setCompletedSteps(completedStepsSet);
-      
+
       // Set current step to the next incomplete step
       // If no answers exist (fresh assessment), start at step 1
       if (responseData.answers.length === 0) {
@@ -607,7 +753,6 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
           setCurrentStep(18); // If all steps are completed, stay on step 18
         }
       }
-
     } catch (err: any) {
       console.error('Error loading response by ID:', err);
       setError(err.message);
@@ -617,7 +762,6 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
   // Restore form state from response ID on page load
   const restoreFormState = async () => {
     try {
-      
       if (initialResponseId) {
         const responseId = parseInt(initialResponseId);
         if (!isNaN(responseId)) {
@@ -642,14 +786,14 @@ export function FormProvider({ children, responseId: initialResponseId }: FormPr
         formData,
         isLoading,
         isStepCompleted,
-        loadSavedResponses,
         loadResponseById,
+        loadSavedResponses,
         markStepCompleted,
         questions,
         resetForm,
-        restoreFormState,
         respondentId,
         responseId,
+        restoreFormState,
         saveRespondent,
         saveStepResponse,
         setCurrentStep,
