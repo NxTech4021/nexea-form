@@ -128,7 +128,7 @@ export const questionsDataStep18 = questionsData.map(q => ({
 }));
 
 export function Step18() {
-  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+  const { formData, markStepCompleted, setCurrentStep, updateFormData, saveStepResponse } =
     useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -209,20 +209,32 @@ export function Step18() {
 
     setIsSubmitting(true);
 
-    updateFormData({
-      radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
-    });
-
     try {
-      await fetch('/api/sheet/', {
+      // Save step response to database
+      await saveStepResponse(18, values);
+
+      updateFormData({
+        radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
+      });
+
+      const response = await fetch('/api/sheet/', {
         body: JSON.stringify(formData),
         method: 'POST',
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ Sheet API error:', errorData);
+        throw new Error(errorData.error || 'Failed to submit to sheet');
+      }
+
+      const result = await response.json();
+      console.log('✅ Successfully submitted to Google Sheet:', result);
       
       markStepCompleted(18);
       setCurrentStep(19); // Assessment complete
     } catch (error) {
-      console.log(error);
+      console.error('❌ Error submitting to sheet:', error);
     } finally {
       setIsSubmitting(false);
     }

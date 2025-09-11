@@ -164,7 +164,7 @@ export const questionsDataStep9 = questionsData.map(q => ({
 }));
 
 export function Step9() {
-  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+  const { formData, markStepCompleted, setCurrentStep, updateFormData, saveStepResponse } =
     useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -221,7 +221,7 @@ export function Step9() {
     setCurrentStep(9);
   };
 
-  function onSubmit(values: FormSchemaType) {
+  async function onSubmit(values: FormSchemaType) {
     let firstErrorId: null | string = null;
     const newTouchedState: Record<string, boolean> = {};
 
@@ -241,11 +241,19 @@ export function Step9() {
       return;
     }
 
-    updateFormData({
-      radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
-    });
-    markStepCompleted(9);
-    setCurrentStep(10);
+    try {
+      // Save step response to database
+      await saveStepResponse(9, values);
+
+      updateFormData({
+        radios: radioKeys.map((key) => ({ [key]: values[key] as string })),
+      });
+      markStepCompleted(9);
+      setCurrentStep(10);
+    } catch (error) {
+      console.error('Error saving step response:', error);
+      // You might want to show an error message to the user here
+    }
   }
 
   return (

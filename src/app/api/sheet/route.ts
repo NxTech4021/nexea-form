@@ -59,6 +59,17 @@ export async function GET() {
 export async function POST(request: Request) {
   const data = await request.json();
 
+  // console.log('Sheet Data:', {
+  //   company: data.company,
+  //   email: data.email,
+  //   fullName: data.fullName,
+  //   phoneNumber: data.phoneNumber,
+  //   matrixesCount: data.matrixes?.length || 0,
+  //   radiosCount: data.radios?.length || 0,
+  //   matrixes: data.matrixes,
+  //   radios: data.radios,
+  // });
+
   const { company, email, fullName, matrixes, phoneNumber, radios } = data;
 
   try {

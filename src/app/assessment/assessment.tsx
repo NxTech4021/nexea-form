@@ -79,7 +79,7 @@ export default function AssessmentPage({
   }
 
   return (
-    <FormProvider>
+    <FormProvider responseId={responseValue}>
       <Assessment email={email!} />
     </FormProvider>
   );

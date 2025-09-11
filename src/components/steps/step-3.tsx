@@ -175,7 +175,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function Step3() {
-  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+  const { formData, markStepCompleted, setCurrentStep, updateFormData, saveStepResponse } =
     useFormContext();
 
   const [matrixErrors, setMatrixErrors] = useState<Record<string, string[]>>({});
@@ -268,7 +268,7 @@ export function Step3() {
     setCurrentStep(3);
   };
 
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: FormValues) {
     let firstErrorMatrix: keyof FormValues | null = null;
     const newTouchedState: Record<string, boolean> = {};
     const matricesToValidate: Array<keyof FormValues> = [
@@ -299,22 +299,30 @@ export function Step3() {
       return;
     }
 
-    updateFormData({
-      matrixes: [
-        { matrix1: values.matrix1 },
-        { matrix2: values.matrix2 },
-        { matrix3: values.matrix3 },
-        { matrix4: values.matrix4 },
-        { matrix5: values.matrix5 },
-        { matrix6: values.matrix6 },
-        { matrix7: values.matrix7 },
-        { matrix8: values.matrix8 },
-        { matrix9: values.matrix9 },
-        { matrix10: values.matrix10 },
-      ],
-    });
-    markStepCompleted(3);
-    setCurrentStep(4);
+    try {
+      // Save step response to database
+      await saveStepResponse(3, values);
+
+      updateFormData({
+        matrixes: [
+          { matrix1: values.matrix1 },
+          { matrix2: values.matrix2 },
+          { matrix3: values.matrix3 },
+          { matrix4: values.matrix4 },
+          { matrix5: values.matrix5 },
+          { matrix6: values.matrix6 },
+          { matrix7: values.matrix7 },
+          { matrix8: values.matrix8 },
+          { matrix9: values.matrix9 },
+          { matrix10: values.matrix10 },
+        ],
+      });
+      markStepCompleted(3);
+      setCurrentStep(4);
+    } catch (error) {
+      console.error('Error saving step response:', error);
+      // You might want to show an error message to the user here
+    }
   }
 
   return (
