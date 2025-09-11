@@ -27,45 +27,55 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // First, try to find existing response by respondentId
-    let response = await prisma.response.findFirst({
-      where: { respondentId },
-      include: { answers: true },
-    });
-
-    // If no response found by respondentId, try to find by session (from token verification)
-    if (!response) {
-      const cookieStore = await cookies();
-      const responseIdCookie = cookieStore.get('response_id');
-      
-      if (responseIdCookie) {
-        const responseId = parseInt(responseIdCookie.value);
-        if (!isNaN(responseId)) {
-          response = await prisma.response.findUnique({
+    // Try to find by session first (for ongoing assessments)
+    let response = null;
+    const cookieStore = await cookies();
+    const responseIdCookie = cookieStore.get('response_id');
+    
+    if (responseIdCookie) {
+      const responseId = parseInt(responseIdCookie.value);
+      if (!isNaN(responseId)) {
+        response = await prisma.response.findUnique({
+          where: { id: responseId },
+          include: { answers: true },
+        });
+        
+        // If found by session and not linked to respondent, update it
+        if (response && !response.respondentId) {
+          response = await prisma.response.update({
             where: { id: responseId },
+            data: { respondentId },
             include: { answers: true },
           });
-          
-          // If found by session, update it with respondentId
-          if (response && !response.respondentId) {
-            response = await prisma.response.update({
-              where: { id: responseId },
-              data: { respondentId },
-              include: { answers: true },
-            });
-          }
         }
       }
     }
 
-    // If still no response found, create a new one
+    // If no response found by session, check if this is a retake
     if (!response) {
+      // Check if this is a retake by looking for existing responses
+      const existingResponses = await prisma.response.findMany({
+        where: { respondentId },
+        include: { answers: true },
+        orderBy: { submittedAt: 'desc' },
+      });
+
       response = await prisma.response.create({
         data: {
           respondentId,
         },
         include: { answers: true },
       });
+
+      if (existingResponses.length > 0) {
+        cookieStore.set('response_id', response.id.toString(), {
+          httpOnly: true,
+          maxAge: 60 * 60,
+          path: '/',
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production',
+        });
+      }
     }
 
     // Process answers for this step
