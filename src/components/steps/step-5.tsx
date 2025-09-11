@@ -97,7 +97,7 @@ const formSchema = z.object({
 type MatrixName = keyof z.infer<typeof formSchema>;
 
 export function Step5() {
-  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+  const { formData, markStepCompleted, setCurrentStep, updateFormData, saveStepResponse } =
     useFormContext();
   const [matrixErrors, setMatrixErrors] = useState<Record<string, string[]>>(
     {}
@@ -181,7 +181,7 @@ export function Step5() {
     setCurrentStep(5);
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     let firstErrorMatrix: MatrixName | null = null;
     const newTouchedState: Record<string, boolean> = {};
 
@@ -200,13 +200,21 @@ export function Step5() {
       return;
     }
 
-    updateFormData({
-      matrixes: matricesToValidate.map((matrixName) => ({
-        [matrixName]: values[matrixName],
-      })),
-    });
-    markStepCompleted(5);
-    setCurrentStep(6);
+    try {
+      // Save step response to database
+      await saveStepResponse(5, values);
+
+      updateFormData({
+        matrixes: matricesToValidate.map((matrixName) => ({
+          [matrixName]: values[matrixName],
+        })),
+      });
+      markStepCompleted(5);
+      setCurrentStep(6);
+    } catch (error) {
+      console.error('Error saving step response:', error);
+      // You might want to show an error message to the user here
+    }
   }
 
   const matrixTitles = [

@@ -39,7 +39,7 @@ const formSchema = z.object({
 });
 
 export function Step1() {
-  const { formData, markStepCompleted, setCurrentStep, updateFormData } =
+  const { formData, markStepCompleted, setCurrentStep, updateFormData, saveRespondent } =
     useFormContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -62,13 +62,21 @@ export function Step1() {
     });
   }, [formData, form]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Update the global form context
-    updateFormData(values);
-    markStepCompleted(1);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      // Save respondent data to database
+      await saveRespondent(values);
+      
+      // Update the global form context
+      updateFormData(values);
+      markStepCompleted(1);
 
-    // Move to next step
-    setCurrentStep(2);
+      // Move to next step
+      setCurrentStep(2);
+    } catch (error) {
+      console.error('Error saving respondent data:', error);
+      // You might want to show an error message to the user here
+    }
   }
 
   return (
