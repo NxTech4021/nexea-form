@@ -26,9 +26,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Check allowlist
-    const allow = await prisma.allowlist.findUnique({
+    const allow = await prisma.allowlist.findFirst({
       select: { credits: true, email: true },
-      where: { email },
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
     });
 
     if (!allow) {
@@ -113,7 +118,7 @@ export async function POST(req: NextRequest) {
             decrement: 1,
           },
         },
-        where: { email },
+        where: { email: allow.email },
       });
 
       return NextResponse.json({

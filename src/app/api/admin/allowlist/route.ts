@@ -88,8 +88,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if email already exists
-    const existing = await prisma.allowlist.findUnique({
-      where: { email },
+    const existing = await prisma.allowlist.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
     });
 
     if (existing) {
@@ -112,7 +117,7 @@ export async function POST(req: NextRequest) {
       data: {
         addedBy: user?.email,
         credits,
-        email: email.toLowerCase(),
+        email: email,
       },
     });
 
