@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
       data: {
         addedBy: user?.email,
         credits,
-        email,
+        email: email.toLowerCase(),
       },
     });
 
