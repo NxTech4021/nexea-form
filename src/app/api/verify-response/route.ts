@@ -26,7 +26,10 @@ export async function GET(req: NextRequest) {
 
     // Check if response exists
     const response = await prisma.response.findUnique({
-      include: { allowlist: { select: { email: true, id: true } } },
+      include: { 
+        allowlist: { select: { email: true, id: true } },
+        answers: true
+      },
       where: { id: parsedId },
     });
 
@@ -34,6 +37,20 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { error: 'Response not found' },
         { status: 404 },
+      );
+    }
+
+    // Check if response has already been submitted
+    // We'll check if submittedAt is not epoch (meaning it was updated from the original creation)
+    const isSubmitted = response.submittedAt.getTime() > new Date(0).getTime();
+    
+    if (isSubmitted) {
+      return NextResponse.json(
+        { 
+          error: 'This assessment link has already been used. Each email gets 2 credits, so you can request a new assessment link.',
+          isSubmitted: true 
+        },
+        { status: 410 }, // 410 Gone - resource no longer available
       );
     }
 

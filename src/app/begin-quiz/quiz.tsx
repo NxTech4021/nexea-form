@@ -1,11 +1,12 @@
 'use client';
 
-import { CircleX } from 'lucide-react';
+import { AlertTriangle, Home } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { verifyToken } from '@/app/actions/verify-token';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -51,18 +52,39 @@ export default function BeginQuiz() {
 
   if (status === 'error') {
     return (
-      <Card className='min-w-xs flex items-center rounded-sm absolute top-1/3 left-1/2 -translate-1/2 bg-red-100'>
-        <CircleX className='text-red-600' />
-        <div className='text-center'>
-          <p className='font-bold text-md'>Access Error</p>
-          <p className='text-muted-foreground text-sm mt-1'>{error}</p>
+      <div className='flex min-h-svh items-center justify-center p-6'>
+        <div className='w-full max-w-lg text-center space-y-8'>
+          {/* Error Icon */}
+          <div className='flex justify-center'>
+            <div className='rounded-full bg-red-100 p-4'>
+              <AlertTriangle className='h-8 w-8 text-red-600' />
+            </div>
+          </div>
+          
+          {/* Error Content */}
+          <div className='space-y-4'>
+            <h1 className='text-2xl font-semibold text-gray-900'>
+              Access Error
+            </h1>
+            
+            <div className='space-y-2'>
+              <p className='text-lg text-gray-600'>
+                {error}
+              </p>
+            </div>
+          </div>
+          
+          {/* Action Button */}
+          <div className='pt-4'>
+            <Link href={'/'}>
+              <Button size="lg" className='px-8 cursor-pointer'>
+                <Home className='h-4 w-4 mr-2' />
+                Return to Homepage
+              </Button>
+            </Link>
+          </div>
         </div>
-        <Link href={'/'}>
-          <Button className='rounded-sm' size={'sm'}>
-            Return to Homepage
-          </Button>
-        </Link>
-      </Card>
+      </div>
     );
   }
 
@@ -78,18 +100,6 @@ export default function BeginQuiz() {
               </div>
             </div>
           )}
-
-          {/* {status === 'error' && (
-            <div className='text-center'>
-              <h2 className='text-red-600 font-semibold mb-2'>Access Error</h2>
-              <p className='text-gray-600'>{error}</p>
-              <p className='mt-4'>
-                <Link className='text-blue-600 hover:underline' href='/'>
-                  Return to Homepage
-                </Link>
-              </p>
-            </div>
-          )} */}
 
           {status === 'success' && (
             <div className='text-center'>

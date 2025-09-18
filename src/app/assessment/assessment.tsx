@@ -1,10 +1,12 @@
 'use client';
 
+import { AlertTriangle, Home } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Assessment } from '@/components/assessment';
+import { Button } from '@/components/ui';
 import { FormProvider } from '@/contexts/form-context';
 
 export default function AssessmentPage({
@@ -33,7 +35,11 @@ export default function AssessmentPage({
 
         if (!res.ok) {
           setIsValid(false);
-          setError(data.error || 'Failed to verify response');
+          if (data.isSubmitted) {
+            setError('This assessment link has already been used.');
+          } else {
+            setError(data.error || 'Failed to verify response');
+          }
           return;
         }
 
@@ -64,15 +70,37 @@ export default function AssessmentPage({
 
   if (!isValid) {
     return (
-      <div className='flex min-h-screen items-center justify-center'>
-        <div className='text-center'>
-          <h1 className='text-2xl font-bold mb-2'>Invalid Assessment Link</h1>
-          <p className='text-gray-600 mb-4'>
-            {error || 'This assessment link is invalid or has expired.'}
-          </p>
-          <Link className='text-primary hover:underline' href='/'>
-            Return to Homepage
-          </Link>
+      <div className='flex min-h-svh items-center justify-center p-6'>
+        <div className='w-full max-w-lg text-center space-y-8'>
+          {/* Error Icon */}
+          <div className='flex justify-center'>
+            <div className='rounded-full bg-red-100 p-4'>
+              <AlertTriangle className='h-8 w-8 text-red-600' />
+            </div>
+          </div>
+          
+          {/* Error Content */}
+          <div className='space-y-4'>
+            <h1 className='text-2xl font-semibold text-gray-900'>
+              Invalid Assessment Link
+            </h1>
+            
+            <div className='space-y-2'>
+              <p className='text-lg text-gray-600'>
+                {error || 'This assessment link is invalid or has expired.'}
+              </p>
+            </div>
+          </div>
+          
+          {/* Action Button */}
+          <div className='pt-2'>
+            <Link href={'/'}>
+              <Button size="lg" className='px-8 cursor-pointer'>
+                <Home className='h-4 w-4 mr-2' />
+                Return to Homepage
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );

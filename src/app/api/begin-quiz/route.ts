@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // Check allowlist
     const allow = await prisma.allowlist.findFirst({
-      select: { credits: true, email: true },
+      select: { credits: true, email: true, id: true },
       where: {
         email: {
           equals: email,
@@ -43,12 +43,74 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Note: We'll check credits more precisely below after checking submitted responses
+
+    // Check if there's already an unsubmitted response for this email
+    const existingUnsubmittedResponse = await prisma.response.findFirst({
+      where: { 
+        allowlistId: allow.id,
+        submittedAt: new Date(0) // Not submitted yet
+      },
+    });
+
+    // If there's already an unsubmitted response, reuse it instead of creating new one
+    if (existingUnsubmittedResponse) {
+      // Generate token for existing response
+      const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET, {
+        expiresIn: '15m',
+      });
+
+      const link = `${BASE_URL}/begin-quiz?token=${token}`;
+
+      // Send email with existing response
+      try {
+        const { data } = await resend.emails.send({
+          from: 'no-reply <no-reply@eba.nexea.co>',
+          react: EbaEmailTemplate({
+            name: 'Afiq',
+            verificationLink: link,
+          }),
+          subject: 'Your Assessment Link is Here',
+          to: allow.email,
+        });
+
+        console.log(data);
+
+        return NextResponse.json({
+          message: 'Assessment link sent successfully (reusing existing response)',
+          success: true,
+        });
+      } catch (emailError: any) {
+        console.error('Failed to send email. Error details:', {
+          code: emailError.code,
+          command: emailError.command,
+          error: emailError.message,
+          response: emailError.response,
+        });
+
+        return NextResponse.json(
+          { error: `Failed to send email: ${emailError.message}` },
+          { status: 500 },
+        );
+      }
+    }
+
+    // Check if user has remaining credits (credits are decremented on submission)
     if (allow.credits <= 0) {
       return NextResponse.json(
         { error: 'No remaining assessment credits' },
         { status: 403 },
       );
     }
+
+    // Create a new response for this assessment
+    const newResponse = await prisma.response.create({
+      data: {
+        allowlistId: allow.id,
+        submittedAt: new Date(0), // Set to epoch to indicate not submitted yet
+        userId: null, // Since we're not requiring user authentication
+      },
+    });
 
     // Generate token (expires in 15 minutes)
     const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET, {
@@ -111,15 +173,8 @@ export async function POST(req: NextRequest) {
 
       // console.log('Email sent successfully:', info.messageId);
 
-      // Deduct one credit after successful email send
-      await prisma.allowlist.update({
-        data: {
-          credits: {
-            decrement: 1,
-          },
-        },
-        where: { email: allow.email },
-      });
+      // Note: Credits will be deducted only after form submission
+      // No credit deduction here to allow one-time use per link
 
       return NextResponse.json({
         message: 'Assessment link sent successfully',

@@ -85,6 +85,7 @@ model Response {
   respondent  Respondent? @relation(fields: [respondentId], references: [id])
   respondentId String?
   submittedAt DateTime @default(now())
+  isSubmitted Boolean  @default(false)
 
   answers Answer[]
 
