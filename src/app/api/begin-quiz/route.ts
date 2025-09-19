@@ -47,18 +47,16 @@ export async function POST(req: NextRequest) {
 
     // Check if there's already an unsubmitted response for this email
     const existingUnsubmittedResponse = await prisma.response.findFirst({
-      where: { 
+      where: {
         allowlistId: allow.id,
-        submittedAt: new Date(0) // Not submitted yet
+        submittedAt: new Date(0), // Not submitted yet
       },
     });
 
     // If there's already an unsubmitted response, reuse it instead of creating new one
     if (existingUnsubmittedResponse) {
       // Generate token for existing response
-      const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET, {
-        expiresIn: '15m',
-      });
+      const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET);
 
       const link = `${BASE_URL}/begin-quiz?token=${token}`;
 
@@ -77,7 +75,8 @@ export async function POST(req: NextRequest) {
         console.log(data);
 
         return NextResponse.json({
-          message: 'Assessment link sent successfully (reusing existing response)',
+          message:
+            'Assessment link sent successfully (reusing existing response)',
           success: true,
         });
       } catch (emailError: any) {
@@ -113,37 +112,9 @@ export async function POST(req: NextRequest) {
     });
 
     // Generate token (expires in 15 minutes)
-    const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET, {
-      expiresIn: '15m',
-    });
-
-    // Setup email transport
-    // const transporter = nodemailer.createTransport({
-    //   auth: {
-    //     pass: EMAIL_PASS, // This should be an app-specific password
-    //     user: EMAIL_USER,
-    //   },
-    //   host: 'smtp.gmail.com',
-    //   port: 587,
-    //   secure: false, // Use TLS
-    //   tls: {
-    //     rejectUnauthorized: false, // Only for development
-    //   },
-    // });
+    const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET);
 
     const link = `${BASE_URL}/begin-quiz?token=${token}`;
-
-    // Verify transporter configuration
-    // try {
-    //   await transporter.verify();
-    //   console.log('SMTP connection verified successfully');
-    // } catch (verifyError) {
-    //   console.error('SMTP Verification Error:', verifyError);
-    //   return NextResponse.json(
-    //     { error: 'Email service configuration error' },
-    //     { status: 500 },
-    //   );
-    // }
 
     // Send email
     try {
@@ -158,23 +129,6 @@ export async function POST(req: NextRequest) {
       });
 
       console.log(data);
-
-      // const info = await transporter.sendMail({
-      //   from: `"NEXEA Assessment" <${EMAIL_FROM}>`,
-      //   html: `
-      //     <p>Hello,</p>
-      //     <p>Click the link below to begin your Entrepreneurs Behaviour Assessment. This link will expire in 15 minutes.</p>
-      //     <p><a href="${link}">${link}</a></p>
-      //     <p>If you did not request this assessment, please ignore this email.</p>
-      //   `,
-      //   subject: 'Your Entrepreneurs Behaviour Assessment Link',
-      //   to: email,
-      // });
-
-      // console.log('Email sent successfully:', info.messageId);
-
-      // Note: Credits will be deducted only after form submission
-      // No credit deduction here to allow one-time use per link
 
       return NextResponse.json({
         message: 'Assessment link sent successfully',

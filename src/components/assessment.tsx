@@ -28,7 +28,7 @@ import { useFormContext } from '@/contexts/form-context';
 import { getAutofillData } from '@/lib/autofill';
 
 export function Assessment({ email }: { email: string }) {
-  const { currentStep, resetForm, updateEmail, updateFormData, isSubmitted } =
+  const { currentStep, isSubmitted, resetForm, updateEmail, updateFormData } =
     useFormContext();
   const [isVisible, setIsVisible] = useState(true);
   const [displayStep, setDisplayStep] = useState(currentStep);
@@ -146,7 +146,6 @@ export function Assessment({ email }: { email: string }) {
     updateEmail(email);
   }, []);
 
-
   return (
     <>
       <div className='max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6'>
@@ -186,11 +185,11 @@ export function Assessment({ email }: { email: string }) {
           </div>
         </div>
 
-        <div className='fixed bottom-4 left-4 z-50'>
+        {/* <div className='fixed bottom-4 left-4 z-50'>
           <Button onClick={handleAutofill} size='sm' variant='outline'>
             Auto-fill Form
           </Button>
-        </div>
+        </div> */}
 
         <div
           className={`transition-opacity duration-300 ease-in-out ${

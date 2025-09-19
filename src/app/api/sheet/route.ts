@@ -81,14 +81,14 @@ export async function POST(request: Request) {
         Object.entries(matrix).map(([rowKey, colKey]) => [
           rowKey,
           values[colKey as keyof typeof values],
-        ])
+        ]),
       );
 
       return transformed;
     });
 
     const flattenedMatrixes = cleanedMatrixes.flatMap((obj: any) =>
-      Object.values(obj)
+      Object.values(obj),
     );
     const flattenedRadios = radios.flatMap((obj: any) => Object.values(obj));
 

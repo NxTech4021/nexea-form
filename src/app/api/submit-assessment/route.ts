@@ -16,11 +16,11 @@ export async function POST(request: NextRequest) {
 
     // Find the response and its associated allowlist
     const response = await prisma.response.findUnique({
-      where: { id: responseId },
-      include: { 
+      include: {
         allowlist: true,
-        answers: true
+        answers: true,
       },
+      where: { id: responseId },
     });
 
     if (!response) {
@@ -58,30 +58,30 @@ export async function POST(request: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       // Mark response as submitted (update submittedAt to current time as a way to mark as submitted)
       const updatedResponse = await tx.response.update({
-        where: { id: responseId },
-        data: { 
+        data: {
           submittedAt: new Date(),
           // Note: isSubmitted field will be added after migration
         },
+        where: { id: responseId },
       });
 
       // Deduct one credit from allowlist
       const updatedAllowlist = await tx.allowlist.update({
-        where: { id: response.allowlist!.id },
         data: {
           credits: {
             decrement: 1,
           },
         },
+        where: { id: response.allowlist!.id },
       });
 
-      return { updatedResponse, updatedAllowlist };
+      return { updatedAllowlist, updatedResponse };
     });
 
     return NextResponse.json({
       message: 'Assessment submitted successfully',
-      success: true,
       remainingCredits: result.updatedAllowlist.credits,
+      success: true,
     });
   } catch (error) {
     console.error('Error submitting assessment:', error);
