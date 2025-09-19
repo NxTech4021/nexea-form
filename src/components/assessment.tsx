@@ -28,7 +28,7 @@ import { useFormContext } from '@/contexts/form-context';
 import { getAutofillData } from '@/lib/autofill';
 
 export function Assessment({ email }: { email: string }) {
-  const { currentStep, resetForm, updateEmail, updateFormData } =
+  const { currentStep, resetForm, updateEmail, updateFormData, isSubmitted } =
     useFormContext();
   const [isVisible, setIsVisible] = useState(true);
   const [displayStep, setDisplayStep] = useState(currentStep);
@@ -55,6 +55,31 @@ export function Assessment({ email }: { email: string }) {
   };
 
   const renderStep = () => {
+    // If submitted, always show the complete screen
+    if (isSubmitted) {
+      return (
+        <>
+          <Confetti numberOfPieces={500} recycle={false} />
+          <div className='bg-card border rounded-lg p-4 sm:p-6 shadow-sm'>
+            <div className='text-center space-y-4 sm:space-y-6 py-8 sm:py-12'>
+              <h2 className='text-xl sm:text-2xl lg:text-3xl font-semibold'>
+                Assessment Complete
+              </h2>
+              <p className='text-sm sm:text-base text-muted-foreground'>
+                Thank you for completing the assessment!
+              </p>
+              <Button
+                className='cursor-pointer w-full sm:w-auto px-6 py-2 text-sm sm:text-base'
+                onClick={() => router.push('/')}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </>
+      );
+    }
+
     switch (displayStep) {
       case 1:
         return <Step1 />;
@@ -121,6 +146,7 @@ export function Assessment({ email }: { email: string }) {
     updateEmail(email);
   }, []);
 
+
   return (
     <>
       <div className='max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6'>
@@ -160,11 +186,11 @@ export function Assessment({ email }: { email: string }) {
           </div>
         </div>
 
-        {/* <div className='fixed bottom-4 left-4 z-50'>
+        <div className='fixed bottom-4 left-4 z-50'>
           <Button onClick={handleAutofill} size='sm' variant='outline'>
             Auto-fill Form
           </Button>
-        </div> */}
+        </div>
 
         <div
           className={`transition-opacity duration-300 ease-in-out ${

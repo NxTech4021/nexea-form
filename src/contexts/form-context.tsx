@@ -50,6 +50,9 @@ export interface FormContextType {
   updateEmail: (email: string) => void;
   updateFormData: (data: Partial<FormData>) => void;
   updateQuestion: (question: QuestionDefinition) => Promise<void>;
+  // submission
+  submitAssessment: () => Promise<void>;
+  isSubmitted: boolean;
 }
 
 // ——— 1) Your data shapes ———
@@ -105,6 +108,7 @@ export function FormProvider({
   const [respondentId, setRespondentId] = useState<null | string>(null);
   const [responseId, setResponseId] = useState<null | number>(null);
   const [hasRestored, setHasRestored] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Fetch questions on mount
   useEffect(() => {
@@ -632,6 +636,9 @@ export function FormProvider({
 
       // Set response and respondent IDs
       setResponseId(responseData.id);
+      // Check if response is submitted by checking if submittedAt is not epoch
+      const isSubmitted = new Date(responseData.submittedAt).getTime() > new Date(0).getTime();
+      setIsSubmitted(isSubmitted);
       if (responseData.respondent) {
         setRespondentId(responseData.respondent.id);
       }
@@ -775,6 +782,34 @@ export function FormProvider({
     }
   };
 
+  // Submit assessment and deduct credits
+  const submitAssessment = async () => {
+    if (!responseId) {
+      throw new Error('No response ID available');
+    }
+
+    try {
+      const response = await fetch('/api/submit-assessment', {
+        body: JSON.stringify({ responseId }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit assessment');
+      }
+
+      const result = await response.json();
+      setIsSubmitted(true);
+      console.log('✅ Assessment submitted successfully:', result);
+    } catch (err: any) {
+      console.error('❌ Error submitting assessment:', err);
+      setError(err.message);
+      throw err;
+    }
+  };
+
   return (
     <FormContext.Provider
       value={{
@@ -802,6 +837,8 @@ export function FormProvider({
         updateEmail,
         updateFormData,
         updateQuestion,
+        submitAssessment,
+        isSubmitted,
       }}
     >
       {children}

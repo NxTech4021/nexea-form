@@ -15,20 +15,27 @@ export async function verifyToken(token: string) {
     // Check if the email exists in allowlist
     const allowlist = await prisma.allowlist.findUnique({
       where: { email: decoded.email },
+      select: { id: true, email: true, credits: true },
     });
 
     if (!allowlist) {
       return { error: 'Invalid token' };
     }
 
-    // Create a new response record
-    const response = await prisma.response.create({
-      data: {
+    // Find the most recent unsubmitted response for this allowlist
+    let response = await prisma.response.findFirst({
+      where: { 
         allowlistId: allowlist.id,
-        submittedAt: new Date(),
-        userId: null, // Since we're not requiring user authentication
+        // Only find responses that haven't been submitted yet
+        submittedAt: new Date(0)
       },
+      orderBy: { id: 'desc' }, // Get the most recent one
     });
+
+    // If no unsubmitted response exists, this means the link has already been used
+    if (!response) {
+      return { error: 'This assessment link has already been used. Please request a new assessment link from the homepage.' };
+    }
 
     (await cookies()).set('assessment_token', token, {
       httpOnly: true,

@@ -128,7 +128,7 @@ export const questionsDataStep18 = questionsData.map(q => ({
 }));
 
 export function Step18() {
-  const { formData, markStepCompleted, setCurrentStep, updateFormData, saveStepResponse } =
+  const { formData, markStepCompleted, setCurrentStep, updateFormData, saveStepResponse, submitAssessment } =
     useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -231,8 +231,11 @@ export function Step18() {
       const result = await response.json();
       console.log('✅ Successfully submitted to Google Sheet:', result);
       
+      // Submit assessment and deduct credits
+      await submitAssessment();
+      
       markStepCompleted(18);
-      setCurrentStep(19); // Assessment complete
+      // Don't set currentStep to 19, let the assessment component handle the complete screen
     } catch (error) {
       console.error('❌ Error submitting to sheet:', error);
     } finally {
