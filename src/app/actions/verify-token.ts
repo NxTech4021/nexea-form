@@ -13,9 +13,9 @@ export async function verifyToken(token: string) {
     const decoded = jwt.verify(token, JWT_SECRET) as { email: string };
 
     // Check if the email exists in allowlist
-    const allowlist = await prisma.allowlist.findUnique({
-      where: { email: decoded.email },
-      select: { id: true, email: true, credits: true },
+    const allowlist = await prisma.allowlist.findFirst({
+      select: { credits: true, email: true, id: true },
+      where: { email: { equals: decoded.email, mode: 'insensitive' } },
     });
 
     if (!allowlist) {
@@ -23,18 +23,21 @@ export async function verifyToken(token: string) {
     }
 
     // Find the most recent unsubmitted response for this allowlist
-    let response = await prisma.response.findFirst({
-      where: { 
+    const response = await prisma.response.findFirst({
+      orderBy: { id: 'desc' }, // Get the most recent one
+      where: {
         allowlistId: allowlist.id,
         // Only find responses that haven't been submitted yet
-        submittedAt: new Date(0)
+        submittedAt: new Date(0),
       },
-      orderBy: { id: 'desc' }, // Get the most recent one
     });
 
     // If no unsubmitted response exists, this means the link has already been used
     if (!response) {
-      return { error: 'This assessment link has already been used. Please request a new assessment link from the homepage.' };
+      return {
+        error:
+          'This assessment link has already been used. Please request a new assessment link from the homepage.',
+      };
     }
 
     (await cookies()).set('assessment_token', token, {
