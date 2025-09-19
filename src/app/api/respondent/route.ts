@@ -59,15 +59,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingRespondant = await prisma.respondent.findFirst({
-      where: {
-        email: {
-          equals: email,
-          mode: 'insensitive',
-        },
-      },
-    });
-
     // Use upsert to either update existing respondent or create new one
     const respondent = await prisma.respondent.upsert({
       create: {
@@ -82,7 +73,7 @@ export async function POST(request: NextRequest) {
         phoneNumber,
         updatedAt: new Date(),
       },
-      where: { email: existingRespondant?.email },
+      where: { email: email },
     });
 
     // console.log('Respondent upserted:', {
