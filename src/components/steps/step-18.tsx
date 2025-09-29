@@ -42,7 +42,7 @@ function RadioQuestion({
     <div
       className={cn(
         'bg-card border rounded-lg p-4 sm:p-6 shadow-sm transition-colors',
-        error && 'border-red-500 border-1'
+        error && 'border-red-500 border-1',
       )}
     >
       <div className='space-y-3'>
@@ -119,7 +119,7 @@ const questionsData: Question[] = [
   { id: 'radio117', question: 'I find selling easy' },
 ];
 
-export const questionsDataStep18 = questionsData.map(q => ({
+export const questionsDataStep18 = questionsData.map((q) => ({
   id: q.id,
   options: radioOptions,
   step: 18,
@@ -128,8 +128,14 @@ export const questionsDataStep18 = questionsData.map(q => ({
 }));
 
 export function Step18() {
-  const { formData, markStepCompleted, setCurrentStep, updateFormData, saveStepResponse, submitAssessment } =
-    useFormContext();
+  const {
+    formData,
+    markStepCompleted,
+    setCurrentStep,
+    updateFormData,
+    saveStepResponse,
+    submitAssessment,
+  } = useFormContext();
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -147,7 +153,11 @@ export function Step18() {
     radio_incomplete: 'This question requires a response',
   };
 
-  const runValidation = (fieldName: string, value: string, forceTouch = false) => {
+  const runValidation = (
+    fieldName: string,
+    value: string,
+    forceTouch = false,
+  ) => {
     const newErrors: string[] = [];
     const isTouched = touched[fieldName] || forceTouch;
 
@@ -162,7 +172,7 @@ export function Step18() {
   const handleRadioChange = (
     fieldName: string,
     onChange: (value: string) => void,
-    newValue: string
+    newValue: string,
   ) => {
     onChange(newValue);
     if (!touched[fieldName]) {
@@ -187,7 +197,7 @@ export function Step18() {
 
   async function onSubmit(values: FormSchemaType) {
     if (isSubmitting) return; // Prevent double submission
-    
+
     let firstErrorId: null | string = null;
     const newTouchedState: Record<string, boolean> = {};
 
@@ -208,6 +218,8 @@ export function Step18() {
     }
 
     setIsSubmitting(true);
+
+    console.log(formData);
 
     try {
       // Save step response to database
@@ -230,10 +242,10 @@ export function Step18() {
 
       const result = await response.json();
       console.log('✅ Successfully submitted to Google Sheet:', result);
-      
+
       // Submit assessment and deduct credits
       await submitAssessment();
-      
+
       markStepCompleted(18);
       // Don't set currentStep to 19, let the assessment component handle the complete screen
     } catch (error) {
@@ -291,4 +303,4 @@ export function Step18() {
       </div>
     </>
   );
-} 
+}

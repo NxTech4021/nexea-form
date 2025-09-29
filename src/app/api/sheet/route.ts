@@ -73,10 +73,12 @@ export async function POST(request: Request) {
   const { company, email, fullName, matrixes, phoneNumber, radios } = data;
 
   try {
-    const cleanedMatrixes = matrixes.map((item: any, index: any) => {
-      const matrix = item[`matrix${index + 1}`];
+    const cleanedMatrixes = matrixes.map((item: any) => {
+      // Get the actual key (e.g., "matrix1", "matrix11", ...)
+      const key = Object.keys(item)[0];
+      const matrix = item[key];
 
-      // Map each row's column value to the human-readable label
+      // Transform rows to human-readable labels
       const transformed = Object.fromEntries(
         Object.entries(matrix).map(([rowKey, colKey]) => [
           rowKey,

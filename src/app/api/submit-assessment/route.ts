@@ -31,13 +31,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if already submitted by checking if submittedAt is not epoch
-    const isSubmitted = response.submittedAt.getTime() > new Date(0).getTime();
-    if (isSubmitted) {
-      return NextResponse.json(
-        { error: 'Assessment has already been submitted' },
-        { status: 400 },
-      );
-    }
+    // const isSubmitted = response.submittedAt.getTime() > new Date(0).getTime();
+    // if (isSubmitted) {
+    //   return NextResponse.json(
+    //     { error: 'Assessment has already been submitted' },
+    //     { status: 400 },
+    //   );
+    // }
 
     // Check if allowlist exists and has credits
     if (!response.allowlist) {
