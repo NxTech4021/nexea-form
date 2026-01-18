@@ -1,45 +1,93 @@
-import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
+// import { cookies } from 'next/headers';
+// import { NextRequest, NextResponse } from 'next/server';
 
-import { decrypt } from './lib/session';
+// import { decrypt } from './lib/session';
+
+// const protectedRoutes = ['/dashboard', '/admin', '/api/admin'];
+// const publicApiRoutes = ['/api/admin/questions'];
+// const authRoutes = ['/auth/login'];
+
+// export async function middleware(req: NextRequest) {
+//   const path = req.nextUrl.pathname;
+
+//   // // Skip session check for begin-quiz route
+//   if (path === '/begin-quiz') {
+//     return NextResponse.next();
+//   }
+
+//   // Check if path starts with any protected route
+//   const isProtectedRoute = protectedRoutes.some((route) =>
+//     path.startsWith(route)
+//   );
+//   const isPublicApiRoute = publicApiRoutes.some((route) =>
+//     path.startsWith(route)
+//   );
+//   const isAuthRoute = authRoutes.includes(path);
+
+//   // Allow GET requests to public API routes without authentication
+//   if (isPublicApiRoute && req.method === 'GET') {
+//     return NextResponse.next();
+//   }
+
+//   // Get session cookie
+//   const sessionCookie = (await cookies()).get('session')?.value;
+//   const session = await decrypt(sessionCookie);
+
+//   if (isProtectedRoute && !session?.userId) {
+//     const response = NextResponse.redirect(new URL('/auth/login', req.nextUrl));
+//     // response.cookies.delete('session');
+//     return response;
+//   }
+
+//   if (isAuthRoute && session?.userId) {
+//     return NextResponse.redirect(new URL('/admin', req.nextUrl));
+//   }
+
+//   return NextResponse.next();
+// }
+
+// export const config = {
+//   matcher: [
+//     // Match all paths except static files and api routes
+//     '/((?!_next/static|_next/image|favicon.ico|nexealogo.png).*)',
+//   ],
+// };
+
+// import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 const protectedRoutes = ['/dashboard', '/admin', '/api/admin'];
 const publicApiRoutes = ['/api/admin/questions'];
 const authRoutes = ['/auth/login'];
 
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  // // Skip session check for begin-quiz route
   if (path === '/begin-quiz') {
     return NextResponse.next();
   }
 
-  // Check if path starts with any protected route
   const isProtectedRoute = protectedRoutes.some((route) =>
-    path.startsWith(route)
+    path.startsWith(route),
   );
   const isPublicApiRoute = publicApiRoutes.some((route) =>
-    path.startsWith(route)
+    path.startsWith(route),
   );
   const isAuthRoute = authRoutes.includes(path);
 
-  // Allow GET requests to public API routes without authentication
   if (isPublicApiRoute && req.method === 'GET') {
     return NextResponse.next();
   }
 
-  // Get session cookie
-  const sessionCookie = (await cookies()).get('session')?.value;
-  const session = await decrypt(sessionCookie);
+  // const session = cookies().get('session')?.value;
 
-  if (isProtectedRoute && !session?.userId) {
-    const response = NextResponse.redirect(new URL('/auth/login', req.nextUrl));
-    // response.cookies.delete('session');
-    return response;
+  const session = req.cookies.get('session')?.value;
+
+  if (isProtectedRoute && !session) {
+    return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
   }
 
-  if (isAuthRoute && session?.userId) {
+  if (isAuthRoute && session) {
     return NextResponse.redirect(new URL('/admin', req.nextUrl));
   }
 
@@ -47,8 +95,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    // Match all paths except static files and api routes
-    '/((?!_next/static|_next/image|favicon.ico|nexealogo.png).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|nexealogo.png).*)'],
 };
