@@ -23,23 +23,25 @@ RUN npm run build
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma /app/node_modules/@prisma
+ENV NODE_ENV=production
 
-# Only copy the necessary files
+# Copy the standalone output (includes minimal node_modules)
+COPY --from=builder /app/.next/standalone ./
+
+# Copy static files to the correct location
+COPY --from=builder /app/.next/static ./.next/static
+
+# Copy public files
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-# Set environment variable (optional)
-ENV NODE_ENV production
 
 # Expose port
 EXPOSE 3000
 
-# Start the app
-CMD ["npm", "start"]
+# Set hostname for Next.js
+ENV HOSTNAME="0.0.0.0"
+
+# Start the standalone server (NOT npm start)
+CMD ["node", "server.js"]
 
 
 # FROM node:18-alpine
