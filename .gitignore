@@ -48,3 +48,7 @@ test.js
 /prisma
 
 /react-email-starter
+
+# Docs
+.claude
+docs/files
