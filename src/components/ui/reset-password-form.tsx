@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { resetPassword } from '@/app/actions/auth';
+import { resetPassword } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
   Card,

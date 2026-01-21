@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { authenticate } from '@/app/actions/auth';
+import { authenticate } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
   Card,

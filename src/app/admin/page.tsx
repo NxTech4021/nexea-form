@@ -47,7 +47,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 
-import { signOut } from '../actions/auth';
+import { signOut } from '@/app/actions';
 import EmailListView from './components/email-list-view';
 
 export default function AdminPage() {

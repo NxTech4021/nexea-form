@@ -149,6 +149,9 @@ export async function authenticate(
   'use server';
   
   try {
+    // Add action identifier for debugging
+    console.log('[SERVER ACTION] authenticate called');
+    
     const validatedFields = SigninFormSchema.safeParse({
       email: formData.get('email'),
       password: formData.get('password'),

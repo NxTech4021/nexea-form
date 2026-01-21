@@ -28,9 +28,13 @@ ENV BASE_URL=$BASE_URL
 # Generate Prisma client
 RUN npx prisma generate
 
-# Build the application
+# Build the application with server actions debugging
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 RUN npm run build
+
+# Verify server actions are built
+RUN ls -la .next/server/app/actions/ || echo "Server actions directory not found"
 
 # Production image, copy all the files and run next
 FROM node:18-alpine AS runner

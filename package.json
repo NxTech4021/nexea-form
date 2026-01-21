@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "prisma db seed",
-    "prisma:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "prisma:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "debug:actions": "node scripts/debug-server-actions.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.0",
