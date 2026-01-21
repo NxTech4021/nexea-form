@@ -12,9 +12,10 @@ type QuestionType = 'matrix' | 'radio' | 'text';
 
 import { Allowlist } from '@prisma/client';
 import { Loader2Icon, LogOut } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
+import { stableSignOut } from '@/app/actions/stable-auth';
 import { PreviewSteps } from '@/components/admin/PreviewSteps';
 import { Spinner } from '@/components/ui';
 import {
@@ -47,7 +48,6 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 
-import { stableSignOut } from '@/app/actions/stable-auth';
 import EmailListView from './components/email-list-view';
 
 export default function AdminPage() {
@@ -70,7 +70,7 @@ export default function AdminPage() {
       }
       return result;
     },
-    { success: false }
+    { success: false },
   );
 
   // Email allowlist functions
