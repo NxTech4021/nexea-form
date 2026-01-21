@@ -5,7 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { stableResetPassword, ResetPasswordState } from '@/app/actions/stable-auth';
+import {
+  ResetPasswordState,
+  stableResetPassword,
+} from '@/app/actions/stable-auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,15 +33,15 @@ const passwordRequirements = {
   minLength: { regex: /.{8,}/, text: 'At least 8 characters' },
 };
 
-interface ResetPasswordState {
-  errors?: {
-    password?: string[];
-    confirmPassword?: string[];
-    token?: string[];
-  };
-  message?: string;
-  success?: boolean;
-}
+// interface ResetPasswordState {
+//   errors?: {
+//     password?: string[];
+//     confirmPassword?: string[];
+//     token?: string[];
+//   };
+//   message?: string;
+//   success?: boolean;
+// }
 
 export function ResetPasswordForm({
   className,
@@ -48,7 +51,7 @@ export function ResetPasswordForm({
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const [resetComplete, setResetComplete] = useState(false);
-  
+
   // ADDED: State for dynamic password validation (matching register form)
   const [password, setPassword] = useState('');
   const [validations, setValidations] = useState({
@@ -63,35 +66,35 @@ export function ResetPasswordForm({
     async (prevState: ResetPasswordState | undefined, formData: FormData) => {
       // Add token to form data
       formData.append('token', token || '');
-      
+
       const result = await stableResetPassword(prevState, formData);
-      
+
       // Convert errors to string[] if needed
       if (result?.errors) {
         return {
           ...result,
           errors: {
-            password: Array.isArray(result.errors.password)
-              ? result.errors.password
-              : result.errors.password
-              ? [result.errors.password]
-              : undefined,
             confirmPassword: Array.isArray(result.errors.confirmPassword)
               ? result.errors.confirmPassword
               : result.errors.confirmPassword
-              ? [result.errors.confirmPassword]
-              : undefined,
+                ? [result.errors.confirmPassword]
+                : undefined,
+            password: Array.isArray(result.errors.password)
+              ? result.errors.password
+              : result.errors.password
+                ? [result.errors.password]
+                : undefined,
             token: Array.isArray(result.errors.token)
               ? result.errors.token
               : result.errors.token
-              ? [result.errors.token]
-              : undefined,
+                ? [result.errors.token]
+                : undefined,
           },
         };
       }
       return result;
     },
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -145,8 +148,8 @@ export function ResetPasswordForm({
                   You can now use your new password to log into your account.
                 </p>
               </div>
-              
-              <Button 
+
+              <Button
                 className='w-full'
                 onClick={() => router.push('/auth/login')}
               >
@@ -174,13 +177,13 @@ export function ResetPasswordForm({
               <div className='grid gap-3'>
                 <Label htmlFor='password'>New Password</Label>
                 <Input
+                  className={state?.errors?.password ? 'border-red-500' : ''}
                   id='password'
                   name='password'
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   type='password'
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={state?.errors?.password ? 'border-red-500' : ''}
                 />
                 {/* REPLACED: Static error with dynamic validation (matching register form) */}
                 <div className='text-sm space-y-2'>
@@ -201,13 +204,13 @@ export function ResetPasswordForm({
                               'text-sm',
                               validations[key as keyof typeof validations]
                                 ? 'text-green-600'
-                                : 'text-red-600'
+                                : 'text-red-600',
                             )}
                           >
                             {text}
                           </span>
                         </li>
-                      )
+                      ),
                     )}
                   </ul>
                 </div>
@@ -216,11 +219,11 @@ export function ResetPasswordForm({
               <div className='grid gap-3'>
                 <Label htmlFor='confirmPassword'>Confirm New Password</Label>
                 <Input
+                  className={state?.errors?.confirmPassword && 'border-red-500'}
                   id='confirmPassword'
                   name='confirmPassword'
                   required
                   type='password'
-                  className={state?.errors?.confirmPassword && 'border-red-500'}
                 />
                 {/* FIXED: Error handling pattern matching register form */}
                 {state?.errors?.confirmPassword && (
@@ -232,7 +235,7 @@ export function ResetPasswordForm({
                             {error}
                           </small>
                         </li>
-                      )
+                      ),
                     )}
                   </ul>
                 )}
@@ -259,7 +262,7 @@ export function ResetPasswordForm({
                     'Reset Password'
                   )}
                 </Button>
-                
+
                 <div className='text-center text-sm'>
                   Remember your password?{' '}
                   <a
