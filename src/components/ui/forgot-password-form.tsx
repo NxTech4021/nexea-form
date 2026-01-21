@@ -18,13 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-interface ForgotPasswordState {
-  errors?: {
-    email?: string[];
-  };
-  message?: string;
-  success?: boolean;
-}
+
 
 export function ForgotPasswordForm({
   className,
