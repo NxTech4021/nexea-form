@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
           react: EbaEmailTemplate({
             name: 'Afiq',
             verificationLink: link,
-          }),
+          }) as any,
           subject: 'Your Assessment Link is Here',
           to: allow.email,
         });
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
         react: EbaEmailTemplate({
           name: 'Afiq',
           verificationLink: link,
-        }),
+        }) as any,
         subject: 'Your Assessment Link is Here',
         to: allow.email,
       });

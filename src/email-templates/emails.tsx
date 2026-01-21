@@ -10,22 +10,18 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components';
-
-const baseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : '';
+import * as React from 'react';
 
 interface EmailProps {
   name: string;
   verificationLink: string;
 }
 
-const EbaEmailTemplate = ({
-  name = 'Afiq',
+const EbaEmailTemplate: React.FC<EmailProps> = ({
   verificationLink = 'http://localhost:3000/blabla',
-}: EmailProps) => {
+}) => {
   return (
-    <Html>
+    <Html lang='en'>
       <Head />
       <Tailwind>
         <Body style={main}>

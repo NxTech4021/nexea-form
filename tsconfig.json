@@ -22,6 +22,14 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/home/[id]", "prisma/seed.mts", "scripts/generate-questions-json.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/app/home/[id]",
+    "prisma/seed.mts",
+    "scripts/generate-questions-json.ts"
+  ],
+  "exclude": ["node_modules", "react-email-starter"]
 }
