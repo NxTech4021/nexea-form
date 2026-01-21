@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { forgotPassword } from '@/app/actions';
+import { stableForgotPassword, ForgotPasswordState } from '@/app/actions/stable-auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -35,7 +35,7 @@ export function ForgotPasswordForm({
 
   const [state, action, pending] = useActionState(
     async (prevState: ForgotPasswordState | undefined, formData: FormData) => {
-      const result = await forgotPassword(prevState, formData);
+      const result = await stableForgotPassword(prevState, formData);
 
       // Convert errors to string[] if needed
       if (result?.errors) {

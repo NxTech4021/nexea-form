@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { authenticate } from '@/app/actions';
+import { stableAuthenticate } from '@/app/actions/stable-auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -34,8 +34,8 @@ export function LoginForm({
   const router = useRouter();
   const [state, action, pending] = useActionState(
     async (prevState: SignInState | undefined, formData: FormData) => {
-      // Call the original signin action
-      const result = await authenticate(prevState, formData);
+      // Call the stable signin action
+      const result = await stableAuthenticate(prevState, formData);
 
       // console.log(result);
 

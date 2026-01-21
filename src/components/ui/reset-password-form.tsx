@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { resetPassword } from '@/app/actions';
+import { stableResetPassword, ResetPasswordState } from '@/app/actions/stable-auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -64,7 +64,7 @@ export function ResetPasswordForm({
       // Add token to form data
       formData.append('token', token || '');
       
-      const result = await resetPassword(prevState, formData);
+      const result = await stableResetPassword(prevState, formData);
       
       // Convert errors to string[] if needed
       if (result?.errors) {

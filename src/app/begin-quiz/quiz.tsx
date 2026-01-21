@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { verifyToken } from '@/app/actions/verify-token';
+import { stableVerifyToken } from '@/app/actions/stable-verify';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,7 +29,7 @@ export default function BeginQuiz() {
 
     const validateToken = async () => {
       try {
-        const result = await verifyToken(token);
+        const result = await stableVerifyToken(token);
 
         if (result.error) {
           setStatus('error');

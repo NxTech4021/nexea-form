@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { register, RegisterFormState } from '@/app/actions';
+import { stableRegister, RegisterFormState } from '@/app/actions/stable-auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -45,7 +45,7 @@ export function RegisterForm({
 
   const [state, action, pending] = useActionState(
     async (prevState: RegisterFormState | undefined, formData: FormData) => {
-      const result = await register(prevState, formData);
+      const result = await stableRegister(prevState, formData);
       return result;
     },
     undefined

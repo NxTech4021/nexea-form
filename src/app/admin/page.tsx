@@ -47,7 +47,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 
-import { signOut } from '@/app/actions';
+import { stableSignOut } from '@/app/actions/stable-auth';
 import EmailListView from './components/email-list-view';
 
 export default function AdminPage() {
@@ -62,9 +62,16 @@ export default function AdminPage() {
 
   const [emails, setEmails] = useState<Allowlist[]>([]);
 
-  const [state, formAction, isPending] = useActionState(signOut, {
-    success: false,
-  });
+  const [state, formAction, isPending] = useActionState(
+    async () => {
+      const result = await stableSignOut();
+      if (result.success) {
+        redirect('/auth/login');
+      }
+      return result;
+    },
+    { success: false }
+  );
 
   // Email allowlist functions
   const handleEmailSubmit = async (e: React.FormEvent) => {
