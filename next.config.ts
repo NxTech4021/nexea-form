@@ -8,7 +8,15 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['eba.nexea.co'],
   },
-  output: 'standalone',
+  // Temporarily remove standalone output to fix server action issues
+  // output: 'standalone',
+  
+  // Add experimental settings to ensure server actions work properly
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'eba.nexea.co'],
+    },
+  },
 };
 
 export default nextConfig;

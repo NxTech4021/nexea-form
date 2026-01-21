@@ -79,13 +79,13 @@ model MatrixRow {
 }
 
 model Response {
-  id          Int      @id @default(autoincrement())
-  user        User?    @relation(fields: [userId], references: [id])
-  userId      String?
-  respondent  Respondent? @relation(fields: [respondentId], references: [id])
+  id           Int         @id @default(autoincrement())
+  user         User?       @relation(fields: [userId], references: [id])
+  userId       String?
+  respondent   Respondent? @relation(fields: [respondentId], references: [id])
   respondentId String?
-  submittedAt DateTime @default(now())
-  isSubmitted Boolean  @default(false)
+  submittedAt  DateTime    @default(now())
+  isSubmitted  Boolean     @default(false)
 
   answers Answer[]
 

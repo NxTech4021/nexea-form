@@ -8,6 +8,8 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function verifyToken(token: string) {
+  'use server';
+  
   try {
     // Verify and decode the token
     const decoded = jwt.verify(token, JWT_SECRET) as { email: string };

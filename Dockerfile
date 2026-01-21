@@ -11,56 +11,42 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# ENV DATABASE_URL=postgresql://nexea:nexea123_@34.143.207.72:5432/eba
-# ENV DATABASE_URL="postgresql://nexea:nexea123_@/eba?host=/cloudsql/my-project-nexea:asia-southeast1:nexea-prod/.s.PGSQL.5432"
 
-
+# Generate Prisma client
 RUN npx prisma generate
-# RUN npx prisma migrate deploy
+
+# Build the application with proper server actions support
+ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
 # Production image
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma /app/node_modules/@prisma
-
-# Only copy the necessary files
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-# Set environment variable (optional)
 ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Create nextjs user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy necessary files for standalone build
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy Prisma files
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/prisma ./prisma
+
+USER nextjs
 
 # Expose port
 EXPOSE 3000
 
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
 # Start the app
-CMD ["npm", "start"]
-
-
-# FROM node:18-alpine
-
-# WORKDIR /app
-
-# # Install dependencies
-# COPY package.json package-lock.json ./
-# RUN npm install
-
-# # Copy everything else
-# COPY . .
-
-# # Generate Prisma client
-# RUN npx prisma generate
-
-# # Build app
-# RUN npm run build
-
-# # Expose port
-# EXPOSE 3000
-
-# # Run app
-# CMD ["npm", "start"]
+CMD ["node", "server.js"]

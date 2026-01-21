@@ -141,10 +141,13 @@ export type ResetPasswordState = {
   success?: boolean;
 };
 
+// Fixed: Add explicit server action identifier
 export async function authenticate(
   prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  'use server';
+  
   try {
     const validatedFields = SigninFormSchema.safeParse({
       email: formData.get('email'),
@@ -193,6 +196,8 @@ export async function authenticate(
 }
 
 export async function beginAuth(email: string) {
+  'use server';
+  
   try {
     console.log(email);
     return NextResponse.json({ message: 'Success' }, { status: 200 });
@@ -208,6 +213,8 @@ export async function beginAuth(email: string) {
 }
 
 export async function clearLoginSession() {
+  'use server';
+  
   try {
     await deleteSession();
     return { success: true };
@@ -217,24 +224,13 @@ export async function clearLoginSession() {
   }
 }
 
-// export async function signOut(): Promise<FormState> {
-//   try {
-//     await deleteSession();
-
-//     redirect('/auth/login');
-//   } catch (error) {
-//     console.error('Error in signOut:', error);
-//     return {
-//       message: 'Database Error: Failed to Sign Out.',
-//     };
-//   }
-// }
-
 // ADDED: Forgot password functionality
 export async function forgotPassword(
   prevState: ForgotPasswordState | undefined,
   formData: FormData,
 ): Promise<ForgotPasswordState> {
+  'use server';
+  
   try {
     const validatedFields = ForgotPasswordSchema.safeParse({
       email: formData.get('email'),
@@ -299,6 +295,8 @@ export async function register(
   prevState: RegisterFormState | undefined,
   formData: FormData,
 ): Promise<RegisterFormState> {
+  'use server';
+  
   try {
     const validatedFields = RegisterFormSchema.safeParse({
       confirmPassword: formData.get('confirmPassword'),
@@ -359,6 +357,8 @@ export async function resetPassword(
   prevState: ResetPasswordState | undefined,
   formData: FormData,
 ): Promise<ResetPasswordState> {
+  'use server';
+  
   try {
     const validatedFields = ResetPasswordSchema.safeParse({
       confirmPassword: formData.get('confirmPassword'),
@@ -435,6 +435,8 @@ export async function resetPassword(
 }
 
 export async function signOut(prevState: any): Promise<{ success: boolean }> {
+  'use server';
+  
   await deleteSession();
   await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
   return { success: true };
@@ -448,28 +450,7 @@ async function sendPasswordResetEmail({
   email: string;
   token: string;
 }) {
-  // FIXED: Use proper nodemailer import and method name (matching existing sendMail.ts)
-  // const nodemailer = require('nodemailer');
-
-  // const EMAIL_FROM = process.env.EMAIL_FROM!;
-  // const EMAIL_USER = process.env.EMAIL_USER!;
-  // const EMAIL_PASS = process.env.EMAIL_PASS!;
   const BASE_URL = process.env.BASE_URL!;
-
-  // const transporter = nodemailer.createTransport({
-  //   auth: {
-  //     pass: EMAIL_PASS,
-  //     user: EMAIL_USER,
-  //   },
-  //   host: 'smtp.gmail.com',
-  //   port: 587,
-  //   secure: false,
-  //   tls: {
-  //     rejectUnauthorized: false,
-  //   },
-  // });
-
-  // FIXED: Remove extra http:// prefix since BASE_URL already contains protocol
   const resetLink = `${BASE_URL}/auth/reset-password?token=${token}`;
 
   const mailOptions = {
@@ -615,8 +596,6 @@ async function sendPasswordResetEmail({
   };
 
   try {
-    // await transporter.sendMail(mailOptions);
-
     await resend.emails.send({
       from: 'no-reply <no-reply@eba.nexea.co>',
       html: mailOptions.html,
