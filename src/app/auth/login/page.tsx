@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 
-import { LoginForm } from '@/components/ui/login-form';
+import { SimpleLoginForm } from '@/components/ui/simple-login-form';
 
 const LoginPage = () => {
   return (
@@ -15,7 +15,7 @@ const LoginPage = () => {
       </div>
 
       <div className='w-full max-w-sm'>
-        <LoginForm />
+        <SimpleLoginForm />
       </div>
     </div>
   );

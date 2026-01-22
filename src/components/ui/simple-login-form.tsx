@@ -2,10 +2,10 @@
 
 import { LoaderIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { useApiAction } from '@/hooks/useApiAction';
+import { loginUser } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,37 +18,43 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-interface SignInState {
-  errors?: {
-    email?: string[];
-    password?: string[];
-  };
-  message?: string;
-  success?: boolean;
-}
-
-export function LoginForm({
+export function SimpleLoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const router = useRouter();
-  const [state, executeLogin, pending] = useApiAction('/api/auth/login');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
+    setErrors({});
+
     const formData = new FormData(event.currentTarget);
-    const result:any = await executeLogin(formData);
-    
-    if (result?.success) {
-      router.push('/admin');
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const result = await loginUser(email, password);
+      
+      if (result.success) {
+        toast.success('Login successful!');
+        router.push('/admin');
+      } else {
+        if (result.errors) {
+          setErrors(result.errors);
+        }
+        if (result.message) {
+          toast.error(result.message);
+        }
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (state?.message && !state?.success) {
-      toast.error(state.message);
-    }
-  }, [state]);
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -67,11 +73,24 @@ export function LoginForm({
                 <Input
                   id='email'
                   name='email'
-                  placeholder='m@example.com'
+                  placeholder='m@nexea.co'
                   required
                   type='email'
+                  className={errors.email ? 'border-red-500' : ''}
                 />
+                {errors.email && (
+                  <ul className='ml-5 list-disc text-red-500'>
+                    {errors.email.map((error, index) => (
+                      <li key={index}>
+                        <small className='text-xs leading-none font-medium text-red-500'>
+                          {error}
+                        </small>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+              
               <div className='grid gap-3'>
                 <div className='flex items-center'>
                   <Label htmlFor='password'>Password</Label>
@@ -83,31 +102,28 @@ export function LoginForm({
                   </a>
                 </div>
                 <Input
-                  className={state?.errors?.password && 'border-red-500'}
                   id='password'
                   name='password'
                   required
                   type='password'
+                  className={errors.password ? 'border-red-500' : ''}
                 />
-                <ul className='ml-5 list-disc text-red-500'>
-                  {state?.errors?.password &&
-                  typeof state?.errors?.password === 'object'
-                    ? state?.errors?.password?.map(
-                        (item: string, index: number) => (
-                          <li key={index}>
-                            <small className='text-xs leading-none font-medium text-red-500'>
-                              {item}
-                            </small>
-                          </li>
-                        ),
-                      )
-                    : state?.errors?.password}
-                </ul>
+                {errors.password && (
+                  <ul className='ml-5 list-disc text-red-500'>
+                    {errors.password.map((error, index) => (
+                      <li key={index}>
+                        <small className='text-xs leading-none font-medium text-red-500'>
+                          {error}
+                        </small>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               <div className='flex flex-col gap-3'>
-                <Button className='w-full' disabled={pending} type='submit'>
-                  {pending ? <LoaderIcon className='animate-spin' /> : 'Login'}
+                <Button className='w-full' disabled={isLoading} type='submit'>
+                  {isLoading ? <LoaderIcon className='animate-spin' /> : 'Login'}
                 </Button>
                 <div className='text-center text-sm'>
                   Don't have an account?{' '}

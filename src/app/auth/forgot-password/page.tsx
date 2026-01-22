@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 
-import { ForgotPasswordForm } from '@/components/ui/forgot-password-form';
+import { SimpleForgotPasswordForm } from '@/components/ui/simple-forgot-password-form';
 
 const ForgotPasswordPage = () => {
   return (
@@ -15,7 +15,7 @@ const ForgotPasswordPage = () => {
       </div>
 
       <div className='w-full max-w-sm'>
-        <ForgotPasswordForm />
+        <SimpleForgotPasswordForm />
       </div>
     </div>
   );
