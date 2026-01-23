@@ -147,11 +147,11 @@ export async function authenticate(
   formData: FormData,
 ): Promise<FormState> {
   'use server';
-  
+
   try {
     // Add action identifier for debugging
     console.log('[SERVER ACTION] authenticate called');
-    
+
     const validatedFields = SigninFormSchema.safeParse({
       email: formData.get('email'),
       password: formData.get('password'),
@@ -200,7 +200,7 @@ export async function authenticate(
 
 export async function beginAuth(email: string) {
   'use server';
-  
+
   try {
     console.log(email);
     return NextResponse.json({ message: 'Success' }, { status: 200 });
@@ -217,7 +217,7 @@ export async function beginAuth(email: string) {
 
 export async function clearLoginSession() {
   'use server';
-  
+
   try {
     await deleteSession();
     return { success: true };
@@ -233,7 +233,7 @@ export async function forgotPassword(
   formData: FormData,
 ): Promise<ForgotPasswordState> {
   'use server';
-  
+
   try {
     const validatedFields = ForgotPasswordSchema.safeParse({
       email: formData.get('email'),
@@ -299,7 +299,7 @@ export async function register(
   formData: FormData,
 ): Promise<RegisterFormState> {
   'use server';
-  
+
   try {
     const validatedFields = RegisterFormSchema.safeParse({
       confirmPassword: formData.get('confirmPassword'),
@@ -361,7 +361,7 @@ export async function resetPassword(
   formData: FormData,
 ): Promise<ResetPasswordState> {
   'use server';
-  
+
   try {
     const validatedFields = ResetPasswordSchema.safeParse({
       confirmPassword: formData.get('confirmPassword'),
@@ -439,7 +439,7 @@ export async function resetPassword(
 
 export async function signOut(prevState: any): Promise<{ success: boolean }> {
   'use server';
-  
+
   await deleteSession();
   await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
   return { success: true };

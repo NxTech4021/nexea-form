@@ -25,11 +25,26 @@ const RegisterFormSchema = z
       }),
     password: z
       .string()
-      .min(passwordRegex.minLength, `Password must be at least ${passwordRegex.minLength} characters`)
-      .refine((password) => passwordRegex.hasUpperCase.test(password), 'Password must contain at least one uppercase letter')
-      .refine((password) => passwordRegex.hasLowerCase.test(password), 'Password must contain at least one lowercase letter')
-      .refine((password) => passwordRegex.hasNumber.test(password), 'Password must contain at least one number')
-      .refine((password) => passwordRegex.hasSpecialChar.test(password), 'Password must contain at least one special character'),
+      .min(
+        passwordRegex.minLength,
+        `Password must be at least ${passwordRegex.minLength} characters`,
+      )
+      .refine(
+        (password) => passwordRegex.hasUpperCase.test(password),
+        'Password must contain at least one uppercase letter',
+      )
+      .refine(
+        (password) => passwordRegex.hasLowerCase.test(password),
+        'Password must contain at least one lowercase letter',
+      )
+      .refine(
+        (password) => passwordRegex.hasNumber.test(password),
+        'Password must contain at least one number',
+      )
+      .refine(
+        (password) => passwordRegex.hasSpecialChar.test(password),
+        'Password must contain at least one special character',
+      ),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -43,7 +58,7 @@ const secret = new TextEncoder().encode(
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    
+
     const validatedFields = RegisterFormSchema.safeParse({
       confirmPassword: formData.get('confirmPassword'),
       email: formData.get('email'),
@@ -51,10 +66,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (!validatedFields.success) {
-      return NextResponse.json({
-        errors: validatedFields.error.flatten().fieldErrors,
-        message: 'Please check the form for errors.',
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          errors: validatedFields.error.flatten().fieldErrors,
+          message: 'Please check the form for errors.',
+        },
+        { status: 400 },
+      );
     }
 
     const { email, password } = validatedFields.data;
@@ -64,9 +82,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-      return NextResponse.json({
-        message: 'User with this email already exists',
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          message: 'User with this email already exists',
+        },
+        { status: 400 },
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -92,8 +113,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error in register API:', error);
-    return NextResponse.json({
-      message: 'Database Error: Failed to create account.',
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        message: 'Database Error: Failed to create account.',
+      },
+      { status: 500 },
+    );
   }
 }

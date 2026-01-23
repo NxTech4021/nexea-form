@@ -10,7 +10,7 @@ const auth = new google.auth.GoogleAuth({
   // credentials: JSON.parse(process.env.EBA_CREDENTIALS!),
   keyFile:
     process.env.NODE_ENV === 'production'
-      ? '/etc/secrets/eba-credentials'
+      ? '/etc/eba-credentials.json'
       : keyPath,
   scopes: SCOPES,
 });
