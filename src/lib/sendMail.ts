@@ -1,6 +1,8 @@
 import 'server-only';
 import nodemailer from 'nodemailer';
 
+import { resend } from '@/config/resend';
+
 const EMAIL_FROM = process.env.EMAIL_FROM!;
 const EMAIL_USER = process.env.EMAIL_USER!;
 const EMAIL_PASS = process.env.EMAIL_PASS!;
@@ -258,7 +260,14 @@ export const sendEmailVerification = async ({
       to: email,
     };
 
-    await transporter.sendMail(mailOptions);
+    await resend.emails.send({
+      from: 'no-reply <no-reply@eba.nexea.co>',
+      html: mailOptions.html,
+      subject: 'Complete your account - Nexea EBA',
+      to: email,
+    });
+
+    // await transporter.sendMail(mailOptions);
   } catch (error) {
     console.log(error);
     return null;

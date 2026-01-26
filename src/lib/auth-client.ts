@@ -7,7 +7,10 @@ export interface AuthResult {
   errors?: Record<string, string[]>;
 }
 
-export async function loginUser(email: string, password: string): Promise<AuthResult> {
+export async function loginUser(
+  email: string,
+  password: string,
+): Promise<AuthResult> {
   try {
     const formData = new FormData();
     formData.append('email', email);
@@ -27,7 +30,9 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
   }
 }
 
-export async function forgotPasswordRequest(email: string): Promise<AuthResult> {
+export async function forgotPasswordRequest(
+  email: string,
+): Promise<AuthResult> {
   try {
     const formData = new FormData();
     formData.append('email', email);
@@ -46,7 +51,11 @@ export async function forgotPasswordRequest(email: string): Promise<AuthResult> 
   }
 }
 
-export async function registerUser(email: string, password: string, confirmPassword: string): Promise<AuthResult> {
+export async function registerUser(
+  email: string,
+  password: string,
+  confirmPassword: string,
+): Promise<AuthResult> {
   try {
     const formData = new FormData();
     formData.append('email', email);
@@ -67,7 +76,11 @@ export async function registerUser(email: string, password: string, confirmPassw
   }
 }
 
-export async function resetUserPassword(token: string, password: string, confirmPassword: string): Promise<AuthResult> {
+export async function resetUserPassword(
+  token: string,
+  password: string,
+  confirmPassword: string,
+): Promise<AuthResult> {
   try {
     const formData = new FormData();
     formData.append('token', token);
