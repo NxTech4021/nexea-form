@@ -44,8 +44,8 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create nextjs user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# RUN addgroup --system --gid 1001 nodejs
+# RUN adduser --system --uid 1001 nextjs
 
 # Install only production dependencies for runtime
 COPY package.json package-lock.json* ./
@@ -61,9 +61,9 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Change ownership of the app directory
-RUN chown -R nextjs:nodejs /app
+# RUN chown -R nextjs:nodejs /app
 
-USER nextjs
+# USER nextjs
 
 # Expose port
 EXPOSE 3000
