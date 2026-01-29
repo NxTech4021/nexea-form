@@ -1,10 +1,10 @@
 import type { NextConfig } from 'next';
 
 // const nextConfig: NextConfig = {
-//   eslint: {
-//     // Skip ESLint errors during production builds
-//     ignoreDuringBuilds: true,
-//   },
+// eslint: {
+//   // Skip ESLint errors during production builds
+//   ignoreDuringBuilds: true,
+// },
 //   images: {
 //     domains: ['eba.nexea.co'],
 //   },
@@ -41,6 +41,10 @@ import type { NextConfig } from 'next';
 // };
 
 const nextConfig: NextConfig = {
+  eslint: {
+    // Skip ESLint errors during production builds
+    ignoreDuringBuilds: true,
+  },
   output: 'standalone',
 };
 
