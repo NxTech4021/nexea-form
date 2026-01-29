@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 // 1) load the JSON
 const questions = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, 'questions.json'), 'utf-8')
+  fs.readFileSync(path.resolve(__dirname, 'questions.json'), 'utf-8'),
 );
 
 async function main() {
@@ -33,7 +33,7 @@ async function main() {
       },
     });
     console.log(
-      `Created Allowlist entry: ${allowlist.email} (${allowlist.credits} credits)`
+      `Created Allowlist entry: ${allowlist.email} (${allowlist.credits} credits)`,
     );
   }
 
