@@ -73,7 +73,7 @@ RUN ls -la .next/server/app/actions/ || echo "Server actions directory not found
 
 # # Start the app using npm start (which runs next start)
 # CMD ["npm", "start"]
-FROM base AS runner
+FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
