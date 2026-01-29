@@ -37,80 +37,44 @@ RUN npm run build
 RUN ls -la .next/server/app/actions/ || echo "Server actions directory not found"
 
 # Production image, copy all the files and run next
-# FROM node:18-alpine AS runner
-# WORKDIR /app
-
-# ENV NODE_ENV=production
-# ENV NEXT_TELEMETRY_DISABLED=1
-
-# # Create nextjs user
-# # RUN addgroup --system --gid 1001 nodejs
-# # RUN adduser --system --uid 1001 nextjs
-
-# # Install only production dependencies for runtime
-# COPY package.json package-lock.json* ./
-# RUN npm ci --only=production && npm cache clean --force
-
-# # Copy the built application
-# COPY --from=builder /app/public ./public
-# COPY --from=builder /app/.next ./.next
-
-# # Copy Prisma files
-# COPY --from=builder /app/prisma ./prisma
-# COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-# COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# # Change ownership of the app directory
-# # RUN chown -R nextjs:nodejs /app
-
-# # USER nextjs
-
-# # Expose port
-# EXPOSE 3000
-
-# ENV PORT=3000
-# ENV HOSTNAME="0.0.0.0"
-
-# # Start the app using npm start (which runs next start)
-# CMD ["npm", "start"]
 FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-# Uncomment the following line in case you want to disable telemetry during runtime.
-# ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
 
+# Create nextjs user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Install only production dependencies for runtime
+COPY package.json package-lock.json* ./
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy the built application
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-
+# Copy Prisma files
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Change ownership of the app directory
+RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
+# Expose port
 EXPOSE 3000
 
 ENV PORT=3000
-
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 ENV HOSTNAME="0.0.0.0"
+
+# Start the app using npm start (which runs next start)
 CMD ["node", "server.js"]
 
-# syntax=docker.io/docker/dockerfile:1
-
-
-
-
-
-# FROM base AS runner
+# FROM node:18-alpine AS runner
 # WORKDIR /app
 
 # ENV NODE_ENV=production
@@ -121,11 +85,16 @@ CMD ["node", "server.js"]
 # RUN adduser --system --uid 1001 nextjs
 
 # COPY --from=builder /app/public ./public
+# COPY --from=builder /app/.next ./.next
 
 # # Automatically leverage output traces to reduce image size
 # # https://nextjs.org/docs/advanced-features/output-file-tracing
+
+# COPY --from=builder /app/prisma ./prisma
 # COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 # COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# RUN chown -R nextjs:nodejs /app
 
 # USER nextjs
 
@@ -133,7 +102,6 @@ CMD ["node", "server.js"]
 
 # ENV PORT=3000
 
-# # server.js is created by next build from the standalone output
-# # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 # ENV HOSTNAME="0.0.0.0"
 # CMD ["node", "server.js"]
+
