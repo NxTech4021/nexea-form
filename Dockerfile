@@ -58,6 +58,10 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
 # Change ownership of the app directory
 RUN chown -R nextjs:nodejs /app
 
@@ -70,4 +74,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Start the app using npm start (which runs next start)
-CMD ["npm", "start"]
+# CMD ["npm", "start"]
+CMD ["node", "server.js"]
