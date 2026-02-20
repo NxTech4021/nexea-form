@@ -79,16 +79,16 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // const session = cookies().get('session')?.value;
-
   const session = req.cookies.get('session')?.value;
 
+  const baseUrl = process.env.BASE_URL || `${req.nextUrl.protocol}//${req.nextUrl.host}`;
+
   if (isProtectedRoute && !session) {
-    return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
+    return NextResponse.redirect(new URL('/auth/login', baseUrl));
   }
 
   if (isAuthRoute && session) {
-    return NextResponse.redirect(new URL('/admin', req.nextUrl));
+    return NextResponse.redirect(new URL('/admin', baseUrl));
   }
 
   return NextResponse.next();
