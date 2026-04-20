@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 import { z } from 'zod';
 
+import { rateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
 import { sendEmailVerification } from '@/lib/sendMail';
 
@@ -51,11 +52,14 @@ const RegisterFormSchema = z
     path: ['confirmPassword'],
   });
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'super-secret-key',
-);
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'unknown';
+  if (!rateLimit(ip)) {
+    return NextResponse.json({ message: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const formData = await request.formData();
 

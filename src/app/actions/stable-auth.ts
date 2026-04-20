@@ -20,9 +20,7 @@ const passwordRegex = {
   minLength: 8,
 };
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'super-secret-key',
-);
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 // Schemas
 const ForgotPasswordSchema = z.object({

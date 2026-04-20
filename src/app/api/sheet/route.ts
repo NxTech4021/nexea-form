@@ -28,33 +28,6 @@ const values = {
   col_3: 'Most Accurate',
 };
 
-export async function GET() {
-  try {
-    // const range = 'Test EBA!A1';
-
-    // const response = await sheets.spreadsheets.values.get({
-    //   range,
-    //   spreadsheetId,
-    // });
-
-    const response = await sheets.spreadsheets.values.update({
-      range: 'Test EBA!A1',
-      requestBody: {
-        values: [
-          ['Name', 'Email'],
-          ['Afiq Danial', 'afiq@nexea.co'],
-        ], // ✅ 2D array
-      },
-      spreadsheetId,
-      valueInputOption: 'RAW',
-    });
-
-    return NextResponse.json(response.data);
-  } catch (error: any) {
-    console.log(error);
-    return NextResponse.json({ error: 'Error authenticate' });
-  }
-}
 
 export async function POST(request: Request) {
   const data = await request.json();

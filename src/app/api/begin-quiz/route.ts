@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { rateLimit } from '@/lib/rate-limit';
+
 import { resend } from '@/config/resend';
 import EbaEmailTemplate from '@/email-templates/emails';
 
@@ -18,6 +20,11 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 // }
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown';
+  if (!rateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const { email } = await req.json();
 
@@ -56,7 +63,7 @@ export async function POST(req: NextRequest) {
     // If there's already an unsubmitted response, reuse it instead of creating new one
     if (existingUnsubmittedResponse) {
       // Generate token for existing response
-      const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET);
+      const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET, { expiresIn: '24h' });
 
       const link = `${BASE_URL}/begin-quiz?token=${token}`;
 
@@ -112,7 +119,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Generate token (expires in 15 minutes)
-    const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET);
+    const token = jwt.sign({ allowlistId: allow.email, email }, JWT_SECRET, { expiresIn: '24h' });
 
     const link = `${BASE_URL}/begin-quiz?token=${token}`;
 

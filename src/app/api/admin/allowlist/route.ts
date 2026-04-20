@@ -8,6 +8,12 @@ const prisma = new PrismaClient();
 
 export async function DELETE(req: NextRequest) {
   try {
+    const session = (await cookies()).get('session')?.value;
+    const auth = await decrypt(session);
+    if (!auth?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const data = await req.json();
     const { id } = data;
 
@@ -36,6 +42,12 @@ export async function DELETE(req: NextRequest) {
 // Get all allowlist entries
 export async function GET() {
   try {
+    const session = (await cookies()).get('session')?.value;
+    const auth = await decrypt(session);
+    if (!auth?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const entries = await prisma.allowlist.findMany({
       orderBy: { createdAt: 'desc' },
     });
@@ -52,6 +64,12 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const session = (await cookies()).get('session')?.value;
+    const auth = await decrypt(session);
+    if (!auth?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { credit, id } = await req.json();
 
     const data = await prisma.allowlist.update({
@@ -82,6 +100,10 @@ export async function POST(req: NextRequest) {
     const session = (await cookies()).get('session')?.value;
 
     const data = await decrypt(session);
+
+    if (!data?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });

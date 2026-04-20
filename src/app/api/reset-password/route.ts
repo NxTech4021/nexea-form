@@ -3,9 +3,7 @@ import { jwtVerify } from 'jose';
 
 import { prisma } from '@/lib/prisma';
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'super-secret-key'
-);
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 // GET /api/reset-password - Validate token
 export async function GET(request: NextRequest) {
