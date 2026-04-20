@@ -567,17 +567,67 @@ function FormEditor() {
   );
 }
 
+// ─── Answer rendering helpers ─────────────────────────────────────────────────
+const COL_LABELS: Record<string, string> = {
+  col_0: 'Least Accurate',
+  col_1: 'Somewhat Accurate',
+  col_2: 'Quite Accurate',
+  col_3: 'Most Accurate',
+};
+
+function ReadableAnswer({ answer, question }: { answer: any; question: any }) {
+  const v = answer.value;
+  if (!v) return <span className='text-muted-foreground italic text-sm'>No answer</span>;
+
+  if (v.type === 'matrix' && question?.matrixRows?.length) {
+    return (
+      <div className='space-y-1'>
+        {question.matrixRows.map((row: any, i: number) => {
+          const colKey = v[`row_${i}`];
+          return (
+            <div className='flex gap-2 text-sm' key={i}>
+              <span className='font-medium w-64 shrink-0'>{row.label}</span>
+              <span className='text-muted-foreground'>→</span>
+              <span>{COL_LABELS[colKey] ?? colKey ?? '—'}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (v.type === 'radio') {
+    return <span className='text-sm'>{v.value ?? '—'}</span>;
+  }
+
+  return <span className='text-sm'>{String(v.value ?? JSON.stringify(v))}</span>;
+}
+
 // ─── Answers View ─────────────────────────────────────────────────────────────
 function AnswersView() {
   const [responses, setResponses] = useState<any[]>([]);
+  const [questionMap, setQuestionMap] = useState<Record<string, any>>({});
+  const [questionOrder, setQuestionOrder] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selected, setSelected] = useState<any | null>(null);
 
   useEffect(() => {
-    fetch('/api/admin/responses')
-      .then((r) => r.json())
-      .then((d) => {
-        setResponses(Array.isArray(d) ? d : []);
+    Promise.all([
+      fetch('/api/admin/responses').then((r) => r.json()),
+      fetch('/api/admin/questions').then((r) => r.json()),
+    ])
+      .then(([responseData, questionData]) => {
+        setResponses(Array.isArray(responseData) ? responseData : []);
+        if (Array.isArray(questionData)) {
+          const map: Record<string, any> = {};
+          const order: string[] = [];
+          for (const q of questionData) {
+            map[q.id] = q;
+            order.push(q.id);
+          }
+          setQuestionMap(map);
+          setQuestionOrder(order);
+        }
         setIsLoading(false);
       })
       .catch(() => setIsLoading(false));
@@ -592,6 +642,12 @@ function AnswersView() {
   }
 
   if (selected) {
+    const sortedAnswers = [...selected.answers].sort((a, b) => {
+      const ai = questionOrder.indexOf(a.questionId);
+      const bi = questionOrder.indexOf(b.questionId);
+      return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    });
+
     return (
       <div className='space-y-4'>
         <Button onClick={() => setSelected(null)} variant='outline'>
@@ -610,12 +666,17 @@ function AnswersView() {
           <CardContent>
             <ScrollArea className='h-[500px]'>
               <div className='space-y-3'>
-                {selected.answers.map((a: any) => (
-                  <div className='border rounded p-3' key={a.id}>
-                    <p className='text-xs text-muted-foreground mb-1'>Question ID: {a.questionId}</p>
-                    <pre className='text-sm whitespace-pre-wrap'>{JSON.stringify(a.value, null, 2)}</pre>
-                  </div>
-                ))}
+                {sortedAnswers.map((a: any) => {
+                  const q = questionMap[a.questionId];
+                  return (
+                    <div className='border rounded p-3' key={a.id}>
+                      <p className='text-sm font-medium mb-2'>
+                        {q ? q.text : <span className='text-muted-foreground'>Question ID: {a.questionId}</span>}
+                      </p>
+                      <ReadableAnswer answer={a} question={q} />
+                    </div>
+                  );
+                })}
                 {selected.answers.length === 0 && (
                   <p className='text-muted-foreground text-sm'>No answers recorded.</p>
                 )}
