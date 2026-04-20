@@ -1,11 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-import { allQuestions } from '@/lib/allQuestions';
 import { decrypt } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 
-export async function POST() {
+export async function GET() {
+  const count = await prisma.question.count();
+  return NextResponse.json({ count });
+}
+
+export async function POST(req: NextRequest) {
   const session = (await cookies()).get('session')?.value;
   const auth = await decrypt(session);
   if (!auth?.userId) {
@@ -20,14 +24,20 @@ export async function POST() {
     );
   }
 
+  const questions = await req.json();
+
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return NextResponse.json({ error: 'No questions provided' }, { status: 400 });
+  }
+
   let seeded = 0;
-  for (const q of allQuestions) {
+  for (const q of questions) {
     await prisma.question.create({
       data: {
         id: q.id,
         step: q.step,
         text: q.text,
-        type: q.type.toUpperCase() as 'TEXT' | 'RADIO' | 'MATRIX',
+        type: (q.type as string).toUpperCase() as 'TEXT' | 'RADIO' | 'MATRIX',
         options: {
           create: (q.options ?? []).map((value: string, idx: number) => ({
             value,
@@ -35,7 +45,7 @@ export async function POST() {
           })),
         },
         matrixRows: {
-          create: ((q as any).rows ?? []).map((label: string, idx: number) => ({
+          create: (q.rows ?? []).map((label: string, idx: number) => ({
             label,
             order: idx,
           })),
