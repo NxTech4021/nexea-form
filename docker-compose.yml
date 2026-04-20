@@ -1,20 +1,36 @@
-version: '3.8'
-
 services:
   nexea-form:
     build:
       context: ./nexea-form
       dockerfile: Dockerfile
+      args:
+        - DATABASE_URL=${DATABASE_URL}
+        - JWT_SECRET=${JWT_SECRET}
+        - BASE_URL=${BASE_URL}
+        - NEXT_PUBLIC_RESEND_API_KEY=${NEXT_PUBLIC_RESEND_API_KEY}
     container_name: nexea-form-app
     restart: unless-stopped
-    #env_file: "./nexea-form/.env"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+      - /app/.next/cache/images
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     environment:
       - NODE_ENV=production
-      - SPREADSHEET_ID=1lrcL9-7yUx95qKUY8IgpKrIQv4xDuil75qeQ-AvZW-k
-      - SHEET_TITLE=Allianz
-      - JWT_SECRET=A8jHyTuQBM3G6xpmuoFY5feIL0atq1vv476cocww3IM=
-      - EMAIL_FROM=nexeatech@gmail.com
-      - EMAIL_USER=nexeatech@gmail.com
-      - EMAIL_PASS=fmfv zmbw arsc aqeg
-      - BASE_URL=https://eba.nexea.co
-      - NEXT_PUBLIC_RESEND_API_KEY=re_bPtddfy7_9i67MmM3HtNt1NQGZg8HQwV7
+      - DATABASE_URL=${DATABASE_URL}
+      - SPREADSHEET_ID=${SPREADSHEET_ID}
+      - SHEET_TITLE=${SHEET_TITLE}
+      - JWT_SECRET=${JWT_SECRET}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - BASE_URL=${BASE_URL}
+      - NEXT_PUBLIC_RESEND_API_KEY=${NEXT_PUBLIC_RESEND_API_KEY}
+    ports:
+      - "3000:3000"
+    volumes:
+      - "/opt/eba-credentials.json:/etc/eba-credentials.json:ro"
