@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  nexea-form:
+    build:
+      context: ./nexea-form
+      dockerfile: Dockerfile
+    container_name: nexea-form-app
+    restart: unless-stopped
+    #env_file: "./nexea-form/.env"
+    environment:
+      - NODE_ENV=production
+      - SPREADSHEET_ID=1lrcL9-7yUx95qKUY8IgpKrIQv4xDuil75qeQ-AvZW-k
+      - SHEET_TITLE=Allianz
+      - JWT_SECRET=A8jHyTuQBM3G6xpmuoFY5feIL0atq1vv476cocww3IM=
+      - EMAIL_FROM=nexeatech@gmail.com
+      - EMAIL_USER=nexeatech@gmail.com
+      - EMAIL_PASS=fmfv zmbw arsc aqeg
+      - BASE_URL=https://eba.nexea.co
+      - NEXT_PUBLIC_RESEND_API_KEY=re_bPtddfy7_9i67MmM3HtNt1NQGZg8HQwV7

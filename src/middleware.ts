@@ -56,11 +56,13 @@
 // import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { verifySession } from '@/lib/verify-session';
+
 const protectedRoutes = ['/dashboard', '/admin', '/api/admin'];
 const publicApiRoutes = ['/api/admin/questions'];
 const authRoutes = ['/auth/login'];
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   if (path === '/begin-quiz') {
@@ -79,15 +81,16 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const session = req.cookies.get('session')?.value;
+  const sessionToken = req.cookies.get('session')?.value;
+  const session = await verifySession(sessionToken);
 
   const baseUrl = process.env.BASE_URL || `${req.nextUrl.protocol}//${req.nextUrl.host}`;
 
-  if (isProtectedRoute && !session) {
+  if (isProtectedRoute && !session?.userId) {
     return NextResponse.redirect(new URL('/auth/login', baseUrl));
   }
 
-  if (isAuthRoute && session) {
+  if (isAuthRoute && session?.userId) {
     return NextResponse.redirect(new URL('/admin', baseUrl));
   }
 

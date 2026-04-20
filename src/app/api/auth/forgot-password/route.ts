@@ -14,9 +14,7 @@ const ForgotPasswordSchema = z.object({
     }),
 });
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'super-secret-key',
-);
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function POST(request: NextRequest) {
   try {

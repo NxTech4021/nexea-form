@@ -2,9 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { jwtVerify } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'super-secret-key'
-);
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const prisma = new PrismaClient();
 

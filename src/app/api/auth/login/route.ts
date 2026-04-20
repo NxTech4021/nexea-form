@@ -3,10 +3,16 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
 import { SigninFormSchema } from '@/lib/definitions';
+import { rateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
 import { createSession } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'unknown';
+  if (!rateLimit(ip)) {
+    return NextResponse.json({ message: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const formData = await request.formData();
     
