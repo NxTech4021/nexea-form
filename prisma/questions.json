@@ -1,0 +1,39 @@
+[
+  {
+    "id": "q1",
+    "step": 1,
+    "text": "How do you typically approach a new business challenge?",
+    "type": "radio",
+    "options": [
+      { "value": "Analyse data before deciding", "order": 1 },
+      { "value": "Trust my instincts", "order": 2 },
+      { "value": "Consult with the team", "order": 3 },
+      { "value": "Research competitors first", "order": 4 }
+    ]
+  },
+  {
+    "id": "q2",
+    "step": 2,
+    "text": "Rate how accurately each statement describes you.",
+    "type": "matrix",
+    "rows": [
+      { "label": "I enjoy taking risks", "order": 1 },
+      { "label": "I prefer structured environments", "order": 2 },
+      { "label": "I adapt quickly to change", "order": 3 },
+      { "label": "I am driven by results", "order": 4 }
+    ],
+    "options": [
+      { "value": "Least Accurate", "order": 1 },
+      { "value": "Somewhat Accurate", "order": 2 },
+      { "value": "Quite Accurate", "order": 3 },
+      { "value": "Most Accurate", "order": 4 }
+    ]
+  },
+  {
+    "id": "q3",
+    "step": 3,
+    "text": "Describe your biggest entrepreneurial achievement so far.",
+    "type": "text",
+    "options": []
+  }
+]
