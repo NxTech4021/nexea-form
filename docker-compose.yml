@@ -34,3 +34,14 @@ services:
       - "3000:3000"
     volumes:
       - "/opt/eba-credentials.json:/etc/eba-credentials.json:ro"
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+networks:
+  app-network:
+    driver: bridge
