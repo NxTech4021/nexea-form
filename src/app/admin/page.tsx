@@ -64,6 +64,8 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 
+import { allQuestions } from '@/lib/allQuestions';
+
 import EmailListView from './components/email-list-view';
 
 export default function AdminPage() {
@@ -454,7 +456,11 @@ function FormEditor() {
   const handleSeedQuestions = async () => {
     setIsSeeding(true);
     try {
-      const res = await fetch('/api/admin/seed-questions', { method: 'POST' });
+      const res = await fetch('/api/admin/seed-questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(allQuestions),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast.success(`Seeded ${data.seeded} questions successfully`);
